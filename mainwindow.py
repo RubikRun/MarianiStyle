@@ -1,8 +1,15 @@
 # This Python file uses the following encoding: utf-8
 import sys
 
+from PySide6.QtCore import QTime
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QFont, QFontDatabase
+
+class Reservation:
+    def __init__(self, client, time_begin, time_end):
+        self.client = client
+        self.time_begin = time_begin
+        self.time_end = time_end
 
 class ScheduleWidget(QWidget):
     def __init__(self):
@@ -10,14 +17,18 @@ class ScheduleWidget(QWidget):
         self.items_count = 0
 
         # Example schedule
-        self.schedule = {"Иван": 12, "Пешо": 13, "Борис": 14,
-                      "Мишо": 14, "Георги": 15, "Станимир": 17,
-                      "Таня": 17, "Мария": 17, "Спас": 18}
+        self.schedule = {
+            12: [Reservation("Иван", QTime(12, 0), QTime(13, 0)), None, Reservation("Пешо", QTime(12, 30), QTime(13, 0))],
+            13: [Reservation("Борис", QTime(13, 50), QTime(14, 20)), None, Reservation("Пешо", QTime(13, 0), QTime(13, 45))],
+            14: [Reservation("Мишо", QTime(14, 0), QTime(15, 0)), Reservation("Станимир", QTime(14, 0), QTime(14, 40)), Reservation("Георги", QTime(14, 30), QTime(15, 30))],
+            15: [Reservation("Таня", QTime(15, 20), QTime(16, 0)), Reservation("Мария", QTime(15, 0), QTime(17, 0)), None],
+            16: [None, None, Reservation("Спас", QTime(16, 0), QTime(17, 0))]
+        }
 
         # Left
         self.table = QTableWidget()
-        self.table.setColumnCount(2)
-        self.table.setHorizontalHeaderLabels(["Клиент", "Час"])
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(["Клиент", "Час", "Клиент", "Час", "Клиент", "Час"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # Set styles for the table
         self.table.setStyleSheet("""
@@ -43,11 +54,18 @@ class ScheduleWidget(QWidget):
 
     def fill_table(self, schedule=None):
         schedule = self.schedule if not schedule else schedule
-        for client, hour in schedule.items():
+        vertical_header_labels = []
+        for hour, reservations in schedule.items():
             self.table.insertRow(self.items_count)
-            self.table.setItem(self.items_count, 0, QTableWidgetItem(client))
-            self.table.setItem(self.items_count, 1, QTableWidgetItem(str(hour)))
+            for idx_reservation, reservation in enumerate(reservations):
+                if reservation is None:
+                    continue
+                self.table.setItem(self.items_count, idx_reservation * 2 + 0, QTableWidgetItem(reservation.client))
+                time_str = reservation.time_begin.toString("HH:mm") + " - " + reservation.time_end.toString("HH:mm")
+                self.table.setItem(self.items_count, idx_reservation * 2 + 1, QTableWidgetItem(time_str))
             self.items_count += 1
+            vertical_header_labels.append(str(hour))
+        self.table.setVerticalHeaderLabels(vertical_header_labels)
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
