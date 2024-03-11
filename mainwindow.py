@@ -1,15 +1,10 @@
-# This Python file uses the following encoding: utf-8
 import sys
+
+from reservation import Reservation
 
 from PySide6.QtCore import QTime
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
-from PySide6.QtGui import QFont, QFontDatabase
-
-class Reservation:
-    def __init__(self, client, time_begin, time_end):
-        self.client = client
-        self.time_begin = time_begin
-        self.time_end = time_end
+from PySide6.QtGui import QFont
 
 class ScheduleWidget(QWidget):
     def __init__(self):
