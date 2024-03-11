@@ -1,5 +1,6 @@
 from reservation import Reservation
-from PySide6.QtCore import QTime
+from schedule import Schedule
+from PySide6.QtCore import QTime, QDate
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QFont
 
@@ -9,13 +10,8 @@ class ScheduleWidget(QWidget):
         self.items_count = 0
 
         # Example schedule
-        self.schedule = {
-            12: [Reservation("Иван", QTime(12, 0), QTime(13, 0)), None, Reservation("Пешо", QTime(12, 30), QTime(13, 0))],
-            13: [Reservation("Борис", QTime(13, 50), QTime(14, 20)), None, Reservation("Пешо", QTime(13, 0), QTime(13, 45))],
-            14: [Reservation("Мишо", QTime(14, 0), QTime(15, 0)), Reservation("Станимир", QTime(14, 0), QTime(14, 40)), Reservation("Георги", QTime(14, 30), QTime(15, 30))],
-            15: [Reservation("Таня", QTime(15, 20), QTime(16, 0)), Reservation("Мария", QTime(15, 0), QTime(17, 0)), None],
-            16: [None, None, Reservation("Спас", QTime(16, 0), QTime(17, 0))]
-        }
+        self.schedule = Schedule()
+        self.schedule.load_example_data()
 
         # Left
         self.table = QTableWidget()
@@ -47,7 +43,7 @@ class ScheduleWidget(QWidget):
     def fill_table(self, schedule=None):
         schedule = self.schedule if not schedule else schedule
         vertical_header_labels = []
-        for hour, reservations in schedule.items():
+        for hour, reservations in schedule.data[QDate(2024, 4, 9)].items():
             self.table.insertRow(self.items_count)
             for idx_reservation, reservation in enumerate(reservations):
                 if reservation is None:

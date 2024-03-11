@@ -3,6 +3,7 @@
         "mainwindow.py",
         "form.ui",
         "reservation.py",
-        "schedule_widget.py"
+        "schedule_widget.py",
+        "schedule.py"
     ]
 }
