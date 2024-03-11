@@ -1,63 +1,62 @@
 # This Python file uses the following encoding: utf-8
 import sys
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem
-from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
+from PySide6.QtGui import QFont, QFontDatabase
+
+class ScheduleWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.items_count = 0
+
+        # Example schedule
+        self.schedule = {"Иван": 12, "Пешо": 13, "Борис": 14,
+                      "Мишо": 14, "Георги": 15, "Станимир": 17,
+                      "Таня": 17, "Мария": 17, "Спас": 18}
+
+        # Left
+        self.table = QTableWidget()
+        self.table.setColumnCount(2)
+        self.table.setHorizontalHeaderLabels(["Клиент", "Час"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Set styles for the table
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background-color: #f0f0f0;
+                alternate-background-color: #e0e0e0;
+                selection-background-color: #a0a0a0;
+            }
+            QHeaderView::section {
+                background-color: #606060;
+                color: white;
+            }
+        """)
+        # Change the font of the table
+        self.table.setFont(QFont("Verdana", 12))
+
+        # QWidget Layout
+        self.layout = QHBoxLayout(self)
+        self.layout.addWidget(self.table)
+
+        # Fill example data
+        self.fill_table()
+
+    def fill_table(self, schedule=None):
+        schedule = self.schedule if not schedule else schedule
+        for client, hour in schedule.items():
+            self.table.insertRow(self.items_count)
+            self.table.setItem(self.items_count, 0, QTableWidgetItem(client))
+            self.table.setItem(self.items_count, 1, QTableWidgetItem(str(hour)))
+            self.items_count += 1
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("Qt Table Example")
-
-        self.central_widget = QWidget(self)
+        self.setWindowTitle("Мариани Стайл")
+        schedule_widget = ScheduleWidget()
+        self.central_widget = schedule_widget
         self.setCentralWidget(self.central_widget)
-
-        self.layout = QVBoxLayout(self.central_widget)
-
-        self.create_table()
-
-    def create_table(self):
-            # Create a QTableWidget instance
-            self.tableWidget = QTableWidget(self)
-
-            # Set the number of rows and columns
-            self.tableWidget.setRowCount(4)
-            self.tableWidget.setColumnCount(3)
-
-            # Set table headers
-            self.tableWidget.setHorizontalHeaderLabels(["Name", "Age", "Occupation"])
-
-            # Populate the table with data
-            data = [("John Doe", 30, "Engineer"),
-                    ("Jane Smith", 25, "Designer"),
-                    ("Bob Johnson", 40, "Manager"),
-                    ("Alice Brown", 35, "Developer")]
-
-            for row, rowData in enumerate(data):
-                for col, value in enumerate(rowData):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget.setItem(row, col, item)
-
-            # Set styles for the table
-            self.tableWidget.setStyleSheet("""
-                QTableWidget {
-                    background-color: #f0f0f0;
-                    alternate-background-color: #e0e0e0;
-                    selection-background-color: #a0a0a0;
-                }
-                QHeaderView::section {
-                    background-color: #606060;
-                    color: white;
-                }
-            """)
-
-            # Change the font of the table
-            font = QFont("Arial", 20)
-            self.tableWidget.setFont(font)
-
-            # Add the table to the main layout
-            self.layout.addWidget(self.tableWidget)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
