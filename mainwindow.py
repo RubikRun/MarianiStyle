@@ -2,13 +2,13 @@
 import sys
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem
+from PySide6.QtGui import QFont
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.setWindowTitle("Qt Table Example")
-        self.setGeometry(100, 100, 600, 400)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -39,12 +39,29 @@ class MainWindow(QMainWindow):
                     item = QTableWidgetItem(str(value))
                     self.tableWidget.setItem(row, col, item)
 
+            # Set styles for the table
+            self.tableWidget.setStyleSheet("""
+                QTableWidget {
+                    background-color: #f0f0f0;
+                    alternate-background-color: #e0e0e0;
+                    selection-background-color: #a0a0a0;
+                }
+                QHeaderView::section {
+                    background-color: #606060;
+                    color: white;
+                }
+            """)
+
+            # Change the font of the table
+            font = QFont("Arial", 20)
+            self.tableWidget.setFont(font)
+
             # Add the table to the main layout
             self.layout.addWidget(self.tableWidget)
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    widget = MainWindow()
-    widget.show()
+    window = MainWindow()
+    window.resize(900, 700)
+    window.show()
     sys.exit(app.exec())
