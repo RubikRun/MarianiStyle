@@ -15,10 +15,14 @@ class Schedule:
                 16: [None, None, Reservation("Спас", QTime(16, 0), QTime(17, 0))]
             },
             QDate(2024, 4, 9): {
-                12: [Reservation("Зорница", QTime(12, 10), QTime(13, 0)), None, None],
+                12: [Reservation("Зорница\nЗара", QTime(12, 10), QTime(13, 0)), None, None],
                 13: [Reservation("Иван", QTime(13, 20), QTime(14, 0)), None, Reservation("Милена", QTime(13, 0), QTime(13, 30))],
                 14: [None, Reservation("Станимир", QTime(14, 0), QTime(14, 40)), Reservation("Илия", QTime(14, 10), QTime(15, 30))],
                 15: [None, Reservation("Мария", QTime(15, 0), QTime(17, 0)), None],
                 16: [Reservation("Пешо", QTime(12, 30), QTime(13, 0)), None, Reservation("Лъчезар", QTime(16, 30), QTime(17, 0))]
             }
         }
+
+    def get_employees_count(self, date):
+        date_schedule = self.data[date]
+        return len(date_schedule[list(date_schedule.keys())[0]])
