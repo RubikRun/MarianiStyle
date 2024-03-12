@@ -23,10 +23,8 @@ class ScheduleWidget(QWidget):
             table = QTableWidget()
             table.setColumnCount(1)
             table.setHorizontalHeaderLabels(["Клиент"])
-            table.horizontalHeader().setStyleSheet("QHeaderView { font-size: " + str(self.font_size) + "pt; }")
             table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             # Set styles for the table
-            '''
             table.setStyleSheet("""
                 QTableWidget {
                     background-color: #f0f0f0;
@@ -36,11 +34,12 @@ class ScheduleWidget(QWidget):
                 QHeaderView::section {
                     background-color: #606060;
                     color: white;
+                    font-size: """ + str(self.font_size) + """pt;
                 }
             """)
-            '''
             # Change the font of the table
             table.setFont(QFont("Verdana", self.font_size))
+
             # add table to layout
             self.layout.addWidget(table)
             self.tables[employee] = table
