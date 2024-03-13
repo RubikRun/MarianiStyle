@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel, QPushButton
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel, QPushButton, QSizePolicy
 from PySide6.QtGui import QFont, QIcon
 
 schedule_font = QFont("Verdana", 14)
@@ -83,12 +83,16 @@ class ScheduleEmployeesWidget(QWidget):
             self.layout.addWidget(label)
 
 class ScheduleDateButtonsWidget(QWidget):
-    def __init__(self, left_callback, right_callback):
+    def __init__(self, date, left_callback, right_callback):
         super().__init__()
+        self.date = date
         self.left_callback = left_callback
         self.right_callback = right_callback
 
         self.layout = QHBoxLayout(self)
+
+        self.layout.setContentsMargins(500, 0, 500, 0)
+        self.layout.setSpacing(0)
 
         self.left_button = QPushButton()
         self.left_button.clicked.connect(self.left_pressed)
@@ -96,6 +100,12 @@ class ScheduleDateButtonsWidget(QWidget):
         self.left_button.setIconSize(QSize(40,40))
         self.left_button.setFixedWidth(100)
         self.layout.addWidget(self.left_button)
+
+        self.date_label = QLabel(self.date.toString("dd.MM.yyyy"))
+        self.date_label.setFont(schedule_font)
+        self.date_label.setFixedWidth(schedule_font.pointSize() * 10)
+        self.date_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.date_label)
 
         self.right_button = QPushButton()
         self.right_button.clicked.connect(self.right_pressed)
@@ -125,7 +135,7 @@ class ScheduleWidget(QWidget):
 
         self.employees_widget = ScheduleEmployeesWidget(self.employees)
         self.tables_widget = ScheduleTablesWidget(self.schedule.data[self.date], self.employees)
-        self.date_buttons_widget = ScheduleDateButtonsWidget(self.do_prev_date, self.do_next_date)
+        self.date_buttons_widget = ScheduleDateButtonsWidget(self.date, self.do_prev_date, self.do_next_date)
 
         if deleteOldLayout:
             # Create a temporary QWidget object and set its layout to be the current old layout.
