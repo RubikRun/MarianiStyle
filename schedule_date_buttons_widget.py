@@ -3,7 +3,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
 from PySide6.QtGui import QFont, QIcon
 
-schedule_font = QFont("Verdana", 14)
+schedule_font = QFont("Verdana", 12)
 
 class ScheduleDateButtonsWidget(QWidget):
     def __init__(self, date, left_callback, right_callback):

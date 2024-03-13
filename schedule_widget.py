@@ -4,7 +4,7 @@ from schedule_date_buttons_widget import ScheduleDateButtonsWidget
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 from PySide6.QtGui import QFont
 
-schedule_font = QFont("Verdana", 14)
+schedule_font = QFont("Verdana", 12)
 
 class ScheduleWidget(QWidget):
     def __init__(self, schedule, date):

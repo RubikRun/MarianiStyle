@@ -5,6 +5,8 @@
         "schedule_widget.py",
         "schedule.py",
         "schedule_tables_widget.py",
-        "schedule_date_buttons_widget.py"
+        "schedule_date_buttons_widget.py",
+        "reservation_form.py",
+        "home_widget.py"
     ]
 }

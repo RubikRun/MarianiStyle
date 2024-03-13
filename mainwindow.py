@@ -1,22 +1,15 @@
-from schedule_widget import ScheduleWidget
-from schedule import Schedule
-from PySide6.QtCore import QDate
+from home_widget import HomeWidget
 
 import sys
-from PySide6.QtWidgets import QMainWindow, QApplication
+from PySide6.QtWidgets import QMainWindow, QApplication, QVBoxLayout
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.setWindowTitle("Мариани Стайл")
-
-        self.schedule = Schedule()
-        self.schedule.load_example_data()
-        self.date = QDate(2024, 4, 9)
-
-        schedule_widget = ScheduleWidget(self.schedule, self.date)
-        self.setCentralWidget(schedule_widget)
+        home_widget = HomeWidget()
+        self.setCentralWidget(home_widget)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
