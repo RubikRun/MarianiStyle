@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
 from PySide6.QtGui import QFont
 
-schedule_font = QFont("Verdana", 14)
+schedule_font = QFont("Verdana", 12)
 
 class ScheduleTablesWidget(QWidget):
     def __init__(self, schedule, employees):
@@ -11,12 +11,16 @@ class ScheduleTablesWidget(QWidget):
         self.schedule = schedule
         self.employees = employees
 
-        self.font_size = 14
         self.tables_items_count = {}
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 10)
         self.layout.setSpacing(20)
+
+        self.create_tables()
+        self.fill_tables()
+
+    def create_tables(self):
         # Create tables
         self.tables = {}
         # Traverse employees
@@ -24,8 +28,8 @@ class ScheduleTablesWidget(QWidget):
             # Create a table for each employee
             table = QTableWidget()
             # Handle properties of rows and columns and their headers
-            table.setColumnCount(2)
-            table.setHorizontalHeaderLabels(["Час", "Клиент"])
+            table.setColumnCount(5)
+            table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "%", "Каса"])
             table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
             table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
             table.verticalHeader().hide()
@@ -50,18 +54,14 @@ class ScheduleTablesWidget(QWidget):
             self.tables[employee] = table
             self.tables_items_count[employee] = 0
 
-        # Fill tables with data
-        self.fill_tables()
-
-    def fill_tables(self, schedule=None):
-        schedule = self.schedule if not schedule else schedule
+    def fill_tables(self):
         # Traverse employees and their reservations for current date
-        for employee, reservations in schedule.items():
+        for employee, reservations in self.schedule.items():
             table = self.tables[employee]
             # Traverse current employee's reservations
             for time_interval, client in reservations.items():
                 table.insertRow(self.tables_items_count[employee])
-                time_str = time_interval.time_begin.toString("HH:mm") + " - " + time_interval.time_end.toString("HH:mm")
+                time_str = time_interval.time_begin.toString("HH:mm") + "-" + time_interval.time_end.toString("HH:mm")
                 table.setItem(self.tables_items_count[employee], 0, QTableWidgetItem(time_str))
                 client_widget_item = QTableWidgetItem(client)
                 client_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)

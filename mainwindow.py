@@ -21,6 +21,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.resize(1400, 600)
+    window.resize(1700, 800)
     window.show()
     sys.exit(app.exec())
