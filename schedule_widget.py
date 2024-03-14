@@ -7,16 +7,15 @@ from PySide6.QtGui import QFont
 schedule_font = QFont("Verdana", 12)
 
 class ScheduleWidget(QWidget):
-    def __init__(self, schedule, date):
+    def __init__(self, schedule, date, employees):
         super().__init__()
         self.schedule = schedule
         self.date = date
+        self.employees = employees
 
         self.create_ui()
 
     def create_ui(self, deleteOldLayout = False):
-        self.employees = self.schedule.get_employees(self.date)
-
         self.employees_widget = ScheduleEmployeesWidget(self.employees)
         self.tables_widget = ScheduleTablesWidget(self.schedule.data[self.date], self.employees)
         self.date_buttons_widget = ScheduleDateButtonsWidget(self.date, self.do_prev_date, self.do_next_date)

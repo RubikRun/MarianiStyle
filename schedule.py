@@ -1,17 +1,5 @@
 from PySide6.QtCore import QTime, QDate
-
-class TimeInterval:
-    def __init__(self, time_begin, time_end):
-        self.time_begin = time_begin
-        self.time_end = time_end
-
-    # Methods needed to make this class hashable, to be used for key in a dictionary
-    def __hash__(self):
-        return hash((self.time_begin, self.time_end))
-    def __eq__(self, other):
-        return (self.time_begin, self.time_end) == (other.time_begin, other.time_end)
-    def __ne__(self, other):
-        return not(self == other)
+from reservation import Reservation, TimeInterval
 
 class Schedule:
     def __init__(self):
@@ -20,39 +8,39 @@ class Schedule:
     def load_example_data(self):
         self.data = {
             QDate(2024, 4, 8): {
-                "Мариана": {
-                    TimeInterval(QTime(12, 0), QTime(13, 0)): "Иван",
-                    TimeInterval(QTime(13, 50), QTime(14, 20)): "Борис",
-                    TimeInterval(QTime(14, 0), QTime(15, 0)): "Мишо",
-                    TimeInterval(QTime(15, 20), QTime(16, 0)): "Таня"
-                },
-                "Мери": {
-                    TimeInterval(QTime(14, 0), QTime(14, 40)): "Станимир",
-                    TimeInterval(QTime(15, 0), QTime(17, 0)): "Мария",
-                },
-                "Валя": {
-                    TimeInterval(QTime(12, 30), QTime(13, 0)): "Пешо",
-                    TimeInterval(QTime(13, 0), QTime(13, 45)): "Георги",
-                    TimeInterval(QTime(14, 30), QTime(15, 30)): "Михаела",
-                }
+                "Мариана": [
+                    Reservation("Мариана", TimeInterval(QTime(12, 0), QTime(13, 0)), "Иван", "Масаж", 25, 0),
+                    Reservation("Мариана", TimeInterval(QTime(13, 50), QTime(14, 20)), "Борис", "Масаж", 15, 0),
+                    Reservation("Мариана", TimeInterval(QTime(14, 0), QTime(15, 0)), "Мишо", "Подстригване", 15, 75),
+                    Reservation("Мариана", TimeInterval(QTime(15, 20), QTime(16, 0)), "Таня", "Педикюр", 20, 0)
+                ],
+                "Мери": [
+                    Reservation("Мери", TimeInterval(QTime(14, 0), QTime(14, 40)), "Станимир", "Масаж", 25, 100),
+                    Reservation("Мери", TimeInterval(QTime(15, 0), QTime(17, 0)), "Мария", "Педикюр", 25, 0)
+                ],
+                "Валя": [
+                    Reservation("Валя", TimeInterval(QTime(12, 30), QTime(13, 0)), "Пешо", "Масаж", 25, 100),
+                    Reservation("Валя", TimeInterval(QTime(13, 0), QTime(13, 45)), "Георги", "Маникюр", 15, 0),
+                    Reservation("Валя", TimeInterval(QTime(14, 30), QTime(15, 30)), "Михаела", "Маникюр", 35, 0)
+                ]
             },
             QDate(2024, 4, 9): {
-                "Мариана": {
-                    TimeInterval(QTime(9, 0), QTime(10, 30)): "Петър",
-                    TimeInterval(QTime(16, 50), QTime(17, 20)): "Милена",
-                },
-                "Мери": {
-                    TimeInterval(QTime(10, 0), QTime(11, 00)): "Димитър",
-                    TimeInterval(QTime(11, 0), QTime(11, 30)): "Иван",
-                    TimeInterval(QTime(12, 30), QTime(13, 30)): "Станислава",
-                    TimeInterval(QTime(13, 30), QTime(15, 0)): "Петя",
-                },
-                "Валя": {
-                    TimeInterval(QTime(11, 30), QTime(13, 0)): "Мариана",
-                    TimeInterval(QTime(13, 40), QTime(14, 30)): "Георги",
-                    TimeInterval(QTime(15, 0), QTime(16, 0)): "Дара",
-                    TimeInterval(QTime(16, 30), QTime(18, 0)): "Дара",
-                }
+                "Мариана": [
+                    Reservation("Мариана", TimeInterval(QTime(9, 0), QTime(10, 30)), "Петър", "Масаж", 25, 0),
+                    Reservation("Мариана", TimeInterval(QTime(16, 50), QTime(17, 20)), "Милена", "Маникюр", 35, 130)
+                ],
+                "Мери": [
+                    Reservation("Мери", TimeInterval(QTime(10, 0), QTime(11, 00)), "Димитър", "Подстригване", 15, 0),
+                    Reservation("Мери", TimeInterval(QTime(11, 0), QTime(11, 30)), "Иван", "Масаж", 25, 75),
+                    Reservation("Мери", TimeInterval(QTime(12, 30), QTime(13, 30)), "Станислава", "Маникюр", 15, 0),
+                    Reservation("Мери", TimeInterval(QTime(13, 30), QTime(15, 0)), "Петя", "Педикюр", 25, 0)
+                ],
+                "Валя": [
+                    Reservation("Валя", TimeInterval(QTime(11, 30), QTime(13, 0)), "Мариана", "Масаж", 25, 0),
+                    Reservation("Валя", TimeInterval(QTime(13, 40), QTime(14, 30)), "Георги", "Масаж", 35, 100),
+                    Reservation("Валя", TimeInterval(QTime(15, 0), QTime(16, 0)), "Дара", "Маникюр", 15, 0),
+                    Reservation("Валя", TimeInterval(QTime(16, 30), QTime(18, 0)), "Дара", "Масаж", 35, 0)
+                ]
             },
         }
 

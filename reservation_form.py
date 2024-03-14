@@ -1,19 +1,26 @@
 # This Python file uses the following encoding: utf-8
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton
+from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox
 
 schedule_font = QFont("Verdana", 12)
 
 class ReservationForm(QWidget):
-    def __init__(self):
+    def __init__(self, reserve_callback, employees):
         super().__init__()
+        self.reserve_callback = reserve_callback
+        self.employees = employees
 
         self.layout = QGridLayout(self)
         self.setContentsMargins(0, 0, 1300, 0)
 
+        self.employee_cbox = QComboBox()
+        self.employee_cbox.addItems(self.employees)
+        self.employee_cbox.setFont(schedule_font)
+        self.layout.addWidget(self.employee_cbox, 0, 1)
+
         self.atrib_names = ["Време", "Клиент", "Процедура", "%", "Каса"]
-        self.atrib_positions = { "Време": [0, 0, 0, 1], "Клиент": [1, 0, 1, 1], "Процедура": [2, 0, 2, 1], "%": [3, 0, 3, 1], "Каса": [4, 0, 4, 1] }
+        self.atrib_positions = { "Време": [1, 0, 1, 1], "Клиент": [2, 0, 2, 1], "Процедура": [3, 0, 3, 1], "%": [4, 0, 4, 1], "Каса": [5, 0, 5, 1] }
         self.labels = {}
         self.line_edits = {}
         for atrib in self.atrib_names:
@@ -28,4 +35,9 @@ class ReservationForm(QWidget):
 
         self.reserve_button = QPushButton("Запази")
         self.reserve_button.setFont(schedule_font)
-        self.layout.addWidget(self.reserve_button, 5, 1)
+        self.reserve_button.clicked.connect(self.reserve_pressed)
+        self.layout.addWidget(self.reserve_button, 6, 1)
+
+    @Slot()
+    def reserve_pressed(self):
+        self.reserve_callback()

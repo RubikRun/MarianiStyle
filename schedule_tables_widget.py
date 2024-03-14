@@ -32,6 +32,9 @@ class ScheduleTablesWidget(QWidget):
             table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "%", "Каса"])
             table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
             table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+            table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+            table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+            table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
             table.verticalHeader().hide()
             # Set style sheet for the table
             table.setStyleSheet("""
@@ -59,13 +62,27 @@ class ScheduleTablesWidget(QWidget):
         for employee, reservations in self.schedule.items():
             table = self.tables[employee]
             # Traverse current employee's reservations
-            for time_interval, client in reservations.items():
+            for reservation in reservations:
                 table.insertRow(self.tables_items_count[employee])
-                time_str = time_interval.time_begin.toString("HH:mm") + "-" + time_interval.time_end.toString("HH:mm")
+                # Handle time interval
+                time_str = reservation.time_interval.time_begin.toString("HH:mm") + "-" + reservation.time_interval.time_end.toString("HH:mm")
                 table.setItem(self.tables_items_count[employee], 0, QTableWidgetItem(time_str))
-                client_widget_item = QTableWidgetItem(client)
+                # Handle client
+                client_widget_item = QTableWidgetItem(reservation.client)
                 client_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 table.setItem(self.tables_items_count[employee], 1, client_widget_item)
+                # Handle procedure
+                procedure_widget_item = QTableWidgetItem(reservation.procedure)
+                procedure_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                table.setItem(self.tables_items_count[employee], 2, procedure_widget_item)
+                # Handle percent
+                percent_widget_item = QTableWidgetItem(str(reservation.percent))
+                percent_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                table.setItem(self.tables_items_count[employee], 3, percent_widget_item)
+                # Handle kasa
+                kasa_widget_item = QTableWidgetItem(str(reservation.kasa))
+                kasa_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                table.setItem(self.tables_items_count[employee], 4, kasa_widget_item)
                 self.tables_items_count[employee] += 1
             table.setRowCount(self.tables_items_count[employee])
 

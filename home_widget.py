@@ -11,9 +11,10 @@ class HomeWidget(QWidget):
         self.schedule = Schedule()
         self.schedule.load_example_data()
         self.date = QDate(2024, 4, 9)
+        self.employees = self.schedule.get_employees(self.date)
 
-        schedule_widget = ScheduleWidget(self.schedule, self.date)
-        reservation_form = ReservationForm()
+        schedule_widget = ScheduleWidget(self.schedule, self.date, self.employees)
+        reservation_form = ReservationForm(None, self.employees)
 
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(schedule_widget)
