@@ -2,6 +2,7 @@
 # ----------------------------------------------------------------------------
 
 venv/*
+build/*
 
 *~
 *.autosave
@@ -68,9 +69,4 @@ CMakeLists.txt.user*
 
 # Python byte code
 *.pyc
-
-# Binaries
-# --------
-*.dll
-*.exe
 
