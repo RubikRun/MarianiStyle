@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+from logger import Logger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
 from PySide6.QtGui import QFont
@@ -64,7 +65,7 @@ class ScheduleTablesWidget(QWidget):
             # Traverse current employee's reservations
             for reservation in reservations:
                 if reservation.employee != employee:
-                    print("ERROR: Reservation's employee doesn't match the employee that the reservation is put under in the schedule. Ignoring that reservation.")
+                    Logger.log_error("Reservation's employee doesn't match the employee that the reservation is put under in the schedule. Ignoring that reservation.")
                     continue
                 table.insertRow(self.tables_items_count[employee])
                 # Handle time interval

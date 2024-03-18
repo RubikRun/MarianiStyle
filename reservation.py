@@ -24,8 +24,8 @@ class Reservation:
         self.percent = percent
         self.kasa = kasa
 
-    # Parses a reservation from a declaration string. Returns the reservation.
-    def parse(decl):
+    # Deserializes a reservation from a declaration string. Returns the reservation.
+    def deserialize(decl):
         if decl is None or decl == "":
             Logger.log_error("Reservation declaration is empty. Reservation will be skipped")
             return None
@@ -37,13 +37,13 @@ class Reservation:
         if employee == "":
             Logger.log_error("Employee part of a reservation is empty. Reservation will be skipped")
             return None
-        date = Reservation.parse_date_parts(decl_parts[1].strip(), decl_parts[2].strip(), decl_parts[3].strip())
+        date = Reservation.deserialize_date_parts(decl_parts[1].strip(), decl_parts[2].strip(), decl_parts[3].strip())
         if date is None:
             return None
-        time_begin = Reservation.parse_time(decl_parts[4].strip(), decl_parts[5].strip())
+        time_begin = Reservation.deserialize_time(decl_parts[4].strip(), decl_parts[5].strip())
         if time_begin is None:
             return None
-        time_end = Reservation.parse_time(decl_parts[6].strip(), decl_parts[7].strip())
+        time_end = Reservation.deserialize_time(decl_parts[6].strip(), decl_parts[7].strip())
         if time_end is None:
             return None
         client = decl_parts[8].strip()
@@ -70,14 +70,31 @@ class Reservation:
         reservation = Reservation(employee, date, TimeInterval(time_begin, time_end), client, procedure, percent, kasa)
         return reservation
 
-    def parse_date(s):
+    def serialize(self):
+        s = ""
+        s += self.employee + ";"
+        s += str(self.date.year()) + ";"
+        s += str(self.date.month()) + ";"
+        s += str(self.date.day()) + ";"
+        s += str(self.time_interval.time_begin.hour()) + ";"
+        s += str(self.time_interval.time_begin.minute()) + ";"
+        s += str(self.time_interval.time_end.hour()) + ";"
+        s += str(self.time_interval.time_end.minute()) + ";"
+        s += self.client + ";"
+        s += self.procedure + ";"
+        s += str(self.percent) + ";"
+        s += str(self.kasa)
+
+        return s
+
+    def deserialize_date(s):
         s_parts = s.split(";")
         if len(s_parts) != 3:
             Logger.log_error("Invalid date. Date should have exactly 3 parts")
             return None
-        return Reservation.parse_date_parts(s_parts[0].strip(), s_parts[1].strip(), s_parts[2].strip())
+        return Reservation.deserialize_date_parts(s_parts[0].strip(), s_parts[1].strip(), s_parts[2].strip())
 
-    def parse_date_parts(y_str, m_str, d_str):
+    def deserialize_date_parts(y_str, m_str, d_str):
         try:
             year = int(y_str)
         except ValueError:
@@ -95,7 +112,7 @@ class Reservation:
             return None
         return QDate(year, month, day)
 
-    def parse_time(h_str, m_str):
+    def deserialize_time(h_str, m_str):
         try:
             hour = int(h_str)
         except ValueError:

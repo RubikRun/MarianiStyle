@@ -8,8 +8,12 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
 
         self.setWindowTitle("Мариани Стайл")
-        home_widget = HomeWidget()
-        self.setCentralWidget(home_widget)
+        self.home_widget = HomeWidget()
+        self.setCentralWidget(self.home_widget)
+
+    def closeEvent(self, event):
+        self.home_widget.schedule.export("database/schedule.data")
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

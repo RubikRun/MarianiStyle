@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from reservation import Reservation, TimeInterval
+from logger import Logger
 from PySide6.QtCore import Qt, Slot, QTime
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox
@@ -13,25 +14,25 @@ def parse_time(str):
         if time_obj.isValid():
             return time_obj
         else:
-            print("ERROR: Invalid time format")
+            Logger.log_error("Invalid time format when making a reservation")
             return None
     except ValueError as e:
-        print("ERROR: Cannot parse time:", e)
+        Logger.log_error("Cannot parse time when making a reservation: {}".format(str(e)))
         return None
 
 # Returns a TimeInterval object parsing it from a string in format HH:mm-HH:mm
 def parse_time_interval(str):
     str_parts = str.split('-')
     if len(str_parts) != 2:
-        print("ERROR: Invalid TimeInterval string")
+        Logger.log_error("Invalid time interval when making a reservation")
         return None
     time_begin = parse_time(str_parts[0])
     if time_begin is None:
-        print("ERROR: Invalid beginning time of TimeInterval string")
+        Logger.log_error(" Invalid beginning time of time interval when making a reservation")
         return None
     time_end = parse_time(str_parts[1])
     if time_end is None:
-        print("ERROR: Invalid ending time of TimeInterval string")
+        Logger.log_error(" Invalid ending time of time interval when making a reservation")
         return None
     return TimeInterval(time_begin, time_end)
 

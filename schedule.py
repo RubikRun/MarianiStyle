@@ -21,8 +21,23 @@ class Schedule:
             if line.startswith('$'):
                 self.handle_variable_assignment(line)
                 continue
-            reservation = Reservation.parse(line)
+            reservation = Reservation.deserialize(line)
             self.add_reservation(reservation)
+
+    def export(self, filepath):
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export schedule to this file - {}".format(filepath))
+            return
+        if file is None:
+            Logger.log_error("Cannot open file to export schedule - {}".format(filepath))
+
+        file.write("$DEFAULT_DATE=" + str(self.default_date.year()) + ";" + str(self.default_date.month()) + ";" + str(self.default_date.day()) + "\n")
+        for date, day_schedule in self.data.items():
+            for employee, reservations in day_schedule.items():
+                for reservation in reservations:
+                    file.write(reservation.serialize() + "\n")
 
     def add_reservation(self, reservation):
         if reservation.date not in self.data:
@@ -51,4 +66,4 @@ class Schedule:
 
     def set_variable(self, var_name, var_value):
         if var_name == "DEFAULT_DATE":
-            self.default_date = Reservation.parse_date(var_value)
+            self.default_date = Reservation.deserialize_date(var_value)
