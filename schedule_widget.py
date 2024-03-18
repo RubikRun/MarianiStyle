@@ -7,10 +7,10 @@ from PySide6.QtGui import QFont
 schedule_font = QFont("Verdana", 12)
 
 class ScheduleWidget(QWidget):
-    def __init__(self, schedule, date, employees):
+    def __init__(self, schedule, employees):
         super().__init__()
         self.schedule = schedule
-        self.date = date
+        self.date = self.schedule.default_date
         self.employees = employees
 
         self.create_ui()

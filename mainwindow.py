@@ -1,7 +1,7 @@
 from home_widget import HomeWidget
 
 import sys
-from PySide6.QtWidgets import QMainWindow, QApplication, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QApplication
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):

@@ -1,51 +1,54 @@
-from PySide6.QtCore import QTime, QDate
-from reservation import Reservation, TimeInterval
+from PySide6.QtCore import QDate
+from reservation import Reservation
+from logger import Logger
 
 class Schedule:
     def __init__(self):
         self.data = {}
+        self.default_date = QDate(2000, 1, 1)
 
-    def load_example_data(self):
-        self.data = {
-            QDate(2024, 4, 8): {
-                "Мариана": [
-                    Reservation("Мариана", QDate(2024, 4, 8), TimeInterval(QTime(12, 0), QTime(13, 0)), "Иван", "Масаж", 25, 0),
-                    Reservation("Мариана", QDate(2024, 4, 8), TimeInterval(QTime(13, 50), QTime(14, 20)), "Борис", "Масаж", 15, 0),
-                    Reservation("Мариана", QDate(2024, 4, 8), TimeInterval(QTime(14, 0), QTime(15, 0)), "Мишо", "Подстригване", 15, 75),
-                    Reservation("Мариана", QDate(2024, 4, 8), TimeInterval(QTime(15, 20), QTime(16, 0)), "Таня", "Педикюр", 20, 0)
-                ],
-                "Мери": [
-                    Reservation("Мери", QDate(2024, 4, 8), TimeInterval(QTime(14, 0), QTime(14, 40)), "Станимир", "Масаж", 25, 100),
-                    Reservation("Мери", QDate(2024, 4, 8), TimeInterval(QTime(15, 0), QTime(17, 0)), "Мария", "Педикюр", 25, 0)
-                ],
-                "Валя": [
-                    Reservation("Валя", QDate(2024, 4, 8), TimeInterval(QTime(12, 30), QTime(13, 0)), "Пешо", "Масаж", 25, 100),
-                    Reservation("Валя", QDate(2024, 4, 8), TimeInterval(QTime(13, 0), QTime(13, 45)), "Георги", "Маникюр", 15, 0),
-                    Reservation("Валя", QDate(2024, 4, 8), TimeInterval(QTime(14, 30), QTime(15, 30)), "Михаела", "Маникюр", 35, 0)
-                ]
-            },
-            QDate(2024, 4, 9): {
-                "Мариана": [
-                    Reservation("Мариана", QDate(2024, 4, 9), TimeInterval(QTime(9, 0), QTime(10, 30)), "Петър", "Масаж", 25, 0),
-                    Reservation("Мариана", QDate(2024, 4, 9), TimeInterval(QTime(16, 50), QTime(17, 20)), "Милена", "Маникюр", 35, 130)
-                ],
-                "Мери": [
-                    Reservation("Мери", QDate(2024, 4, 9), TimeInterval(QTime(10, 0), QTime(11, 00)), "Димитър", "Подстригване", 15, 0),
-                    Reservation("Мери", QDate(2024, 4, 9), TimeInterval(QTime(11, 0), QTime(11, 30)), "Иван", "Масаж", 25, 75),
-                    Reservation("Мери", QDate(2024, 4, 9), TimeInterval(QTime(12, 30), QTime(13, 30)), "Станислава", "Маникюр", 15, 0),
-                    Reservation("Мери", QDate(2024, 4, 9), TimeInterval(QTime(13, 30), QTime(15, 0)), "Петя", "Педикюр", 25, 0)
-                ],
-                "Валя": [
-                    Reservation("Валя", QDate(2024, 4, 9), TimeInterval(QTime(11, 30), QTime(13, 0)), "Мариана", "Масаж", 25, 0),
-                    Reservation("Валя", QDate(2024, 4, 9), TimeInterval(QTime(13, 40), QTime(14, 30)), "Георги", "Масаж", 35, 100),
-                    Reservation("Валя", QDate(2024, 4, 9), TimeInterval(QTime(15, 0), QTime(16, 0)), "Дара", "Маникюр", 15, 0),
-                    Reservation("Валя", QDate(2024, 4, 9), TimeInterval(QTime(16, 30), QTime(18, 0)), "Дара", "Масаж", 35, 0)
-                ]
-            },
-        }
+    def load(self, filepath):
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested schedule file not found - {}".format(filepath))
+            return
+
+        for _, line in enumerate(file):
+            line = line.strip()
+            if line == "":
+                continue
+            if line.startswith('$'):
+                self.handle_variable_assignment(line)
+                continue
+            reservation = Reservation.parse(line)
+            self.add_reservation(reservation)
 
     def add_reservation(self, reservation):
+        if reservation.date not in self.data:
+            self.data[reservation.date] = {}
+        if reservation.employee not in self.data[reservation.date]:
+            self.data[reservation.date][reservation.employee] = []
         self.data[reservation.date][reservation.employee].append(reservation)
 
-    def get_employees(self, date):
+    def get_employees(self, date = None):
+        if date is None:
+            date = self.default_date
         return list(self.data[date].keys())
+
+    def handle_variable_assignment(self, assignment):
+        if not assignment.startswith('$'):
+            Logger.log_error("Trying to assign a variable, but variable assignment string doesn't begin with $")
+            return
+        assignment = assignment[1:]
+        assignment_parts = assignment.split('=')
+        if len(assignment_parts) != 2:
+            Logger.log_error("Trying to assign a variable, but variable assignment string should be of form $*=*")
+            return
+        var_name = assignment_parts[0].strip()
+        var_value = assignment_parts[1].strip()
+        self.set_variable(var_name, var_value)
+
+    def set_variable(self, var_name, var_value):
+        if var_name == "DEFAULT_DATE":
+            self.default_date = Reservation.parse_date(var_value)

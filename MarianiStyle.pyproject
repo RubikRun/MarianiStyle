@@ -8,6 +8,7 @@
         "schedule_date_buttons_widget.py",
         "reservation_form.py",
         "home_widget.py",
-        "reservation.py"
+        "reservation.py",
+        "logger.py"
     ]
 }
