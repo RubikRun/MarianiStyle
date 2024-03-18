@@ -1,14 +1,45 @@
 # This Python file uses the following encoding: utf-8
-from PySide6.QtCore import Qt, Slot
+from reservation import Reservation, TimeInterval
+from PySide6.QtCore import Qt, Slot, QTime
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox
 
 schedule_font = QFont("Verdana", 12)
 
+# Returns a QTime object parsing it from a string in format HH:mm
+def parse_time(str):
+    try:
+        time_obj = QTime.fromString(str, "HH:mm")
+        if time_obj.isValid():
+            return time_obj
+        else:
+            print("ERROR: Invalid time format")
+            return None
+    except ValueError as e:
+        print("ERROR: Cannot parse time:", e)
+        return None
+
+# Returns a TimeInterval object parsing it from a string in format HH:mm-HH:mm
+def parse_time_interval(str):
+    str_parts = str.split('-')
+    if len(str_parts) != 2:
+        print("ERROR: Invalid TimeInterval string")
+        return None
+    time_begin = parse_time(str_parts[0])
+    if time_begin is None:
+        print("ERROR: Invalid beginning time of TimeInterval string")
+        return None
+    time_end = parse_time(str_parts[1])
+    if time_end is None:
+        print("ERROR: Invalid ending time of TimeInterval string")
+        return None
+    return TimeInterval(time_begin, time_end)
+
 class ReservationForm(QWidget):
-    def __init__(self, reserve_callback, employees):
+    def __init__(self, employees, reserve_callback, get_date_callback):
         super().__init__()
         self.reserve_callback = reserve_callback
+        self.get_date_callback = get_date_callback
         self.employees = employees
 
         self.layout = QGridLayout(self)
@@ -40,4 +71,12 @@ class ReservationForm(QWidget):
 
     @Slot()
     def reserve_pressed(self):
-        self.reserve_callback()
+        employee = self.employee_cbox.currentText()
+        date = self.get_date_callback()
+        time_interval = parse_time_interval(self.line_edits["Време"].text())
+        client = self.line_edits["Клиент"].text()
+        procedure = self.line_edits["Процедура"].text()
+        percent = int(self.line_edits["%"].text())
+        kasa = int(self.line_edits["Каса"].text())
+        reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
+        self.reserve_callback(reservation)

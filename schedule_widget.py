@@ -40,3 +40,10 @@ class ScheduleWidget(QWidget):
     def do_prev_date(self):
         self.date = self.date.addDays(-1)
         self.create_ui(True)
+
+    def add_reservation(self, reservation):
+        self.schedule.add_reservation(reservation)
+        self.create_ui(True)
+
+    def get_date(self):
+        return self.date

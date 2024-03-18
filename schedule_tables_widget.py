@@ -63,6 +63,9 @@ class ScheduleTablesWidget(QWidget):
             table = self.tables[employee]
             # Traverse current employee's reservations
             for reservation in reservations:
+                if reservation.employee != employee:
+                    print("ERROR: Reservation's employee doesn't match the employee that the reservation is put under in the schedule. Ignoring that reservation.")
+                    continue
                 table.insertRow(self.tables_items_count[employee])
                 # Handle time interval
                 time_str = reservation.time_interval.time_begin.toString("HH:mm") + "-" + reservation.time_interval.time_end.toString("HH:mm")

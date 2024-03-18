@@ -12,8 +12,9 @@ class TimeInterval:
         return not(self == other)
 
 class Reservation:
-    def __init__(self, employee, time_interval, client, procedure, percent, kasa):
+    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa):
         self.employee = employee
+        self.date = date
         self.time_interval = time_interval
         self.client = client
         self.procedure = procedure
