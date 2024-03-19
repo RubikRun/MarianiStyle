@@ -1,6 +1,7 @@
 from schedule_widget import ScheduleWidget
 from schedule import Schedule
 from logger import Logger
+from client import Client
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
 
@@ -10,7 +11,7 @@ class HomeWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.load_clients("TODO")
+        self.load_clients("database/clients.data")
 
         self.schedule = Schedule()
         self.schedule.load("database/schedule.data")
@@ -26,8 +27,19 @@ class HomeWidget(QWidget):
         self.layout.addWidget(registration_form, 1, 1, 1, 1)
 
     def load_clients(self, filepath):
-        # TODO
         self.clients = []
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_warning("Requested clients file not found - {}. Loading of clients will be skipped".format(filepath))
+            return
+
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            client = Client.deserialize(line)
+            self.register_client(client)
 
     def export_clients(self, filepath):
         try:

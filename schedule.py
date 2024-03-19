@@ -14,7 +14,7 @@ class Schedule:
             Logger.log_error("Requested schedule file not found - {}".format(filepath))
             return
 
-        for _, line in enumerate(file):
+        for line in file:
             line = line.strip()
             if line == "":
                 continue
