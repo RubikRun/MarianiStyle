@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.home_widget.schedule.export("database/schedule.data")
-        self.home_widget.export_clients("TODO")
+        self.home_widget.export_clients("database/clients.data")
         event.accept()
 
 if __name__ == "__main__":

@@ -30,8 +30,16 @@ class HomeWidget(QWidget):
         self.clients = []
 
     def export_clients(self, filepath):
-        # TODO
-        pass
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export clients to this file - {}".format(filepath))
+            return
+        if file is None:
+            Logger.log_error("Cannot open file to export clients - {}".format(filepath))
+
+        for client in self.clients:
+            file.write(client.serialize() + "\n")
 
     def register_client(self, new_client):
         for client in self.clients:
