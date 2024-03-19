@@ -9,6 +9,8 @@
         "reservation_form.py",
         "home_widget.py",
         "reservation.py",
-        "logger.py"
+        "logger.py",
+        "registration_form.py",
+        "client.py"
     ]
 }
