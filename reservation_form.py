@@ -52,7 +52,15 @@ class ReservationForm(QWidget):
         employee = self.employee_cbox.currentText()
         date = self.get_date_callback()
         time_interval = parse_time_interval(self.line_edits["Време"].text().strip())
-        client = self.line_edits["Клиент"].text().strip()
+        client_name = self.line_edits["Клиент"].text().strip()
+        client_exists = False
+        for cl in self.clients:
+            if client_name == cl.name:
+                client = cl
+                client_exists = True
+        if not client_exists:
+            Logger.log_error("Reserving for a client that doesn't exist. First register the client.")
+            return
         procedure = self.line_edits["Процедура"].text().strip()
         percent = int(self.line_edits["%"].text().strip())
         kasa = int(self.line_edits["Каса"].text().strip())

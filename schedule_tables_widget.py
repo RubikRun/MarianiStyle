@@ -72,7 +72,7 @@ class ScheduleTablesWidget(QWidget):
                 time_str = reservation.time_interval.time_begin.toString("HH:mm") + "-" + reservation.time_interval.time_end.toString("HH:mm")
                 table.setItem(self.tables_items_count[employee], 0, QTableWidgetItem(time_str))
                 # Handle client
-                client_widget_item = QTableWidgetItem(reservation.client)
+                client_widget_item = QTableWidgetItem(reservation.client.name)
                 client_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 table.setItem(self.tables_items_count[employee], 1, client_widget_item)
                 # Handle procedure

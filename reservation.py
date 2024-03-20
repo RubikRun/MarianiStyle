@@ -25,7 +25,7 @@ class Reservation:
         self.kasa = kasa
 
     # Deserializes a reservation from a declaration string. Returns the reservation.
-    def deserialize(decl):
+    def deserialize(decl, clients):
         if decl is None or decl == "":
             Logger.log_error("Reservation declaration is empty. Reservation will be skipped")
             return None
@@ -46,9 +46,18 @@ class Reservation:
         time_end = Reservation.deserialize_time(decl_parts[6].strip(), decl_parts[7].strip())
         if time_end is None:
             return None
-        client = decl_parts[8].strip()
-        if client == "":
+        client_name = decl_parts[8].strip()
+        if client_name == "":
             Logger.log_error("Client part of a reservation is empty. Reservation will be skipped")
+            return None
+        client_exists = False
+        for cl in clients:
+            if client_name == cl.name:
+                client = cl
+                client_exists = True
+                break
+        if not client_exists:
+            Logger.log_error("Client in reservation does not exist. Reservation will be skipped")
             return None
         procedure = decl_parts[9].strip()
         if procedure == "":
@@ -80,7 +89,7 @@ class Reservation:
         s += str(self.time_interval.time_begin.minute()) + ";"
         s += str(self.time_interval.time_end.hour()) + ";"
         s += str(self.time_interval.time_end.minute()) + ";"
-        s += self.client + ";"
+        s += self.client.name + ";"
         s += self.procedure + ";"
         s += str(self.percent) + ";"
         s += str(self.kasa)

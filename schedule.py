@@ -3,9 +3,10 @@ from reservation import Reservation
 from logger import Logger
 
 class Schedule:
-    def __init__(self):
+    def __init__(self, clients):
         self.data = {}
         self.default_date = QDate(2000, 1, 1)
+        self.clients = clients
 
     def load(self, filepath):
         try:
@@ -21,7 +22,7 @@ class Schedule:
             if line.startswith('$'):
                 self.handle_variable_assignment(line)
                 continue
-            reservation = Reservation.deserialize(line)
+            reservation = Reservation.deserialize(line, self.clients)
             self.add_reservation(reservation)
 
     def export(self, filepath):

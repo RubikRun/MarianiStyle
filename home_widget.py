@@ -13,7 +13,7 @@ class HomeWidget(QWidget):
 
         self.load_clients("database/clients.data")
 
-        self.schedule = Schedule()
+        self.schedule = Schedule(self.clients)
         self.schedule.load("database/schedule.data")
         self.employees = self.schedule.get_employees()
 
