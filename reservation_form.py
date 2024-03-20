@@ -59,7 +59,12 @@ class ReservationForm(QWidget):
         reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
         self.reserve_callback(reservation)
 
-    def create_ui(self):
+    def create_ui(self, deleteOldLayout = False):
+        if deleteOldLayout:
+            # Create a temporary QWidget object and set its layout to be the current old layout.
+            # That way, the temporary object is immediately deleted and it deletes the layout and all of its children widgets
+            QWidget().setLayout(self.layout)
+            # After that we can just create a new layout
         self.layout = QGridLayout(self)
         self.setContentsMargins(0, 0, 0, 0)
 
@@ -103,8 +108,4 @@ class ReservationForm(QWidget):
 
     def update_clients(self, new_clients):
         self.clients = new_clients
-        clientsNames = [client.name for client in self.clients]
-        self.line_edits["Клиент"] = QLineEdit(self)
-        self.client_completer = QCompleter(clientsNames, self)
-        self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.line_edits["Клиент"].setCompleter(self.client_completer)
+        self.create_ui(True)
