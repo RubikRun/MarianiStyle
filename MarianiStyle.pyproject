@@ -1,16 +1,15 @@
 {
     "files": [
-        "mainwindow.py",
-        "form.ui",
-        "schedule_widget.py",
-        "schedule.py",
-        "schedule_tables_widget.py",
-        "schedule_date_buttons_widget.py",
-        "reservation_form.py",
+        "client.py",
         "home_widget.py",
-        "reservation.py",
         "logger.py",
+        "main_window.py",
         "registration_form.py",
-        "client.py"
+        "reservation.py",
+        "reservation_form.py",
+        "schedule.py",
+        "schedule_date_buttons_widget.py",
+        "schedule_tables_widget.py",
+        "schedule_widget.py"
     ]
 }

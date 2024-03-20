@@ -1,9 +1,9 @@
 # This Python file uses the following encoding: utf-8
 from reservation import Reservation, TimeInterval
 from logger import Logger
-from PySide6.QtCore import Qt, Slot, QTime
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox, QCompleter
+from PySide2.QtCore import Qt, Slot, QTime
+from PySide2.QtGui import QFont
+from PySide2.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox, QCompleter
 
 schedule_font = QFont("Verdana", 12)
 header_font = QFont("Verdana", 16, QFont.Bold)
@@ -104,7 +104,7 @@ class ReservationForm(QWidget):
     def update_clients(self, new_clients):
         self.clients = new_clients
         clientsNames = [client.name for client in self.clients]
-        self.line_edits[atrib] = QLineEdit(self)
+        self.line_edits["Клиент"] = QLineEdit(self)
         self.client_completer = QCompleter(clientsNames, self)
         self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.line_edits[atrib].setCompleter(self.client_completer)
+        self.line_edits["Клиент"].setCompleter(self.client_completer)

@@ -1,8 +1,8 @@
 # This Python file uses the following encoding: utf-8
 from logger import Logger
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
-from PySide6.QtGui import QFont
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
+from PySide2.QtGui import QFont
 
 schedule_font = QFont("Verdana", 12)
 

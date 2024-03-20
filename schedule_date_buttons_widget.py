@@ -1,7 +1,7 @@
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
-from PySide6.QtGui import QFont, QIcon
+from PySide2.QtCore import Qt, QSize
+from PySide2.QtCore import Slot
+from PySide2.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
+from PySide2.QtGui import QFont, QIcon
 
 schedule_font = QFont("Verdana", 12)
 

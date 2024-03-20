@@ -1,7 +1,7 @@
 from home_widget import HomeWidget
 
 import sys
-from PySide6.QtWidgets import QMainWindow, QApplication
+from PySide2.QtWidgets import QMainWindow, QApplication
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -21,4 +21,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.resize(1900, 800)
     window.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())

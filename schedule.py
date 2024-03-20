@@ -1,4 +1,4 @@
-from PySide6.QtCore import QDate
+from PySide2.QtCore import QDate
 from reservation import Reservation
 from logger import Logger
 

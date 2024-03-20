@@ -1,8 +1,8 @@
 from schedule_tables_widget import ScheduleTablesWidget, ScheduleEmployeesWidget
 from schedule_date_buttons_widget import ScheduleDateButtonsWidget
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from PySide6.QtGui import QFont
+from PySide2.QtWidgets import QWidget, QVBoxLayout
+from PySide2.QtGui import QFont
 
 schedule_font = QFont("Verdana", 12)
 

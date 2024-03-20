@@ -1,7 +1,7 @@
 from client import Client
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QFont
+from PySide2.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton
 
 schedule_font = QFont("Verdana", 12)
 header_font = QFont("Verdana", 16, QFont.Bold)

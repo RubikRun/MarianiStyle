@@ -1,5 +1,5 @@
 from logger import Logger
-from PySide6.QtCore import QDate, QTime
+from PySide2.QtCore import QDate, QTime
 
 class TimeInterval:
     def __init__(self, time_begin, time_end):

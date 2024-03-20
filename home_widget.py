@@ -5,7 +5,7 @@ from client import Client
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
 
-from PySide6.QtWidgets import QWidget, QGridLayout
+from PySide2.QtWidgets import QWidget, QGridLayout
 
 class HomeWidget(QWidget):
     def __init__(self):
