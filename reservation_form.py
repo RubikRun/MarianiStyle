@@ -3,7 +3,7 @@ from reservation import Reservation, TimeInterval
 from logger import Logger
 from PySide6.QtCore import Qt, Slot, QTime
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox
+from PySide6.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox, QCompleter
 
 schedule_font = QFont("Verdana", 12)
 header_font = QFont("Verdana", 16, QFont.Bold)
@@ -38,12 +38,28 @@ def parse_time_interval(str):
     return TimeInterval(time_begin, time_end)
 
 class ReservationForm(QWidget):
-    def __init__(self, employees, reserve_callback, get_date_callback):
+    def __init__(self, employees, clients, reserve_callback, get_date_callback):
         super().__init__()
+        self.employees = employees
+        self.clients = clients
         self.reserve_callback = reserve_callback
         self.get_date_callback = get_date_callback
-        self.employees = employees
 
+        self.create_ui()
+
+    @Slot()
+    def reserve_pressed(self):
+        employee = self.employee_cbox.currentText()
+        date = self.get_date_callback()
+        time_interval = parse_time_interval(self.line_edits["Време"].text().strip())
+        client = self.line_edits["Клиент"].text().strip()
+        procedure = self.line_edits["Процедура"].text().strip()
+        percent = int(self.line_edits["%"].text().strip())
+        kasa = int(self.line_edits["Каса"].text().strip())
+        reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
+        self.reserve_callback(reservation)
+
+    def create_ui(self):
         self.layout = QGridLayout(self)
         self.setContentsMargins(0, 0, 0, 0)
 
@@ -52,7 +68,7 @@ class ReservationForm(QWidget):
         self.reserve_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.reserve_label, 0, 0, 1, 2)
 
-        self.employee_cbox = QComboBox()
+        self.employee_cbox = QComboBox(self)
         self.employee_cbox.addItems(self.employees)
         self.employee_cbox.setFont(schedule_font)
         self.employee_cbox.setFixedSize(200, int(schedule_font.pointSize() * 2.5))
@@ -66,7 +82,14 @@ class ReservationForm(QWidget):
             self.labels[atrib] = QLabel(atrib)
             self.labels[atrib].setFont(schedule_font)
             self.labels[atrib].setAlignment(Qt.AlignmentFlag.AlignRight)
-            self.line_edits[atrib] = QLineEdit()
+            if atrib == "Клиент":
+                clientsNames = [client.name for client in self.clients]
+                self.line_edits[atrib] = QLineEdit(self)
+                self.client_completer = QCompleter(clientsNames, self)
+                self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
+                self.line_edits[atrib].setCompleter(self.client_completer)
+            else:
+                self.line_edits[atrib] = QLineEdit()
             self.line_edits[atrib].setFont(schedule_font)
             pos = self.atrib_positions[atrib]
             self.layout.addWidget(self.labels[atrib], pos[0], pos[1])
@@ -78,14 +101,10 @@ class ReservationForm(QWidget):
         self.reserve_button.clicked.connect(self.reserve_pressed)
         self.layout.addWidget(self.reserve_button, 7, 1)
 
-    @Slot()
-    def reserve_pressed(self):
-        employee = self.employee_cbox.currentText()
-        date = self.get_date_callback()
-        time_interval = parse_time_interval(self.line_edits["Време"].text().strip())
-        client = self.line_edits["Клиент"].text().strip()
-        procedure = self.line_edits["Процедура"].text().strip()
-        percent = int(self.line_edits["%"].text().strip())
-        kasa = int(self.line_edits["Каса"].text().strip())
-        reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
-        self.reserve_callback(reservation)
+    def update_clients(self, new_clients):
+        self.clients = new_clients
+        clientsNames = [client.name for client in self.clients]
+        self.line_edits[atrib] = QLineEdit(self)
+        self.client_completer = QCompleter(clientsNames, self)
+        self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.line_edits[atrib].setCompleter(self.client_completer)

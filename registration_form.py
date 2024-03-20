@@ -45,4 +45,4 @@ class RegistrationForm(QWidget):
         egn_cifri = self.line_edits["ЕГН цифри"].text().strip()
 
         client = Client(name, egn_cifri)
-        self.register_callback(client)
+        self.register_callback(client, do_update_reservation_form = True)
