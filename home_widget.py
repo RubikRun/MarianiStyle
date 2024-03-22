@@ -4,8 +4,13 @@ from logger import Logger
 from client import Client
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
+from settings_window import SettingsWindow
 
-from PySide2.QtWidgets import QWidget, QGridLayout
+from PySide2.QtGui import QFont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtWidgets import QWidget, QGridLayout, QPushButton
+
+schedule_font = QFont("Verdana", 12)
 
 class HomeWidget(QWidget):
     def __init__(self):
@@ -21,10 +26,26 @@ class HomeWidget(QWidget):
         self.reservation_form = ReservationForm(self.employees, self.clients, self.schedule_widget.add_reservation, self.schedule_widget.get_date)
         self.registration_form = RegistrationForm(self.register_client)
 
+        self.settings_button = QPushButton("Настройки")
+        self.settings_button.setFont(schedule_font)
+        self.settings_button.setFixedSize(150, 40)
+        self.settings_button.clicked.connect(self.open_settings_window)
+
+        self.settings_window = None
+
         self.layout = QGridLayout(self)
-        self.layout.addWidget(self.schedule_widget, 0, 0, 1, 2)
-        self.layout.addWidget(self.reservation_form, 1, 0, 1, 1)
-        self.layout.addWidget(self.registration_form, 1, 1, 1, 1)
+        self.layout.setContentsMargins(10, 0, 10, 0)
+        self.layout.addWidget(self.settings_button, 0, 1, 1, 1)
+        self.layout.setAlignment(self.settings_button, Qt.AlignRight)
+        self.layout.addWidget(self.schedule_widget, 1, 0, 1, 2)
+        self.layout.addWidget(self.reservation_form, 2, 0, 1, 1)
+        self.layout.addWidget(self.registration_form, 2, 1, 1, 1)
+
+    @Slot()
+    def open_settings_window(self):
+        if not self.settings_window:
+            self.settings_window = SettingsWindow()
+        self.settings_window.show()
 
     def load_clients(self, filepath):
         self.clients = []

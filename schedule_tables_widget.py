@@ -94,7 +94,7 @@ class ScheduleEmployeesWidget(QWidget):
     def __init__(self, employees):
         super().__init__()
         self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(10, 10, 10, 0)
+        self.layout.setContentsMargins(10, 0, 10, 0)
         self.layout.setSpacing(20)
         for employee in employees:
             label = QLabel(employee)

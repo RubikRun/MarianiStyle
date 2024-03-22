@@ -10,6 +10,7 @@
         "schedule.py",
         "schedule_date_buttons_widget.py",
         "schedule_tables_widget.py",
-        "schedule_widget.py"
+        "schedule_widget.py",
+        "settings_window.py"
     ]
 }
