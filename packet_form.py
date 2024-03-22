@@ -1,3 +1,5 @@
+from packet import Packet
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox
@@ -34,15 +36,15 @@ class PacketForm(QWidget):
         self.layout.addWidget(self.price_label, 2, 0)
         self.layout.addWidget(self.price_line_edit, 2, 1)
 
-        self.count_label = QLabel("Брой ползвания")
-        self.count_label.setFont(schedule_font)
-        self.count_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.count_cbox = QComboBox(self)
-        self.count_cbox.addItems([str(count) for count in range(2, 11)])
-        self.count_cbox.setFont(schedule_font)
-        self.count_cbox.setFixedSize(100, int(schedule_font.pointSize() * 2.3))
-        self.layout.addWidget(self.count_label, 3, 0)
-        self.layout.addWidget(self.count_cbox, 3, 1)
+        self.uses_label = QLabel("Брой ползвания")
+        self.uses_label.setFont(schedule_font)
+        self.uses_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.uses_cbox = QComboBox(self)
+        self.uses_cbox.addItems([str(count) for count in range(2, 11)])
+        self.uses_cbox.setFont(schedule_font)
+        self.uses_cbox.setFixedSize(100, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.uses_label, 3, 0)
+        self.layout.addWidget(self.uses_cbox, 3, 1)
 
         self.validity_label = QLabel("Месеци валидност")
         self.validity_label.setFont(schedule_font)
@@ -62,5 +64,10 @@ class PacketForm(QWidget):
 
     @Slot()
     def create_packet_pressed(self):
-        pass
-        #self.create_packet_callback(client)
+        name = self.name_line_edit.text().strip()
+        price = int(self.price_line_edit.text().strip())
+        uses = int(self.uses_cbox.currentText().strip())
+        validity = int(self.validity_cbox.currentText().strip())
+
+        packet = Packet(name, price, uses, validity)
+        self.create_packet_callback(packet)

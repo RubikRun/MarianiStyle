@@ -4,6 +4,7 @@
         "home_widget.py",
         "logger.py",
         "main_window.py",
+        "packet.py",
         "packet_form.py",
         "registration_form.py",
         "reservation.py",

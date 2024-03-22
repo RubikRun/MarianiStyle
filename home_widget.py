@@ -2,6 +2,7 @@ from schedule_widget import ScheduleWidget
 from schedule import Schedule
 from logger import Logger
 from client import Client
+from packet import Packet
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
 from settings_window import SettingsWindow
@@ -17,6 +18,7 @@ class HomeWidget(QWidget):
         super().__init__()
 
         self.load_clients("database/clients.data")
+        self.load_packets("database/packets.data")
 
         self.schedule = Schedule(self.clients)
         self.schedule.load("database/schedule.data")
@@ -44,7 +46,7 @@ class HomeWidget(QWidget):
     @Slot()
     def open_settings_window(self):
         if not self.settings_window:
-            self.settings_window = SettingsWindow()
+            self.settings_window = SettingsWindow(self, self.add_packet)
         self.settings_window.show()
 
     def load_clients(self, filepath):
@@ -73,6 +75,40 @@ class HomeWidget(QWidget):
 
         for client in self.clients:
             file.write(client.serialize() + "\n")
+
+    def load_packets(self, filepath):
+        self.packets = []
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_warning("Requested packets file not found - {}. Loading of packets will be skipped".format(filepath))
+            return
+
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            packet = Packet.deserialize(line)
+            self.add_packet(packet)
+
+    def export_packets(self, filepath):
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export packets to this file - {}".format(filepath))
+            return
+        if file is None:
+            Logger.log_error("Cannot open file to export packets - {}".format(filepath))
+
+        for packet in self.packets:
+            file.write(packet.serialize() + "\n")
+
+    def add_packet(self, new_packet):
+        for packet in self.packets:
+            if packet.name == new_packet.name:
+                Logger.log_warning("Trying to add a packet with existing name. It will be skipped")
+                return
+        self.packets.append(new_packet)
 
     def register_client(self, new_client, do_update_reservation_form = False):
         for client in self.clients:
