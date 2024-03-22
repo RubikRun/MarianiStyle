@@ -47,6 +47,16 @@ class Schedule:
             self.data[reservation.date][reservation.employee] = []
         self.data[reservation.date][reservation.employee].append(reservation)
 
+    # Returns the schedule for the requested date.
+    # A list with employees from the previous date should be provided
+    # in case the requested date doesn't exist in the schedule.
+    def get_for_date(self, date, prev_employees):
+        if date not in self.data:
+            self.data[date] = {}
+            for employee in prev_employees:
+                self.data[date][employee] = []
+        return self.data[date]
+
     def get_employees(self, date = None):
         if date is None:
             date = self.default_date

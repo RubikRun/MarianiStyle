@@ -17,7 +17,7 @@ class ScheduleWidget(QWidget):
 
     def create_ui(self, deleteOldLayout = False):
         self.employees_widget = ScheduleEmployeesWidget(self.employees)
-        self.tables_widget = ScheduleTablesWidget(self.schedule.data[self.date], self.employees)
+        self.tables_widget = ScheduleTablesWidget(self.schedule.get_for_date(self.date, self.employees), self.employees)
         self.date_buttons_widget = ScheduleDateButtonsWidget(self.date, self.do_prev_date, self.do_next_date)
 
         if deleteOldLayout:
