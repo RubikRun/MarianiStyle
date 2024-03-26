@@ -86,20 +86,78 @@ class ReservationForm(QWidget):
         employee = self.employee_cbox.currentText()
         date = self.get_date_callback()
         time_interval = self.time_interval_widget.get_time_interval()
-        client_name = self.line_edits["Клиент"].text().strip()
+        client_name = self.client_line_edit.text().strip()
         client_exists = False
         for cl in self.clients:
             if client_name == cl.name:
                 client = cl
                 client_exists = True
         if not client_exists:
-            Logger.log_error("Reserving for a client that doesn't exist. First register the client.")
+            Logger.log_error("Trying to reserve for a client that doesn't exist. First register the client.")
             return
-        procedure = self.line_edits["Процедура"].text().strip()
-        percent = int(self.line_edits["%"].text().strip())
-        kasa = int(self.line_edits["Каса"].text().strip())
-        reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
-        self.reserve_callback(reservation)
+
+        packet_mode_index = self.packet_mode_cbox.currentIndex()
+        if packet_mode_index == 0:
+            procedure = self.procedure_line_edit.text().strip()
+            percent = int(self.percent_line_edit.text().strip())
+            kasa = int(self.kasa_line_edit.text().strip())
+            reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
+            self.reserve_callback(reservation)
+
+    def delete_widgets(self, widgets):
+        for widget in widgets:
+            index = self.layout.indexOf(widget)
+            if index != -1:
+                widget.setParent(None)
+                widget.deleteLater()
+
+    def create_widgets_for_packet_mode(self):
+        packet_mode_index = self.packet_mode_cbox.currentIndex()
+
+        self.widgets_of_current_packet_mode = []
+
+        if packet_mode_index == 0:
+            self.procedure_label = QLabel("Процедура")
+            self.procedure_label.setFont(schedule_font)
+            self.procedure_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.procedure_line_edit = QLineEdit(self)
+            self.procedure_line_edit.setFont(schedule_font)
+            self.layout.addWidget(self.procedure_label, 5, 0)
+            self.layout.addWidget(self.procedure_line_edit, 5, 1)
+            self.widgets_of_current_packet_mode.append(self.procedure_label)
+            self.widgets_of_current_packet_mode.append(self.procedure_line_edit)
+
+            self.percent_label = QLabel("%")
+            self.percent_label.setFont(schedule_font)
+            self.percent_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.percent_line_edit = QLineEdit(self)
+            self.percent_line_edit.setFont(schedule_font)
+            self.layout.addWidget(self.percent_label, 6, 0)
+            self.layout.addWidget(self.percent_line_edit, 6, 1)
+            self.widgets_of_current_packet_mode.append(self.percent_label)
+            self.widgets_of_current_packet_mode.append(self.percent_line_edit)
+
+            self.kasa_label = QLabel("Каса")
+            self.kasa_label.setFont(schedule_font)
+            self.kasa_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.kasa_line_edit = QLineEdit(self)
+            self.kasa_line_edit.setFont(schedule_font)
+            self.layout.addWidget(self.kasa_label, 7, 0)
+            self.layout.addWidget(self.kasa_line_edit, 7, 1)
+            self.widgets_of_current_packet_mode.append(self.kasa_label)
+            self.widgets_of_current_packet_mode.append(self.kasa_line_edit)
+
+            self.reserve_button = QPushButton("Запази")
+            self.reserve_button.setFont(schedule_font)
+            self.reserve_button.setFixedSize(100, 40)
+            self.reserve_button.clicked.connect(self.reserve_pressed)
+            self.layout.addWidget(self.reserve_button, 8, 1)
+            self.widgets_of_current_packet_mode.append(self.reserve_button)
+
+    @Slot()
+    def packet_mode_changed(self):
+        self.delete_widgets(self.widgets_of_current_packet_mode)
+        self.create_widgets_for_packet_mode()
 
     def create_ui(self, deleteOldLayout = False):
         if deleteOldLayout:
@@ -118,7 +176,7 @@ class ReservationForm(QWidget):
         self.employee_cbox = QComboBox(self)
         self.employee_cbox.addItems(self.employees)
         self.employee_cbox.setFont(schedule_font)
-        self.employee_cbox.setFixedSize(200, int(schedule_font.pointSize() * 2.5))
+        self.employee_cbox.setFixedSize(100, int(schedule_font.pointSize() * 2.5))
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)
 
         self.time_label = QLabel("Време")
@@ -129,32 +187,26 @@ class ReservationForm(QWidget):
         self.layout.addWidget(self.time_label, 2, 0)
         self.layout.addWidget(self.time_interval_widget, 2, 1)
 
-        self.atrib_names = ["Клиент", "Процедура", "%", "Каса"]
-        atrib_positions = { "Клиент": [3, 0, 3, 1], "Процедура": [4, 0, 4, 1], "%": [5, 0, 5, 1], "Каса": [6, 0, 6, 1] }
-        self.labels = {}
-        self.line_edits = {}
-        for atrib in self.atrib_names:
-            self.labels[atrib] = QLabel(atrib)
-            self.labels[atrib].setFont(schedule_font)
-            self.labels[atrib].setAlignment(Qt.AlignmentFlag.AlignRight)
-            if atrib == "Клиент":
-                clientsNames = [client.name for client in self.clients]
-                self.line_edits[atrib] = QLineEdit(self)
-                self.client_completer = QCompleter(clientsNames, self)
-                self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
-                self.line_edits[atrib].setCompleter(self.client_completer)
-            else:
-                self.line_edits[atrib] = QLineEdit()
-            self.line_edits[atrib].setFont(schedule_font)
-            pos = atrib_positions[atrib]
-            self.layout.addWidget(self.labels[atrib], pos[0], pos[1])
-            self.layout.addWidget(self.line_edits[atrib], pos[2], pos[3])
+        self.client_label = QLabel("Клиент")
+        self.client_label.setFont(schedule_font)
+        self.client_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.client_line_edit = QLineEdit(self)
+        self.client_line_edit.setFont(schedule_font)
+        clientsNames = [client.name for client in self.clients]
+        self.client_completer = QCompleter(clientsNames, self)
+        self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.client_line_edit.setCompleter(self.client_completer)
+        self.layout.addWidget(self.client_label, 3, 0)
+        self.layout.addWidget(self.client_line_edit, 3, 1)
 
-        self.reserve_button = QPushButton("Запази")
-        self.reserve_button.setFont(schedule_font)
-        self.reserve_button.setFixedSize(100, 40)
-        self.reserve_button.clicked.connect(self.reserve_pressed)
-        self.layout.addWidget(self.reserve_button, 7, 1)
+        self.packet_mode_cbox = QComboBox(self)
+        self.packet_mode_cbox.addItems(["Без пакет", "Купуване на нов пакет", "Използване на пакет"])
+        self.packet_mode_cbox.setFont(schedule_font)
+        self.packet_mode_cbox.setFixedSize(250, int(schedule_font.pointSize() * 2.5))
+        self.packet_mode_cbox.currentIndexChanged.connect(self.packet_mode_changed)
+        self.layout.addWidget(self.packet_mode_cbox, 4, 0, 1, 2)
+
+        self.create_widgets_for_packet_mode()
 
     def update_clients(self, new_clients):
         self.clients = new_clients
