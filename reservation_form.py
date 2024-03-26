@@ -72,10 +72,11 @@ class TimeIntervalWidget(QWidget):
         return time_interval
 
 class ReservationForm(QWidget):
-    def __init__(self, employees, clients, reserve_callback, get_date_callback):
+    def __init__(self, employees, clients, packets, reserve_callback, get_date_callback):
         super().__init__()
         self.employees = employees
         self.clients = clients
+        self.packets = packets
         self.reserve_callback = reserve_callback
         self.get_date_callback = get_date_callback
 
@@ -99,8 +100,9 @@ class ReservationForm(QWidget):
         packet_mode_index = self.packet_mode_cbox.currentIndex()
         if packet_mode_index == 0:
             procedure = self.procedure_line_edit.text().strip()
-            percent = int(self.percent_line_edit.text().strip())
-            kasa = int(self.kasa_line_edit.text().strip())
+            price = int(self.price_line_edit.text().strip())
+            percent = price
+            kasa = price
             reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
             self.reserve_callback(reservation)
 
@@ -117,6 +119,16 @@ class ReservationForm(QWidget):
         self.widgets_of_current_packet_mode = []
 
         if packet_mode_index == 0:
+            self.time_label = QLabel("Време")
+            self.time_label.setFont(schedule_font)
+            self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.time_interval_widget = TimeIntervalWidget()
+            self.time_interval_widget.setFixedSize(290, int(schedule_font.pointSize() * 2.3))
+            self.layout.addWidget(self.time_label, 4, 0)
+            self.layout.addWidget(self.time_interval_widget, 4, 1)
+            self.widgets_of_current_packet_mode.append(self.time_label)
+            self.widgets_of_current_packet_mode.append(self.time_interval_widget)
+
             self.procedure_label = QLabel("Процедура")
             self.procedure_label.setFont(schedule_font)
             self.procedure_label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -127,31 +139,42 @@ class ReservationForm(QWidget):
             self.widgets_of_current_packet_mode.append(self.procedure_label)
             self.widgets_of_current_packet_mode.append(self.procedure_line_edit)
 
-            self.percent_label = QLabel("%")
-            self.percent_label.setFont(schedule_font)
-            self.percent_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-            self.percent_line_edit = QLineEdit(self)
-            self.percent_line_edit.setFont(schedule_font)
-            self.layout.addWidget(self.percent_label, 6, 0)
-            self.layout.addWidget(self.percent_line_edit, 6, 1)
-            self.widgets_of_current_packet_mode.append(self.percent_label)
-            self.widgets_of_current_packet_mode.append(self.percent_line_edit)
-
-            self.kasa_label = QLabel("Каса")
-            self.kasa_label.setFont(schedule_font)
-            self.kasa_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-            self.kasa_line_edit = QLineEdit(self)
-            self.kasa_line_edit.setFont(schedule_font)
-            self.layout.addWidget(self.kasa_label, 7, 0)
-            self.layout.addWidget(self.kasa_line_edit, 7, 1)
-            self.widgets_of_current_packet_mode.append(self.kasa_label)
-            self.widgets_of_current_packet_mode.append(self.kasa_line_edit)
+            self.price_label = QLabel("Цена")
+            self.price_label.setFont(schedule_font)
+            self.price_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.price_line_edit = QLineEdit(self)
+            self.price_line_edit.setFont(schedule_font)
+            self.layout.addWidget(self.price_label, 6, 0)
+            self.layout.addWidget(self.price_line_edit, 6, 1)
+            self.widgets_of_current_packet_mode.append(self.price_label)
+            self.widgets_of_current_packet_mode.append(self.price_line_edit)
 
             self.reserve_button = QPushButton("Запази")
             self.reserve_button.setFont(schedule_font)
             self.reserve_button.setFixedSize(100, 40)
             self.reserve_button.clicked.connect(self.reserve_pressed)
-            self.layout.addWidget(self.reserve_button, 8, 1)
+            self.layout.addWidget(self.reserve_button, 7, 1)
+            self.widgets_of_current_packet_mode.append(self.reserve_button)
+        elif packet_mode_index == 1:
+            pass
+        else:
+            self.packet_label = QLabel("Пакет")
+            self.packet_label.setFont(schedule_font)
+            self.packet_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.packet_cbox = QComboBox(self)
+            self.packet_cbox.addItems([packet.name + " (" + str(packet.price) + "лв.)" for packet in self.packets])
+            self.packet_cbox.setFont(schedule_font)
+            self.packet_cbox.setFixedSize(200, int(schedule_font.pointSize() * 2.5))
+            self.layout.addWidget(self.packet_label, 4, 0)
+            self.layout.addWidget(self.packet_cbox, 4, 1)
+            self.widgets_of_current_packet_mode.append(self.packet_label)
+            self.widgets_of_current_packet_mode.append(self.packet_cbox)
+
+            self.reserve_button = QPushButton("Купи")
+            self.reserve_button.setFont(schedule_font)
+            self.reserve_button.setFixedSize(100, 40)
+            self.reserve_button.clicked.connect(self.reserve_pressed)
+            self.layout.addWidget(self.reserve_button, 7, 1)
             self.widgets_of_current_packet_mode.append(self.reserve_button)
 
     @Slot()
@@ -179,14 +202,6 @@ class ReservationForm(QWidget):
         self.employee_cbox.setFixedSize(100, int(schedule_font.pointSize() * 2.5))
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)
 
-        self.time_label = QLabel("Време")
-        self.time_label.setFont(schedule_font)
-        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.time_interval_widget = TimeIntervalWidget()
-        self.time_interval_widget.setFixedSize(290, int(schedule_font.pointSize() * 2.3))
-        self.layout.addWidget(self.time_label, 2, 0)
-        self.layout.addWidget(self.time_interval_widget, 2, 1)
-
         self.client_label = QLabel("Клиент")
         self.client_label.setFont(schedule_font)
         self.client_label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -196,15 +211,15 @@ class ReservationForm(QWidget):
         self.client_completer = QCompleter(clientsNames, self)
         self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.client_line_edit.setCompleter(self.client_completer)
-        self.layout.addWidget(self.client_label, 3, 0)
-        self.layout.addWidget(self.client_line_edit, 3, 1)
+        self.layout.addWidget(self.client_label, 2, 0)
+        self.layout.addWidget(self.client_line_edit, 2, 1)
 
         self.packet_mode_cbox = QComboBox(self)
-        self.packet_mode_cbox.addItems(["Без пакет", "Купуване на нов пакет", "Използване на пакет"])
+        self.packet_mode_cbox.addItems(["Без пакет", "С пакет", "Купуване на пакет"])
         self.packet_mode_cbox.setFont(schedule_font)
         self.packet_mode_cbox.setFixedSize(250, int(schedule_font.pointSize() * 2.5))
         self.packet_mode_cbox.currentIndexChanged.connect(self.packet_mode_changed)
-        self.layout.addWidget(self.packet_mode_cbox, 4, 0, 1, 2)
+        self.layout.addWidget(self.packet_mode_cbox, 3, 0, 1, 2)
 
         self.create_widgets_for_packet_mode()
 

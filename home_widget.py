@@ -25,7 +25,7 @@ class HomeWidget(QWidget):
         self.employees = self.schedule.get_employees()
 
         self.schedule_widget = ScheduleWidget(self.schedule)
-        self.reservation_form = ReservationForm(self.employees, self.clients, self.schedule_widget.add_reservation, self.schedule_widget.get_date)
+        self.reservation_form = ReservationForm(self.employees, self.clients, self.packets, self.schedule_widget.add_reservation, self.schedule_widget.get_date)
         self.registration_form = RegistrationForm(self.register_client)
 
         self.settings_button = QPushButton("Настройки")
