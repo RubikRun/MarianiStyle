@@ -3,39 +3,73 @@ from reservation import Reservation, TimeInterval
 from logger import Logger
 from PySide2.QtCore import Qt, Slot, QTime
 from PySide2.QtGui import QFont
-from PySide2.QtWidgets import QWidget, QLineEdit, QGridLayout, QLabel, QPushButton, QComboBox, QCompleter
+from PySide2.QtWidgets import QWidget, QLineEdit, QGridLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QCompleter
 
 schedule_font = QFont("Verdana", 12)
 header_font = QFont("Verdana", 16, QFont.Bold)
 
-# Returns a QTime object parsing it from a string in format HH:mm
-def parse_time(str):
-    try:
-        time_obj = QTime.fromString(str, "HH:mm")
-        if time_obj.isValid():
-            return time_obj
-        else:
-            Logger.log_error("Invalid time format when making a reservation")
-            return None
-    except ValueError as e:
-        Logger.log_error("Cannot parse time when making a reservation: {}".format(str(e)))
-        return None
+class TimeIntervalWidget(QWidget):
+    def __init__(self):
+        super().__init__()
 
-# Returns a TimeInterval object parsing it from a string in format HH:mm-HH:mm
-def parse_time_interval(str):
-    str_parts = str.split('-')
-    if len(str_parts) != 2:
-        Logger.log_error("Invalid time interval when making a reservation")
-        return None
-    time_begin = parse_time(str_parts[0])
-    if time_begin is None:
-        Logger.log_error("Invalid beginning time of time interval when making a reservation")
-        return None
-    time_end = parse_time(str_parts[1])
-    if time_end is None:
-        Logger.log_error("Invalid ending time of time interval when making a reservation")
-        return None
-    return TimeInterval(time_begin, time_end)
+        self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+        self.begin_hour_cbox = QComboBox(self)
+        self.begin_hour_cbox.addItems(["{:02d}".format(hour) for hour in range(7, 22)])
+        self.begin_hour_cbox.setCurrentIndex(2)
+        self.begin_hour_cbox.setFont(schedule_font)
+        self.begin_hour_cbox.setFixedSize(50, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.begin_hour_cbox)
+
+        self.begin_colon_label = QLabel(" : ")
+        self.begin_colon_label.setFont(schedule_font)
+        #self.begin_colon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.begin_colon_label)
+
+        self.begin_minute_cbox = QComboBox(self)
+        self.begin_minute_cbox.addItems(["{:02d}".format(minute) for minute in range(0, 65, 5)])
+        self.begin_minute_cbox.setFont(schedule_font)
+        self.begin_minute_cbox.setFixedSize(50, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.begin_minute_cbox)
+
+        self.dash_label = QLabel("    -    ")
+        self.dash_label.setFont(schedule_font)
+        #self.dash_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.dash_label)
+
+        self.end_hour_cbox = QComboBox(self)
+        self.end_hour_cbox.addItems(["{:02d}".format(hour) for hour in range(7, 22)])
+        self.end_hour_cbox.setCurrentIndex(3)
+        self.end_hour_cbox.setFont(schedule_font)
+        self.end_hour_cbox.setFixedSize(50, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.end_hour_cbox)
+
+        self.end_colon_label = QLabel(" : ")
+        self.end_colon_label.setFont(schedule_font)
+        #self.end_colon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.end_colon_label)
+
+        self.end_minute_cbox = QComboBox(self)
+        self.end_minute_cbox.addItems(["{:02d}".format(minute) for minute in range(0, 65, 5)])
+        self.end_minute_cbox.setFont(schedule_font)
+        self.end_minute_cbox.setFixedSize(50, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.end_minute_cbox)
+
+        self.setLayout(self.layout)
+
+    def get_time_interval(self):
+        time_begin = QTime(
+            int(self.begin_hour_cbox.currentText()),
+            int(self.begin_minute_cbox.currentText())
+        )
+        time_end = QTime(
+            int(self.end_hour_cbox.currentText()),
+            int(self.end_minute_cbox.currentText())
+        )
+        time_interval = TimeInterval(time_begin, time_end)
+        return time_interval
 
 class ReservationForm(QWidget):
     def __init__(self, employees, clients, reserve_callback, get_date_callback):
@@ -51,7 +85,7 @@ class ReservationForm(QWidget):
     def reserve_pressed(self):
         employee = self.employee_cbox.currentText()
         date = self.get_date_callback()
-        time_interval = parse_time_interval(self.line_edits["Време"].text().strip())
+        time_interval = self.time_interval_widget.get_time_interval()
         client_name = self.line_edits["Клиент"].text().strip()
         client_exists = False
         for cl in self.clients:
@@ -74,7 +108,7 @@ class ReservationForm(QWidget):
             QWidget().setLayout(self.layout)
             # After that we can just create a new layout
         self.layout = QGridLayout(self)
-        self.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(10, 10, 10, 10)
 
         self.reserve_label = QLabel("Запазване на час")
         self.reserve_label.setFont(header_font)
@@ -87,8 +121,16 @@ class ReservationForm(QWidget):
         self.employee_cbox.setFixedSize(200, int(schedule_font.pointSize() * 2.5))
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)
 
-        self.atrib_names = ["Време", "Клиент", "Процедура", "%", "Каса"]
-        self.atrib_positions = { "Време": [2, 0, 2, 1], "Клиент": [3, 0, 3, 1], "Процедура": [4, 0, 4, 1], "%": [5, 0, 5, 1], "Каса": [6, 0, 6, 1] }
+        self.time_label = QLabel("Време")
+        self.time_label.setFont(schedule_font)
+        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.time_interval_widget = TimeIntervalWidget()
+        self.time_interval_widget.setFixedSize(290, int(schedule_font.pointSize() * 2.3))
+        self.layout.addWidget(self.time_label, 2, 0)
+        self.layout.addWidget(self.time_interval_widget, 2, 1)
+
+        self.atrib_names = ["Клиент", "Процедура", "%", "Каса"]
+        atrib_positions = { "Клиент": [3, 0, 3, 1], "Процедура": [4, 0, 4, 1], "%": [5, 0, 5, 1], "Каса": [6, 0, 6, 1] }
         self.labels = {}
         self.line_edits = {}
         for atrib in self.atrib_names:
@@ -104,7 +146,7 @@ class ReservationForm(QWidget):
             else:
                 self.line_edits[atrib] = QLineEdit()
             self.line_edits[atrib].setFont(schedule_font)
-            pos = self.atrib_positions[atrib]
+            pos = atrib_positions[atrib]
             self.layout.addWidget(self.labels[atrib], pos[0], pos[1])
             self.layout.addWidget(self.line_edits[atrib], pos[2], pos[3])
 
