@@ -5,7 +5,7 @@ from client import Client
 from packet import Packet
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
-from settings_window import SettingsWindow
+from packets_window import PacketsWindow
 
 from PySide2.QtGui import QFont
 from PySide2.QtCore import Qt, Slot
@@ -28,25 +28,25 @@ class HomeWidget(QWidget):
         self.reservation_form = ReservationForm(self.employees, self.clients, self.packets, self.schedule_widget.add_reservation, self.schedule_widget.get_date)
         self.registration_form = RegistrationForm(self.register_client)
 
-        self.settings_button = QPushButton("Настройки")
-        self.settings_button.setFont(schedule_font)
-        self.settings_button.setFixedSize(150, 40)
-        self.settings_button.clicked.connect(self.open_settings_window)
+        self.packets_button = QPushButton("Пакети")
+        self.packets_button.setFont(schedule_font)
+        self.packets_button.setFixedSize(150, 40)
+        self.packets_button.clicked.connect(self.open_packets_window)
 
-        self.settings_window = None
+        self.packets_window = None
 
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 0)
-        self.layout.addWidget(self.settings_button, 0, 1, 1, 1)
-        self.layout.setAlignment(self.settings_button, Qt.AlignRight)
+        self.layout.addWidget(self.packets_button, 0, 1, 1, 1)
+        self.layout.setAlignment(self.packets_button, Qt.AlignRight)
         self.layout.addWidget(self.schedule_widget, 1, 0, 1, 2)
         self.layout.addWidget(self.reservation_form, 2, 0, 1, 1)
         self.layout.addWidget(self.registration_form, 2, 1, 1, 1)
 
     @Slot()
-    def open_settings_window(self):
-        self.settings_window = SettingsWindow(self, self.packets, self.add_packet)
-        self.settings_window.show()
+    def open_packets_window(self):
+        self.packets_window = PacketsWindow(self, self.packets, self.add_packet)
+        self.packets_window.show()
 
     def load_clients(self, filepath):
         self.clients = []
@@ -102,18 +102,18 @@ class HomeWidget(QWidget):
         for packet in self.packets:
             file.write(packet.serialize() + "\n")
 
-    def add_packet(self, new_packet, should_update_settings_ui = False):
+    def add_packet(self, new_packet, should_update_packets_ui = False):
         for packet in self.packets:
             if packet.name == new_packet.name:
                 Logger.log_warning("Trying to add a packet with existing name. It will be skipped")
                 return
         self.packets.append(new_packet)
 
-        if should_update_settings_ui:
-            if self.settings_window:
-                self.settings_window.create_ui(True, self.packets)
+        if should_update_packets_ui:
+            if self.packets_window:
+                self.packets_window.create_ui(True, self.packets)
             else:
-                Logger.log_error("Adding a packet and setting's UI needs to be updated but there is no settings window. It won't be updated")
+                Logger.log_error("Adding a packet and packets's UI needs to be updated but there is no packets window. It won't be updated")
 
     def register_client(self, new_client, do_update_reservation_form = False):
         for client in self.clients:

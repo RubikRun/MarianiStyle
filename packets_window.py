@@ -6,13 +6,13 @@ from packets_table_widget import PacketsTableWidget
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
-class SettingsWindow(QDialog):
+class PacketsWindow(QDialog):
     def __init__(self, parent, packets, add_packet_callback):
         super().__init__(parent)
         self.packets = packets
         self.add_packet_callback = add_packet_callback
 
-        self.setWindowTitle("Настройки")
+        self.setWindowTitle("Пакети")
         self.setGeometry(200, 200, 800, 800)
 
         self.create_ui()
