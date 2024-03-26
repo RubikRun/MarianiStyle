@@ -45,8 +45,7 @@ class HomeWidget(QWidget):
 
     @Slot()
     def open_settings_window(self):
-        if not self.settings_window:
-            self.settings_window = SettingsWindow(self, self.add_packet)
+        self.settings_window = SettingsWindow(self, self.packets, self.add_packet)
         self.settings_window.show()
 
     def load_clients(self, filepath):
@@ -103,12 +102,18 @@ class HomeWidget(QWidget):
         for packet in self.packets:
             file.write(packet.serialize() + "\n")
 
-    def add_packet(self, new_packet):
+    def add_packet(self, new_packet, should_update_settings_ui = False):
         for packet in self.packets:
             if packet.name == new_packet.name:
                 Logger.log_warning("Trying to add a packet with existing name. It will be skipped")
                 return
         self.packets.append(new_packet)
+
+        if should_update_settings_ui:
+            if self.settings_window:
+                self.settings_window.create_ui(True, self.packets)
+            else:
+                Logger.log_error("Adding a packet and setting's UI needs to be updated but there is no settings window. It won't be updated")
 
     def register_client(self, new_client, do_update_reservation_form = False):
         for client in self.clients:

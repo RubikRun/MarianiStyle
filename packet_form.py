@@ -8,9 +8,9 @@ schedule_font = QFont("Verdana", 12)
 header_font = QFont("Verdana", 16, QFont.Bold)
 
 class PacketForm(QWidget):
-    def __init__(self, create_packet_callback):
+    def __init__(self, add_packet_callback):
         super().__init__()
-        self.create_packet_callback = create_packet_callback
+        self.add_packet_callback = add_packet_callback
 
         self.layout = QGridLayout(self)
         self.setContentsMargins(0, 0, 0, 0)
@@ -70,4 +70,4 @@ class PacketForm(QWidget):
         validity = int(self.validity_cbox.currentText().strip())
 
         packet = Packet(name, price, uses, validity)
-        self.create_packet_callback(packet)
+        self.add_packet_callback(packet, True)

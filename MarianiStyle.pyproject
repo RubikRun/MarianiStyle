@@ -6,6 +6,7 @@
         "main_window.py",
         "packet.py",
         "packet_form.py",
+        "packets_table_widget.py",
         "registration_form.py",
         "reservation.py",
         "reservation_form.py",
