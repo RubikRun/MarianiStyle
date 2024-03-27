@@ -25,7 +25,7 @@ class HomeWidget(QWidget):
         self.employees = self.schedule.get_employees()
 
         self.schedule_widget = ScheduleWidget(self.schedule)
-        self.reservation_form = ReservationForm(self.employees, self.clients, self.packets, self.schedule_widget.add_reservation, self.schedule_widget.get_date)
+        self.reservation_form = ReservationForm(self.employees, self.clients, self.packets, self.schedule_widget.add_reservation, self.buy_packet, self.schedule_widget.get_date)
         self.registration_form = RegistrationForm(self.register_client)
 
         self.packets_button = QPushButton("Пакети")
@@ -123,3 +123,7 @@ class HomeWidget(QWidget):
         self.clients.append(new_client)
         if do_update_reservation_form:
             self.reservation_form.update_clients(self.clients)
+
+    def buy_packet(self, client, packet):
+        client.packets.append(packet)
+        pass

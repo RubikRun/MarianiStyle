@@ -72,12 +72,13 @@ class TimeIntervalWidget(QWidget):
         return time_interval
 
 class ReservationForm(QWidget):
-    def __init__(self, employees, clients, packets, reserve_callback, get_date_callback):
+    def __init__(self, employees, clients, packets, reserve_callback, buy_packet_callback, get_date_callback):
         super().__init__()
         self.employees = employees
         self.clients = clients
         self.packets = packets
         self.reserve_callback = reserve_callback
+        self.buy_packet_callback = buy_packet_callback
         self.get_date_callback = get_date_callback
 
         self.create_ui()
@@ -86,25 +87,50 @@ class ReservationForm(QWidget):
     def reserve_pressed(self):
         employee = self.employee_cbox.currentText()
         date = self.get_date_callback()
-        time_interval = self.time_interval_widget.get_time_interval()
         client_name = self.client_line_edit.text().strip()
+        if client_name == "":
+            Logger.log_error("Trying to reserve/buy but client name is empty")
+            return
         client_exists = False
         for cl in self.clients:
             if client_name == cl.name:
                 client = cl
                 client_exists = True
         if not client_exists:
-            Logger.log_error("Trying to reserve for a client that doesn't exist. First register the client.")
+            Logger.log_error("Trying to reserve/buy for a client that doesn't exist. First register the client.")
             return
 
         packet_mode_index = self.packet_mode_cbox.currentIndex()
         if packet_mode_index == 0:
+            time_interval = self.time_interval_widget.get_time_interval()
             procedure = self.procedure_line_edit.text().strip()
             price = int(self.price_line_edit.text().strip())
             percent = price
             kasa = price
             reservation = Reservation(employee, date, time_interval, client, procedure, percent, kasa)
             self.reserve_callback(reservation)
+        elif packet_mode_index == 1:
+            pass
+        else:
+            packet_name = self.packet_cbox.currentText()
+            left_bracket_idx = packet_name.find("(")
+            if left_bracket_idx < 2:
+                Logger.log_error("Trying to buy a packet but selected packet name has wrong format. It should contain ( and packet name be to the left of it")
+                return
+            packet_name = packet_name[: left_bracket_idx - 1].strip()
+            if packet_name == "":
+                Logger.log_error("Trying to buy a packet but selected packet name is empty")
+                return
+            packet_exists = False
+            for p in self.packets:
+                if packet_name == p.name:
+                    packet = p
+                    packet_exists = True
+                    break
+            if not packet_exists:
+                Logger.log_error("Trying to buy a packet but selected packet doesn't exist. Try first creating it in the packets window.")
+                return
+            self.buy_packet_callback(client, packet)
 
     def delete_widgets(self, widgets):
         for widget in widgets:
