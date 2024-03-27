@@ -17,8 +17,8 @@ class HomeWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.load_clients("database/clients.data")
         self.load_packets("database/packets.data")
+        self.load_clients("database/clients.data")
 
         self.schedule = Schedule(self.clients)
         self.schedule.load("database/schedule.data")
@@ -60,7 +60,7 @@ class HomeWidget(QWidget):
             line = line.strip()
             if line == "":
                 continue
-            client = Client.deserialize(line)
+            client = Client.deserialize(line, self.packets)
             self.register_client(client)
 
     def export_clients(self, filepath):
