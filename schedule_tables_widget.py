@@ -90,6 +90,19 @@ class ScheduleTablesWidget(QWidget):
                 self.tables_items_count[employee] += 1
             table.setRowCount(self.tables_items_count[employee])
 
+    def paint_cells(self, color):
+        for employee in self.schedule:
+            table = self.tables[employee]
+            selected_items = table.selectedItems()
+            if selected_items:
+                for selected_item in selected_items:
+                    row = selected_item.row()
+                    for col in range(table.columnCount()):
+                        item = table.item(row, col)
+                        if item:
+                            item.setBackground(color)
+            table.clearSelection()
+
 class ScheduleEmployeesWidget(QWidget):
     def __init__(self, employees):
         super().__init__()

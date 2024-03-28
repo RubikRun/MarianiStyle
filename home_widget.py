@@ -6,6 +6,7 @@ from packet import Packet
 from reservation_form import ReservationForm
 from registration_form import RegistrationForm
 from packets_window import PacketsWindow
+from color_buttons_widget import ColorButtonsWidget
 
 from PySide2.QtGui import QFont
 from PySide2.QtCore import Qt, Slot
@@ -25,8 +26,17 @@ class HomeWidget(QWidget):
         self.employees = self.schedule.get_employees()
 
         self.schedule_widget = ScheduleWidget(self.schedule)
-        self.reservation_form = ReservationForm(self.employees, self.clients, self.packets, self.schedule_widget.add_reservation, self.buy_packet, self.schedule_widget.get_date)
+        self.reservation_form = ReservationForm(
+            self.employees,
+            self.clients,
+            self.packets,
+            self.schedule_widget.add_reservation,
+            self.buy_packet,
+            self.schedule_widget.get_date
+        )
         self.registration_form = RegistrationForm(self.register_client)
+
+        self.color_buttons_widget = ColorButtonsWidget(self.schedule_widget.paint_cells)
 
         self.packets_button = QPushButton("Пакети")
         self.packets_button.setFont(schedule_font)
@@ -37,6 +47,8 @@ class HomeWidget(QWidget):
 
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 0)
+        self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
+        self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)
         self.layout.addWidget(self.packets_button, 0, 1, 1, 1)
         self.layout.setAlignment(self.packets_button, Qt.AlignRight)
         self.layout.addWidget(self.schedule_widget, 1, 0, 1, 2)

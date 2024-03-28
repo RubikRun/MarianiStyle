@@ -47,3 +47,6 @@ class ScheduleWidget(QWidget):
 
     def get_date(self):
         return self.date
+
+    def paint_cells(self, color):
+        self.tables_widget.paint_cells(color)

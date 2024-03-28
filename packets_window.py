@@ -21,7 +21,6 @@ class PacketsWindow(QDialog):
         pass
 
     def create_ui(self, deleteOldLayout = False, packets = None):
-        print("create_ui()", deleteOldLayout, packets)
         if packets is not None:
             self.packets = packets
         if deleteOldLayout:
