@@ -182,7 +182,33 @@ class ReservationForm(QWidget):
             self.layout.addWidget(self.reserve_button, 7, 1)
             self.widgets_of_current_packet_mode.append(self.reserve_button)
         elif packet_mode_index == 1:
-            pass
+            self.time_label = QLabel("Време")
+            self.time_label.setFont(schedule_font)
+            self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.time_interval_widget = TimeIntervalWidget()
+            self.time_interval_widget.setFixedSize(290, int(schedule_font.pointSize() * 2.3))
+            self.layout.addWidget(self.time_label, 4, 0)
+            self.layout.addWidget(self.time_interval_widget, 4, 1)
+            self.widgets_of_current_packet_mode.append(self.time_label)
+            self.widgets_of_current_packet_mode.append(self.time_interval_widget)
+
+            self.packet_label = QLabel("Пакет")
+            self.packet_label.setFont(schedule_font)
+            self.packet_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.packet_cbox = QComboBox(self)
+            self.packet_cbox.setFont(schedule_font)
+            self.packet_cbox.setFixedSize(200, int(schedule_font.pointSize() * 2.5))
+            self.layout.addWidget(self.packet_label, 5, 0)
+            self.layout.addWidget(self.packet_cbox, 5, 1)
+            self.widgets_of_current_packet_mode.append(self.packet_label)
+            self.widgets_of_current_packet_mode.append(self.packet_cbox)
+
+            self.reserve_button = QPushButton("Купи")
+            self.reserve_button.setFont(schedule_font)
+            self.reserve_button.setFixedSize(100, 40)
+            self.reserve_button.clicked.connect(self.reserve_pressed)
+            self.layout.addWidget(self.reserve_button, 6, 1)
+            self.widgets_of_current_packet_mode.append(self.reserve_button)
         else:
             self.packet_label = QLabel("Пакет")
             self.packet_label.setFont(schedule_font)
@@ -237,6 +263,7 @@ class ReservationForm(QWidget):
         self.client_completer = QCompleter(clientsNames, self)
         self.client_completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.client_line_edit.setCompleter(self.client_completer)
+        self.client_line_edit.textChanged.connect(self.on_client_change)
         self.layout.addWidget(self.client_label, 2, 0)
         self.layout.addWidget(self.client_line_edit, 2, 1)
 
@@ -252,3 +279,23 @@ class ReservationForm(QWidget):
     def update_clients(self, new_clients):
         self.clients = new_clients
         self.create_ui(True)
+
+    def on_client_change(self):
+        if self.packet_mode_cbox.currentIndex() != 1:
+            return
+
+        client_name = self.client_line_edit.text().strip()
+        if client_name == "":
+            self.packet_cbox.clear()
+            return
+        client_exists = False
+        for cl in self.clients:
+            if client_name == cl.name:
+                client = cl
+                client_exists = True
+        if not client_exists:
+            self.packet_cbox.clear()
+            return
+
+        self.packet_cbox.clear()
+        self.packet_cbox.addItems([packet.name + " (" + str(packet.price) + "лв.)" for packet in client.packets])
