@@ -72,9 +72,10 @@ class TimeIntervalWidget(QWidget):
         return time_interval
 
 class ReservationForm(QWidget):
-    def __init__(self, employees, clients, packets, reserve_callback, buy_packet_callback, get_date_callback):
+    def __init__(self, employees, employer, clients, packets, reserve_callback, buy_packet_callback, get_date_callback):
         super().__init__()
         self.employees = employees
+        self.employer = employer
         self.clients = clients
         self.packets = packets
         self.reserve_callback = reserve_callback
@@ -249,7 +250,7 @@ class ReservationForm(QWidget):
         self.layout.addWidget(self.reserve_label, 0, 0, 1, 2)
 
         self.employee_cbox = QComboBox(self)
-        self.employee_cbox.addItems(self.employees)
+        self.employee_cbox.addItems([self.employer] + self.employees)
         self.employee_cbox.setFont(schedule_font)
         self.employee_cbox.setFixedSize(100, int(schedule_font.pointSize() * 2.5))
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)

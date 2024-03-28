@@ -24,10 +24,12 @@ class HomeWidget(QWidget):
         self.schedule = Schedule(self.clients)
         self.schedule.load("database/schedule.data")
         self.employees = self.schedule.get_employees()
+        self.employer = self.schedule.get_employer()
 
         self.schedule_widget = ScheduleWidget(self.schedule)
         self.reservation_form = ReservationForm(
             self.employees,
+            self.employer,
             self.clients,
             self.packets,
             self.schedule_widget.add_reservation,

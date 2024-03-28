@@ -50,16 +50,19 @@ class Schedule:
     # Returns the schedule for the requested date.
     # A list with employees from the previous date should be provided
     # in case the requested date doesn't exist in the schedule.
-    def get_for_date(self, date, prev_employees):
+    def get_for_date(self, date):
         if date not in self.data:
             self.data[date] = {}
-            for employee in prev_employees:
+            for employee in self.get_employees():
                 self.data[date][employee] = []
         return self.data[date]
 
-    def get_employees(self, date = None):
+    def get_employees(self):
         # TODO: maybe make this be loaded from a config file, so that new employees can be added
-        return ["Мариана", "Мери", "Валя"]
+        return ["Мери", "Валя"]
+
+    def get_employer(self):
+        return "Мариана"
 
     def handle_variable_assignment(self, assignment):
         if not assignment.startswith('$'):

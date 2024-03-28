@@ -12,12 +12,13 @@ class ScheduleWidget(QWidget):
         self.schedule = schedule
         self.date = self.schedule.default_date
         self.employees = self.schedule.get_employees()
+        self.employer = self.schedule.get_employer()
 
         self.create_ui()
 
     def create_ui(self, deleteOldLayout = False):
-        self.employees_widget = ScheduleEmployeesWidget(self.employees)
-        self.tables_widget = ScheduleTablesWidget(self.schedule.get_for_date(self.date, self.employees), self.employees)
+        self.employees_widget = ScheduleEmployeesWidget(self.employees, self.employer)
+        self.tables_widget = ScheduleTablesWidget(self.schedule.get_for_date(self.date), self.employees, self.employer)
         self.date_buttons_widget = ScheduleDateButtonsWidget(self.date, self.do_prev_date, self.do_next_date)
 
         if deleteOldLayout:

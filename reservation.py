@@ -16,7 +16,7 @@ class TimeInterval:
         return not(self == other)
 
 class Reservation:
-    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, color):
+    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, color = None):
         self.employee = employee
         self.date = date
         self.time_interval = time_interval

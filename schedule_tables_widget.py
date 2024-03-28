@@ -7,16 +7,17 @@ from PySide2.QtGui import QFont
 schedule_font = QFont("Verdana", 12)
 
 class ScheduleTablesWidget(QWidget):
-    def __init__(self, schedule, employees):
+    def __init__(self, schedule, employees, employer):
         super().__init__()
         self.schedule = schedule
         self.employees = employees
+        self.employer = employer
 
         self.tables_items_count = {}
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 10)
-        self.layout.setSpacing(20)
+        self.layout.setSpacing(5)
 
         self.create_tables()
         self.fill_tables()
@@ -25,7 +26,7 @@ class ScheduleTablesWidget(QWidget):
         # Create tables
         self.tables = {}
         # Traverse employees
-        for employee in self.employees:
+        for employee in [self.employer] + self.employees:
             # Create a table for each employee
             table = QTableWidget()
             # Handle properties of rows and columns and their headers
@@ -115,12 +116,12 @@ class ScheduleTablesWidget(QWidget):
             table.clearSelection()
 
 class ScheduleEmployeesWidget(QWidget):
-    def __init__(self, employees):
+    def __init__(self, employees, employer):
         super().__init__()
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 0)
         self.layout.setSpacing(20)
-        for employee in employees:
+        for employee in [employer] + employees:
             label = QLabel(employee)
             label.setFont(schedule_font)
             # Uncomment to make border visible
