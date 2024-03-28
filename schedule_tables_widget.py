@@ -87,20 +87,31 @@ class ScheduleTablesWidget(QWidget):
                 kasa_widget_item = QTableWidgetItem(str(reservation.kasa))
                 kasa_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 table.setItem(self.tables_items_count[employee], 4, kasa_widget_item)
+                # Handle color
+                if reservation.color is not None:
+                    for col in range(table.columnCount()):
+                        item = table.item(self.tables_items_count[employee], col)
+                        if item:
+                            item.setBackground(reservation.color)
+                        else:
+                            Logger.log_error("Trying to paint a row from ScheduleTablesWidget with the color from database but item doesn't exist")
                 self.tables_items_count[employee] += 1
             table.setRowCount(self.tables_items_count[employee])
 
     def paint_cells(self, color):
-        for employee in self.schedule:
+        for employee, reservations in self.schedule.items():
             table = self.tables[employee]
             selected_items = table.selectedItems()
             if selected_items:
                 for selected_item in selected_items:
                     row = selected_item.row()
+                    reservations[row].color = color
                     for col in range(table.columnCount()):
                         item = table.item(row, col)
                         if item:
                             item.setBackground(color)
+                        else:
+                            Logger.log_error("Trying to paint a row from ScheduleTablesWidget with the color from clicked color button but item doesn't exist")
             table.clearSelection()
 
 class ScheduleEmployeesWidget(QWidget):

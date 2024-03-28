@@ -1,5 +1,6 @@
 from logger import Logger
 from PySide2.QtCore import QDate, QTime
+from PySide2.QtGui import QColor
 
 class TimeInterval:
     def __init__(self, time_begin, time_end):
@@ -15,7 +16,7 @@ class TimeInterval:
         return not(self == other)
 
 class Reservation:
-    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa):
+    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, color):
         self.employee = employee
         self.date = date
         self.time_interval = time_interval
@@ -23,6 +24,7 @@ class Reservation:
         self.procedure = procedure
         self.percent = percent
         self.kasa = kasa
+        self.color = color
 
     # Deserializes a reservation from a declaration string. Returns the reservation.
     def deserialize(decl, clients):
@@ -30,8 +32,8 @@ class Reservation:
             Logger.log_error("Reservation declaration is empty. Reservation will be skipped")
             return None
         decl_parts = decl.split(';')
-        if len(decl_parts) != 12:
-            Logger.log_error("Reservation declaration is invalid, should have 12 parts. Reservation will be skipped")
+        if len(decl_parts) != 12 and len(decl_parts) != 16:
+            Logger.log_error("Reservation declaration is invalid, should have 12 or 16 parts. Reservation will be skipped")
             return None
         employee = decl_parts[0].strip()
         if employee == "":
@@ -75,8 +77,31 @@ class Reservation:
         except ValueError:
             Logger.log_error("Kasa part of a reservation is not an integer. Reservation will be skipped")
             return None
+        color = None
+        if len(decl_parts) == 16:
+            red_str = decl_parts[12].strip()
+            try:
+                red = int(red_str)
+                green_str = decl_parts[13].strip()
+                try:
+                    green = int(green_str)
+                    blue_str = decl_parts[14].strip()
+                    try:
+                        blue = int(blue_str)
+                        alpha_str = decl_parts[15].strip()
+                        try:
+                            alpha = int(alpha_str)
+                            color = QColor(red, green, blue, alpha)
+                        except ValueError:
+                            Logger.log_error("Alpha part of a reservation is not an integer. Color will be skipped")
+                    except ValueError:
+                        Logger.log_error("Blue part of a reservation is not an integer. Color will be skipped")
+                except ValueError:
+                    Logger.log_error("Green part of a reservation is not an integer. Color will be skipped")
+            except ValueError:
+                Logger.log_error("Red part of a reservation is not an integer. Color will be skipped")
 
-        reservation = Reservation(employee, date, TimeInterval(time_begin, time_end), client, procedure, percent, kasa)
+        reservation = Reservation(employee, date, TimeInterval(time_begin, time_end), client, procedure, percent, kasa, color)
         return reservation
 
     def serialize(self):
@@ -93,6 +118,11 @@ class Reservation:
         s += self.procedure + ";"
         s += str(self.percent) + ";"
         s += str(self.kasa)
+        if self.color is not None:
+            s += ";" + str(self.color.red())
+            s += ";" + str(self.color.green())
+            s += ";" + str(self.color.blue())
+            s += ";" + str(self.color.alpha())
 
         return s
 
