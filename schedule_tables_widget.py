@@ -30,13 +30,19 @@ class ScheduleTablesWidget(QWidget):
             # Create a table for each employee
             table = QTableWidget()
             # Handle properties of rows and columns and their headers
-            table.setColumnCount(5)
-            table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "%", "Каса"])
-            table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-            table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-            table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-            table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
-            table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
+            table.setColumnCount(4)
+            if employee == self.employer:
+                table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "Каса"])
+                table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+                table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+                table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+                table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+            else:
+                table.setHorizontalHeaderLabels(["Клиент", "Процедура", "%", "Каса"])
+                table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+                table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+                table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+                table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
             table.verticalHeader().hide()
             # Set style sheet for the table
             table.setStyleSheet("""
@@ -69,25 +75,33 @@ class ScheduleTablesWidget(QWidget):
                     Logger.log_error("Reservation's employee doesn't match the employee that the reservation is put under in the schedule. Ignoring that reservation.")
                     continue
                 table.insertRow(self.tables_items_count[employee])
+                tab_idx = [-1, 0, 1, 2, 3]
+                if employee == self.employer:
+                    tab_idx = [0, 1, 2, -1, 3]
                 # Handle time interval
-                time_str = reservation.time_interval.time_begin.toString("HH:mm") + "-" + reservation.time_interval.time_end.toString("HH:mm")
-                table.setItem(self.tables_items_count[employee], 0, QTableWidgetItem(time_str))
+                if tab_idx[0] >= 0:
+                    time_str = reservation.time_interval.time_begin.toString("HH:mm") + "-" + reservation.time_interval.time_end.toString("HH:mm")
+                    table.setItem(self.tables_items_count[employee], tab_idx[0], QTableWidgetItem(time_str))
                 # Handle client
-                client_widget_item = QTableWidgetItem(reservation.client.name)
-                client_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                table.setItem(self.tables_items_count[employee], 1, client_widget_item)
+                if tab_idx[1] >= 0:
+                    client_widget_item = QTableWidgetItem(reservation.client.name)
+                    client_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    table.setItem(self.tables_items_count[employee], tab_idx[1], client_widget_item)
                 # Handle procedure
-                procedure_widget_item = QTableWidgetItem(reservation.procedure)
-                procedure_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                table.setItem(self.tables_items_count[employee], 2, procedure_widget_item)
+                if tab_idx[2] >= 0:
+                    procedure_widget_item = QTableWidgetItem(reservation.procedure)
+                    procedure_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    table.setItem(self.tables_items_count[employee], tab_idx[2], procedure_widget_item)
                 # Handle percent
-                percent_widget_item = QTableWidgetItem(str(reservation.percent))
-                percent_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                table.setItem(self.tables_items_count[employee], 3, percent_widget_item)
+                if tab_idx[3] >= 0:
+                    percent_widget_item = QTableWidgetItem(str(reservation.percent))
+                    percent_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    table.setItem(self.tables_items_count[employee], tab_idx[3], percent_widget_item)
                 # Handle kasa
-                kasa_widget_item = QTableWidgetItem(str(reservation.kasa))
-                kasa_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                table.setItem(self.tables_items_count[employee], 4, kasa_widget_item)
+                if tab_idx[4] >= 0:
+                    kasa_widget_item = QTableWidgetItem(str(reservation.kasa))
+                    kasa_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    table.setItem(self.tables_items_count[employee], tab_idx[4], kasa_widget_item)
                 # Handle color
                 if reservation.color is not None:
                     for col in range(table.columnCount()):
