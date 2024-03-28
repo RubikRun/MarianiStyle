@@ -58,9 +58,8 @@ class Schedule:
         return self.data[date]
 
     def get_employees(self, date = None):
-        if date is None:
-            date = self.default_date
-        return list(self.data[date].keys())
+        # TODO: maybe make this be loaded from a config file, so that new employees can be added
+        return ["Мариана", "Мери", "Валя"]
 
     def handle_variable_assignment(self, assignment):
         if not assignment.startswith('$'):

@@ -44,5 +44,5 @@ class RegistrationForm(QWidget):
         name = self.line_edits["Име"].text().strip()
         egn_cifri = self.line_edits["ЕГН цифри"].text().strip()
 
-        client = Client(name, egn_cifri)
+        client = Client(name, egn_cifri, [])
         self.register_callback(client, do_update_reservation_form = True)
