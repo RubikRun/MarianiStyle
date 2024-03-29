@@ -16,7 +16,7 @@ class TimeInterval:
         return not(self == other)
 
 class Reservation:
-    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, color = None):
+    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, colors = [None, None, None, None]):
         self.employee = employee
         self.date = date
         self.time_interval = time_interval
@@ -24,7 +24,7 @@ class Reservation:
         self.procedure = procedure
         self.percent = percent
         self.kasa = kasa
-        self.color = color
+        self.colors = colors
 
     # Deserializes a reservation from a declaration string. Returns the reservation.
     def deserialize(decl, clients):
@@ -32,8 +32,8 @@ class Reservation:
             Logger.log_error("Reservation declaration is empty. Reservation will be skipped")
             return None
         decl_parts = decl.split(';')
-        if len(decl_parts) != 12 and len(decl_parts) != 16:
-            Logger.log_error("Reservation declaration is invalid, should have 12 or 16 parts. Reservation will be skipped")
+        if len(decl_parts) != 12 and len(decl_parts) != 16 and len(decl_parts) != 20 and len(decl_parts) != 24 and len(decl_parts) != 28:
+            Logger.log_error("Reservation declaration is invalid, should have 12/16/20/24/28 parts. Reservation will be skipped")
             return None
         employee = decl_parts[0].strip()
         if employee == "":
@@ -77,31 +77,16 @@ class Reservation:
         except ValueError:
             Logger.log_error("Kasa part of a reservation is not an integer. Reservation will be skipped")
             return None
-        color = None
-        if len(decl_parts) == 16:
-            red_str = decl_parts[12].strip()
-            try:
-                red = int(red_str)
-                green_str = decl_parts[13].strip()
-                try:
-                    green = int(green_str)
-                    blue_str = decl_parts[14].strip()
-                    try:
-                        blue = int(blue_str)
-                        alpha_str = decl_parts[15].strip()
-                        try:
-                            alpha = int(alpha_str)
-                            color = QColor(red, green, blue, alpha)
-                        except ValueError:
-                            Logger.log_error("Alpha part of a reservation is not an integer. Color will be skipped")
-                    except ValueError:
-                        Logger.log_error("Blue part of a reservation is not an integer. Color will be skipped")
-                except ValueError:
-                    Logger.log_error("Green part of a reservation is not an integer. Color will be skipped")
-            except ValueError:
-                Logger.log_error("Red part of a reservation is not an integer. Color will be skipped")
 
-        reservation = Reservation(employee, date, TimeInterval(time_begin, time_end), client, procedure, percent, kasa, color)
+        colors = [None, None, None, None]
+        for col in range(4):
+            color_part_idx = 12 + 4 * col
+            if color_part_idx >= len(decl_parts):
+                break
+            color = Reservation.deserialize_color(decl_parts[color_part_idx], decl_parts[color_part_idx+1], decl_parts[color_part_idx+2], decl_parts[color_part_idx+3])
+            colors[col] = color
+
+        reservation = Reservation(employee, date, TimeInterval(time_begin, time_end), client, procedure, percent, kasa, colors)
         return reservation
 
     def serialize(self):
@@ -118,13 +103,39 @@ class Reservation:
         s += self.procedure + ";"
         s += str(self.percent) + ";"
         s += str(self.kasa)
-        if self.color is not None:
-            s += ";" + str(self.color.red())
-            s += ";" + str(self.color.green())
-            s += ";" + str(self.color.blue())
-            s += ";" + str(self.color.alpha())
+        for color in self.colors:
+            if color is None:
+                s += ";None;None;None;None"
+            else:
+                s += ";" + str(color.red())
+                s += ";" + str(color.green())
+                s += ";" + str(color.blue())
+                s += ";" + str(color.alpha())
 
         return s
+
+    def deserialize_color(s0, s1, s2, s3):
+        if s0 == "None" or s1 == "None" or s2 == "None" or s3 == "None":
+            return None
+        color = None
+        try:
+            red = int(s0)
+            try:
+                green = int(s1)
+                try:
+                    blue = int(s2)
+                    try:
+                        alpha = int(s3)
+                        color = QColor(red, green, blue, alpha)
+                    except ValueError:
+                        Logger.log_error("Alpha part of a reservation is not an integer. Color will be skipped")
+                except ValueError:
+                    Logger.log_error("Blue part of a reservation is not an integer. Color will be skipped")
+            except ValueError:
+                Logger.log_error("Green part of a reservation is not an integer. Color will be skipped")
+        except ValueError:
+            Logger.log_error("Red part of a reservation is not an integer. Color will be skipped")
+        return color
 
     def deserialize_date(s):
         s_parts = s.split(";")
