@@ -18,18 +18,56 @@ class ScheduleTablesWidget(QWidget):
         self.layout.setContentsMargins(10, 0, 10, 10)
         self.layout.setSpacing(5)
 
+        self.create_table_timegrid()
         self.create_tables()
-        self.init_tables_timegrid()
+        self.link_table_scrollbars()
         #self.fill_tables()
+
+    def create_table_timegrid(self):
+        self.table_timegrid = QTableWidget((len(self.timegrid) - 1) * 2, 1)
+        self.table_timegrid.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table_timegrid.setHorizontalHeaderLabels([""])
+        self.table_timegrid.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.table_timegrid.setFixedWidth(30)
+        self.table_timegrid.verticalHeader().hide()
+        # Set style sheet for the table
+        self.table_timegrid.setStyleSheet("""
+            QTableWidget {
+                background-color: #f0f0f0;
+                alternate-background-color: #e0e0e0;
+                selection-background-color: #a0a0a0;
+            }
+            QHeaderView::section {
+                background-color: #606060;
+                color: white;
+                font-size: """ + str(schedule_font.pointSize()) + """pt;
+            }
+        """)
+        # Change the font of the table
+        self.table_timegrid.setFont(schedule_font)
+        # Add table to layout
+        self.layout.addWidget(self.table_timegrid)
+
+        rows_count = 0
+        for idx, timepoint in enumerate(self.timegrid[:-1]):
+            next_timepoint = self.timegrid[idx + 1]
+            time_interval_str = QTime(timepoint, 0).toString("HH")# + "-" + QTime(next_timepoint, 0).toString("HH")
+            self.table_timegrid.insertRow(rows_count)
+            self.table_timegrid.setItem(rows_count, 0, QTableWidgetItem(time_interval_str))
+            self.table_timegrid.insertRow(rows_count + 1)
+            self.table_timegrid.setSpan(rows_count, 0, 2, 1)
+            rows_count += 2
+        self.table_timegrid.setRowCount(rows_count)
 
     def create_tables(self):
         # Create tables
         self.tables = {}
-        tables_list = []
         # Traverse employees
         for employee in [self.employer] + self.employees:
             # Create a table for each employee
-            table = QTableWidget()
+            table = QTableWidget(26, 4)
+            if employee != self.employees[-1]:
+                table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             # Handle properties of rows and columns and their headers
             table.setColumnCount(4)
             if employee == self.employer:
@@ -64,33 +102,29 @@ class ScheduleTablesWidget(QWidget):
             self.layout.addWidget(table)
             # Add table to tables member
             self.tables[employee] = table
-            tables_list.append(table)
+
+    def link_table_scrollbars(self):
+        tables_list = [self.table_timegrid]
+        for employee in [self.employer] + self.employees:
+            tables_list.append(self.tables[employee])
 
         scrollbar_0 = tables_list[0].verticalScrollBar()
         scrollbar_1 = tables_list[1].verticalScrollBar()
         scrollbar_2 = tables_list[2].verticalScrollBar()
+        scrollbar_3 = tables_list[3].verticalScrollBar()
 
         scrollbar_0.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
         scrollbar_0.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
+        scrollbar_0.valueChanged.connect(lambda value: scrollbar_3.setValue(value))
         scrollbar_1.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
         scrollbar_1.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
+        scrollbar_1.valueChanged.connect(lambda value: scrollbar_3.setValue(value))
         scrollbar_2.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
         scrollbar_2.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
-
-    def init_tables_timegrid(self):
-        for employee in [self.employer] + self.employees:
-            table = self.tables[employee]
-            rows_count = 0
-            if employee == self.employer:
-                for idx, timepoint in enumerate(self.timegrid[:-1]):
-                    next_timepoint = self.timegrid[idx + 1]
-                    time_interval_str = QTime(timepoint, 0).toString("HH") + "-" + QTime(next_timepoint, 0).toString("HH")
-                    table.insertRow(rows_count)
-                    table.setItem(rows_count, 0, QTableWidgetItem(time_interval_str))
-                    table.insertRow(rows_count + 1)
-                    table.setSpan(rows_count, 0, 2, 1)
-                    rows_count += 2
-                table.setRowCount(rows_count)
+        scrollbar_2.valueChanged.connect(lambda value: scrollbar_3.setValue(value))
+        scrollbar_3.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
+        scrollbar_3.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
+        scrollbar_3.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
 
     def fill_tables(self):
         # Traverse employees and their reservations for current date
@@ -172,8 +206,8 @@ class ScheduleEmployeesWidget(QWidget):
     def __init__(self, employees, employer):
         super().__init__()
         self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(10, 0, 10, 0)
-        self.layout.setSpacing(20)
+        self.layout.setContentsMargins(15 + 30, 0, 10, 0)
+        self.layout.setSpacing(10)
         for employee in [employer] + employees:
             label = QLabel(employee)
             label.setFont(schedule_font)
