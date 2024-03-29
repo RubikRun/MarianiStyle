@@ -103,18 +103,23 @@ class ScheduleTablesWidget(QWidget):
                     kasa_widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                     table.setItem(self.tables_items_count[employee], tab_idx[4], kasa_widget_item)
                 # Handle color
-                for col, color in enumerate(reservation.colors):
+                for idx, color in enumerate(reservation.colors):
                     if color is None:
                         continue
+                    col = idx % 4
+                    bg_fg = (idx < 4)
                     item = table.item(self.tables_items_count[employee], col)
                     if item:
-                        item.setBackground(color)
+                        if bg_fg:
+                            item.setBackground(color)
+                        else:
+                            item.setForeground(color)
                     else:
                         Logger.log_error("Trying to paint a cell from ScheduleTablesWidget with the color from database but item doesn't exist")
                 self.tables_items_count[employee] += 1
             table.setRowCount(self.tables_items_count[employee])
 
-    def paint_cells(self, color):
+    def paint_cells(self, color, bg_fg):
         for employee, reservations in self.schedule.items():
             table = self.tables[employee]
             selected_items = table.selectedItems()
@@ -122,10 +127,16 @@ class ScheduleTablesWidget(QWidget):
                 for item in selected_items:
                     row = item.row()
                     col = item.column()
-                    reservations[row].colors[col] = color
+                    if bg_fg:
+                        reservations[row].colors[col] = color
+                    else:
+                        reservations[row].colors[col + 4] = color
                     item = table.item(row, col)
                     if item:
-                        item.setBackground(color)
+                        if bg_fg:
+                            item.setBackground(color)
+                        else:
+                            item.setForeground(color)
                     else:
                         Logger.log_error("Trying to paint a cell from ScheduleTablesWidget with the color from clicked color button but item doesn't exist")
             table.clearSelection()

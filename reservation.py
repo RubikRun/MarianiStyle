@@ -16,7 +16,7 @@ class TimeInterval:
         return not(self == other)
 
 class Reservation:
-    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, colors = [None, None, None, None]):
+    def __init__(self, employee, date, time_interval, client, procedure, percent, kasa, colors = [None, None, None, None, None, None, None, None]):
         self.employee = employee
         self.date = date
         self.time_interval = time_interval
@@ -32,8 +32,8 @@ class Reservation:
             Logger.log_error("Reservation declaration is empty. Reservation will be skipped")
             return None
         decl_parts = decl.split(';')
-        if len(decl_parts) != 12 and len(decl_parts) != 16 and len(decl_parts) != 20 and len(decl_parts) != 24 and len(decl_parts) != 28:
-            Logger.log_error("Reservation declaration is invalid, should have 12/16/20/24/28 parts. Reservation will be skipped")
+        if len(decl_parts) not in [12, 16, 20, 24, 28, 32, 36, 40, 44]:
+            Logger.log_error("Reservation declaration is invalid, should have 12/16/20/24/28/32/36/40/44 parts. Reservation will be skipped")
             return None
         employee = decl_parts[0].strip()
         if employee == "":
@@ -78,8 +78,8 @@ class Reservation:
             Logger.log_error("Kasa part of a reservation is not an integer. Reservation will be skipped")
             return None
 
-        colors = [None, None, None, None]
-        for col in range(4):
+        colors = [None] * 8
+        for col in range(8):
             color_part_idx = 12 + 4 * col
             if color_part_idx >= len(decl_parts):
                 break

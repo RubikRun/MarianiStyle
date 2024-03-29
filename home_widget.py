@@ -38,7 +38,7 @@ class HomeWidget(QWidget):
         )
         self.registration_form = RegistrationForm(self.register_client)
 
-        self.color_buttons_widget = ColorButtonsWidget(self.schedule_widget.paint_cells)
+        self.color_buttons_widget = ColorButtonsWidget(self.schedule_widget.paint_cells_bg, self.schedule_widget.paint_cells_fg)
 
         self.packets_button = QPushButton("Пакети")
         self.packets_button.setFont(schedule_font)
