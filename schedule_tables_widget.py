@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from logger import Logger
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QTime
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
 from PySide2.QtGui import QFont
 
@@ -12,19 +12,20 @@ class ScheduleTablesWidget(QWidget):
         self.schedule = schedule
         self.employees = employees
         self.employer = employer
-
-        self.tables_items_count = {}
+        self.timegrid = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 10)
         self.layout.setSpacing(5)
 
         self.create_tables()
-        self.fill_tables()
+        self.init_tables_timegrid()
+        #self.fill_tables()
 
     def create_tables(self):
         # Create tables
         self.tables = {}
+        tables_list = []
         # Traverse employees
         for employee in [self.employer] + self.employees:
             # Create a table for each employee
@@ -63,7 +64,33 @@ class ScheduleTablesWidget(QWidget):
             self.layout.addWidget(table)
             # Add table to tables member
             self.tables[employee] = table
-            self.tables_items_count[employee] = 0
+            tables_list.append(table)
+
+        scrollbar_0 = tables_list[0].verticalScrollBar()
+        scrollbar_1 = tables_list[1].verticalScrollBar()
+        scrollbar_2 = tables_list[2].verticalScrollBar()
+
+        scrollbar_0.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
+        scrollbar_0.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
+        scrollbar_1.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
+        scrollbar_1.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
+        scrollbar_2.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
+        scrollbar_2.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
+
+    def init_tables_timegrid(self):
+        for employee in [self.employer] + self.employees:
+            table = self.tables[employee]
+            rows_count = 0
+            if employee == self.employer:
+                for idx, timepoint in enumerate(self.timegrid[:-1]):
+                    next_timepoint = self.timegrid[idx + 1]
+                    time_interval_str = QTime(timepoint, 0).toString("HH") + "-" + QTime(next_timepoint, 0).toString("HH")
+                    table.insertRow(rows_count)
+                    table.setItem(rows_count, 0, QTableWidgetItem(time_interval_str))
+                    table.insertRow(rows_count + 1)
+                    table.setSpan(rows_count, 0, 2, 1)
+                    rows_count += 2
+                table.setRowCount(rows_count)
 
     def fill_tables(self):
         # Traverse employees and their reservations for current date
