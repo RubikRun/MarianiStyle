@@ -65,11 +65,13 @@ class ScheduleTablesWidget(QWidget):
         # Traverse employees
         for employee in [self.employer] + self.employees:
             # Create a table for each employee
-            table = QTableWidget(26, 4)
+            if employee == self.employer:
+                table = QTableWidget((len(self.timegrid) - 1) * 2, 4)
+            else:
+                table = QTableWidget((len(self.timegrid) - 1) * 2, 5)
             if employee != self.employees[-1]:
                 table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             # Handle properties of rows and columns and their headers
-            table.setColumnCount(4)
             if employee == self.employer:
                 table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "Каса"])
                 table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -77,11 +79,12 @@ class ScheduleTablesWidget(QWidget):
                 table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
                 table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
             else:
-                table.setHorizontalHeaderLabels(["Клиент", "Процедура", "%", "Каса"])
-                table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+                table.setHorizontalHeaderLabels(["Час", "Клиент", "Процедура", "%", "Каса"])
+                table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
                 table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-                table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+                table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
                 table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+                table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
             table.verticalHeader().hide()
             # Set style sheet for the table
             table.setStyleSheet("""
