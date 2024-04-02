@@ -8,6 +8,7 @@
         "database/packet_instance.py",
         "database/reservation.py",
         "logger.py",
-        "main.py"
+        "main.py",
+        "ui/main_window.py"
     ]
 }
