@@ -4,6 +4,7 @@
         "database/employee.py",
         "database/packet.py",
         "database/packet_instance.py",
+        "database/reservation.py",
         "logger.py",
         "main.py"
     ]
