@@ -1,53 +1,55 @@
 from logger import Logger
 
+from PySide2.QtCore import QDateTime, QDate, QTime
+
 class DataIO:
     # Parses a data declaration string.
     # The string should be of format "part0;part1;part2;part3".
-    # The type of each part should be specified with the types list/string.
-    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i' or 'f'
-    # meaning that the corresponding part will be parsed as a string, int or float.
+    # The type of each part should be specified with the types parameter.
+    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i', 'f' or 't'
+    # meaning that the corresponding part will be parsed as a string, int, float or QDateTime.
     # The function returns a list of parsed values, one for each part.
     # If parsing of some part failed the result for that part will be None.
-    def parse_declaration(decl, types):
+    def parse_declaration(decl, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f']:
+            if type not in ['s', 'i', 'f', 't']:
                 Logger.log_error("Invalid types given when parsing a data declaration. Declaration will be skipped.")
                 return None
-        parts = decl.split(';')
+        parts = decl.split(sep)
         if len(parts) != len(types):
             Logger.log_error("Data declaration has different number of parts and types. Declaration will be skipped.")
         
         results = []
         for idx, part in enumerate(parts):
             type = types[idx]
+            result = None
             if type == 's':
-                results.append(part)
+                result = part
             elif type == 'i':
                 try:
                     result = int(part)
                 except ValueError:
                     Logger.log_error("Part {} of a data declaration is not an integer. This part will be None.")
-                    result = None
-                results.append(result)
             elif type == 'f':
                 try:
                     result = float(part)
                 except ValueError:
                     Logger.log_error("Part {} of a data declaration is not a float. This part will be None.")
-                    result = None
-                results.append(result)
+            elif type == 't':
+                result = DataIO.parse_datetime(part)
+            results.append(result)
                 
         return results
 
     # Creates a data declaration string from given parts and their types.
     # The types list/string should have the same number of elements/characters as the parts list.
-    # Each element of the types list/string should be either 's', 'i' or 'f'
-    # meaning that the corresponding part will be serialized as a string, int or float.
+    # Each element of the types list/string should be either 's', 'i', 'f' or 't'
+    # meaning that the corresponding part will be serialized as a string, int, float or QDateTime.
     # If some part is None, it will be written as an empty string.
     # Returns the created declaration string
-    def create_declaration(parts, types):
+    def create_declaration(parts, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f']:
+            if type not in ['s', 'i', 'f', 't']:
                 Logger.log_error("Invalid types given when creating a data declaration. Declaration will not be created.")
                 return ""
         if len(parts) != len(types):
@@ -56,13 +58,15 @@ class DataIO:
         s = ""
         for idx, part in enumerate(parts):
             if part is None:
-                s += ";"
+                s += sep
                 continue
             type = types[idx]
             if type == 's':
-                s += part + ';'
+                s += part + sep
             elif type == 'i' or type == 'f':
-                s += str(part) + ";"
+                s += str(part) + sep
+            elif type == 't':
+                s += DataIO.create_declaration([part.date().year(), part.date().month(), part.date().day(), part.time().hour(), part.time().minute()], "iiiii", '_') + sep
         s = s[:-1]
         return s
 
@@ -92,6 +96,11 @@ class DataIO:
                 except ValueError:
                     Logger.log_error("Value in a variable assignment is not a float. Assignment will be skipped.")
 
+    # Creates a variable assignment string of format "$VARIABLE_NAME=VARIABLE_VALUE"
+    # with the given variable name and variable value.
+    # The given type determines how the given variable value will be made to a string
+    # Accepted types are 's', 'i' or 'f' for string, int or float.
+    # Returns the variable assignment string
     def create_variable_assignment(var_name, var_value, type):
         asgn = "$" + var_name + "="
         if type == 's':
@@ -102,3 +111,13 @@ class DataIO:
             Logger.log_error("Invalid type given when creating a variable assignment string. Assignment will not be created.")
             return ""
         return asgn
+
+    # Parses a declaration string in format "year_month_day_hour_minute" into a QDateTime object.
+    # Returns the QDateTime object, or None if something is invalid in the declaration string.
+    def parse_datetime(decl, sep = '_'):
+        parts = DataIO.parse_declaration(decl, "iiiii", sep)
+        if parts[0] is None or parts[1] is None or parts[2] is None or parts[3] is None or parts[4] is None:
+            Logger.log_error("Invalid QDateTime when parsing it from a declaration. It will be None")
+            return None
+        datetime = QDateTime(QDate(parts[0], parts[1], parts[2]), QTime(parts[3], parts[4]))
+        return datetime
