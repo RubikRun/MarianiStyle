@@ -6,18 +6,22 @@ class DataIO:
     # Parses a data declaration string.
     # The string should be of format "part0;part1;part2;part3".
     # The type of each part should be specified with the types parameter.
-    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i', 'f' or 't'
-    # meaning that the corresponding part will be parsed as a string, int, float or QDateTime.
+    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i', 'f', 't' or 'I'
+    # meaning that the corresponding part will be parsed as a string, int, float, QDateTime or list[int].
     # The function returns a list of parsed values, one for each part.
     # If parsing of some part failed the result for that part will be None.
     def parse_declaration(decl, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f', 't']:
+            if type not in ['s', 'i', 'f', 't', 'I']:
                 Logger.log_error("Invalid types given when parsing a data declaration. Declaration will be skipped.")
                 return None
+        if decl is None or len(decl) < 1:
+            Logger.log_error("Given declaration string is empty. Declaration will be skipped.")
+            return None
         parts = decl.split(sep)
         if len(parts) != len(types):
             Logger.log_error("Data declaration has different number of parts and types. Declaration will be skipped.")
+            return None
         
         results = []
         for idx, part in enumerate(parts):
@@ -29,27 +33,32 @@ class DataIO:
                 try:
                     result = int(part)
                 except ValueError:
-                    Logger.log_error("Part {} of a data declaration is not an integer. This part will be None.")
+                    Logger.log_error("Part {} of a data declaration is not an integer. This part will be None.".format(idx))
             elif type == 'f':
                 try:
                     result = float(part)
                 except ValueError:
-                    Logger.log_error("Part {} of a data declaration is not a float. This part will be None.")
+                    Logger.log_error("Part {} of a data declaration is not a float. This part will be None.".format(idx))
             elif type == 't':
                 result = DataIO.parse_datetime(part)
+            elif type == 'I':
+                if part is not None and len(part) >= 1:
+                    result = DataIO.parse_declaration(part, 'i' * len(part.split('_')), '_')
+                else:
+                    result = []
             results.append(result)
                 
         return results
 
     # Creates a data declaration string from given parts and their types.
     # The types list/string should have the same number of elements/characters as the parts list.
-    # Each element of the types list/string should be either 's', 'i', 'f' or 't'
-    # meaning that the corresponding part will be serialized as a string, int, float or QDateTime.
+    # Each element of the types list/string should be either 's', 'i', 'f', 't', 'I'
+    # meaning that the corresponding part will be serialized as a string, int, float, QDateTime or list[int].
     # If some part is None, it will be written as an empty string.
     # Returns the created declaration string
     def create_declaration(parts, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f', 't']:
+            if type not in ['s', 'i', 'f', 't', 'I']:
                 Logger.log_error("Invalid types given when creating a data declaration. Declaration will not be created.")
                 return ""
         if len(parts) != len(types):
@@ -67,6 +76,8 @@ class DataIO:
                 s += str(part) + sep
             elif type == 't':
                 s += DataIO.create_declaration([part.date().year(), part.date().month(), part.date().day(), part.time().hour(), part.time().minute()], "iiiii", '_') + sep
+            elif type == 'I':
+                s += DataIO.create_declaration(part, 'i' * len(part), '_') + sep
         s = s[:-1]
         return s
 
