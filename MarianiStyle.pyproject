@@ -2,6 +2,7 @@
     "files": [
         "database/employee.py",
         "database/packet.py",
+        "database/packet_instance.py",
         "logger.py",
         "main.py"
     ]
