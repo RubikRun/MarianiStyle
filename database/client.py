@@ -17,3 +17,7 @@ class Client:
 
         client = Client(data[0], data[1], data[2], data[3])
         return client
+
+    def serialize(self):
+        decl = DataIO.create_declaration([self.id, self.name, self.phone, self.packet_instances], "issI")
+        return decl

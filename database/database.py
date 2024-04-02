@@ -129,6 +129,17 @@ class Database:
         for packet_instance in self.packet_instances:
             file.write(packet_instance.serialize() + "\n")
 
+    def export_clients(self, filepath):
+        # Open file
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export clients to this file - {}".format(filepath))
+            return
+        # Export clients by serializing each one and writing it as a line in the file
+        for client in self.clients:
+            file.write(client.serialize() + "\n")
+
     def add_employee(self, new_employee):
         # Check if ID is unique
         max_id = 0

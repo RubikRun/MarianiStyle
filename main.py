@@ -11,6 +11,8 @@ database.load_clients("data/clients.data")
 database.export_employees("data/employees.data")
 database.export_packets("data/packets.data")
 database.export_packet_instances("data/packet_instances.data")
+database.export_clients("data/clients.data")
+
 database.show_info()
 
 if __name__ == "__main__":
