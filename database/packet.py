@@ -11,6 +11,8 @@ class Packet:
 
     def deserialize(decl):
         data = DataIO.parse_declaration(decl, "isfii")
+        if data is None:
+            return None
 
         if data[0] is None or data[0] < 1:
             Logger.log_error("Packet has invalid ID. It will be created with ID = 1")

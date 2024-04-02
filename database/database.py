@@ -90,8 +90,20 @@ class Database:
             self.add_client(client)
 
     def load_reservations(self, filepath):
-        # TODO: Should load reservations from file into a list self.reservations of Reservation objects
-        pass
+        self.reservations = []
+        # Open file
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested reservations file not found - {}. Loading of reservations will be skipped".format(filepath))
+            return
+        # Load reservations by deserializing each line of the file
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            reservation = Reservation.deserialize(line)
+            self.add_reservation(reservation)
 
     def export_employees(self, filepath):
         # Open file
@@ -204,6 +216,22 @@ class Database:
         # Add client to list
         self.clients.append(new_client)
 
+    def add_reservation(self, new_reservation):
+        # Check if ID is unique
+        max_id = 0
+        is_id_valid = True
+        for reservation in self.reservations:
+            if reservation.id == new_reservation.id:
+                is_id_valid = False
+            if reservation.id > max_id:
+                max_id = reservation.id
+        # If not unique, create a new ID
+        if not is_id_valid:
+            new_reservation.id = max_id + 1
+            Logger.log_error("New reservation has a duplicate ID. Reservation will be added with a new ID = {}".format(new_reservation.id))
+        # Add reservation to list
+        self.reservations.append(new_reservation)
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "
@@ -248,4 +276,20 @@ class Database:
             Logger.log_info(tab * 2 + "name = {}".format(client.name))
             Logger.log_info(tab * 2 + "phone = {}".format(client.phone))
             Logger.log_info(tab * 2 + "packet_instances = {}".format(client.packet_instances))
+        Logger.log_info("")
+        # Show info about reservations
+        Logger.log_info(dashes + " Reservation " + dashes)
+        Logger.log_info("There are {} reservations loaded.".format(len(self.reservations)))
+        for idx, reservation in enumerate(self.reservations):
+            Logger.log_info(tab + "Reservation {}:".format(idx))
+            Logger.log_info(tab * 2 + "id = {}".format(reservation.id))
+            Logger.log_info(tab * 2 + "employee_id = {}".format(reservation.employee_id))
+            Logger.log_info(tab * 2 + "client_id = {}".format(reservation.client_id))
+            Logger.log_info(tab * 2 + "date_time = {}".format(reservation.date_time))
+            Logger.log_info(tab * 2 + "procedure = {}".format(reservation.procedure))
+            Logger.log_info(tab * 2 + "packet_instance_id = {}".format(reservation.packet_instance_id))
+            Logger.log_info(tab * 2 + "percent = {}".format(reservation.percent))
+            Logger.log_info(tab * 2 + "kasa = {}".format(reservation.kasa))
+            Logger.log_info(tab * 2 + "bg_colors = {}".format(reservation.bg_colors))
+            Logger.log_info(tab * 2 + "fg_colors = {}".format(reservation.fg_colors))
         Logger.log_info("")

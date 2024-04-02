@@ -8,6 +8,8 @@ class Employee:
 
     def deserialize(decl):
         data = DataIO.parse_declaration(decl, "is")
+        if data is None:
+            return None
 
         if data[0] is None or data[0] < 1:
             Logger.log_error("Employee has invalid ID. It will be created with ID = 1")
