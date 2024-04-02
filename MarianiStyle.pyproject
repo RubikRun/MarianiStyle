@@ -1,5 +1,6 @@
 {
     "files": [
+        "database/client.py",
         "database/employee.py",
         "database/packet.py",
         "database/packet_instance.py",
