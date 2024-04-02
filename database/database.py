@@ -58,8 +58,20 @@ class Database:
             self.add_packet(packet)
 
     def load_packet_instances(self, filepath):
-        # TODO: Should load packet instances from file into a list self.packet_instances of PacketInstance objects
-        pass
+        self.packet_instances = []
+        # Open file
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested packet instances file not found - {}. Loading of packet instances will be skipped".format(filepath))
+            return
+        # Load packet instances by deserializing each line of the file
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            packet_instance = PacketInstance.deserialize(line)
+            self.add_packet_instance(packet_instance)
 
     def load_clients(self, filepath):
         # TODO: Should load clients from file into a list self.clients of Client objects
@@ -126,6 +138,22 @@ class Database:
         # Add packet to list
         self.packets.append(new_packet)
 
+    def add_packet_instance(self, new_packet_instance):
+        # Check if ID is unique
+        max_id = 0
+        is_id_valid = True
+        for packet_instance in self.packet_instances:
+            if packet_instance.id == new_packet_instance.id:
+                is_id_valid = False
+            if packet_instance.id > max_id:
+                max_id = packet_instance.id
+        # If not unique, create a new ID
+        if not is_id_valid:
+            new_packet_instance.id = max_id + 1
+            Logger.log_error("New packet instance has a duplicate ID. Packet instance will be added with a new ID = {}".format(new_packet_instance.id))
+        # Add packet instance to list
+        self.packet_instances.append(new_packet_instance)
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "
@@ -148,3 +176,15 @@ class Database:
             Logger.log_info(tab * 2 + "price = {}".format(packet.price))
             Logger.log_info(tab * 2 + "uses = {}".format(packet.uses))
             Logger.log_info(tab * 2 + "validity = {}".format(packet.validity))
+        Logger.log_info("")
+        # Show info about packet instances
+        Logger.log_info(dashes + " Packet instances " + dashes)
+        Logger.log_info("There are {} packet instances loaded.".format(len(self.packet_instances)))
+        for idx, packet_instance in enumerate(self.packet_instances):
+            Logger.log_info(tab + "Packet instance {}:".format(idx))
+            Logger.log_info(tab * 2 + "id = {}".format(packet_instance.id))
+            Logger.log_info(tab * 2 + "packet_id = {}".format(packet_instance.packet_id))
+            Logger.log_info(tab * 2 + "client_id = {}".format(packet_instance.client_id))
+            Logger.log_info(tab * 2 + "employee_id = {}".format(packet_instance.employee_id))
+            Logger.log_info(tab * 2 + "bought_on = {}".format(packet_instance.bought_on))
+            Logger.log_info(tab * 2 + "use_count = {}".format(packet_instance.use_count))

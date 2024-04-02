@@ -6,6 +6,7 @@ from database.database import Database
 database = Database()
 database.load_employees("data/employees.data")
 database.load_packets("data/packets.data")
+database.load_packet_instances("data/packet_instances.data")
 database.export_employees("data/employees.data")
 database.export_packets("data/packets.data")
 database.show_info()
