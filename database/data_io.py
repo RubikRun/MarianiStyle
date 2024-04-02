@@ -1,18 +1,19 @@
 from logger import Logger
 
 from PySide2.QtCore import QDateTime, QDate, QTime
+from PySide2.QtGui import QColor
 
 class DataIO:
     # Parses a data declaration string.
     # The string should be of format "part0;part1;part2;part3".
     # The type of each part should be specified with the types parameter.
-    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i', 'f', 't' or 'I'
-    # meaning that the corresponding part will be parsed as a string, int, float, QDateTime or list[int].
+    # It's a list/string of same length as the number of parts. Each element of the list/string is either 's', 'i', 'f', 't', 'I', 'c' or 'C'
+    # meaning that the corresponding part will be parsed as a string, int, float, QDateTime, list[int], QColor or list[QColor].
     # The function returns a list of parsed values, one for each part.
     # If parsing of some part failed the result for that part will be None.
     def parse_declaration(decl, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f', 't', 'I']:
+            if type not in ['s', 'i', 'f', 't', 'I', 'c', 'C']:
                 Logger.log_error("Invalid types given when parsing a data declaration. Declaration will be skipped.")
                 return None
         if decl is None or len(decl) < 1:
@@ -46,19 +47,26 @@ class DataIO:
                     result = DataIO.parse_declaration(part, 'i' * len(part.split('_')), '_')
                 else:
                     result = []
+            elif type == 'c':
+                result = DataIO.parse_color(part)
+            elif type == 'C':
+                if part is not None and len(part) >= 1:
+                    result = DataIO.parse_declaration(part, 'c' * len(part.split('&')), '&')
+                else:
+                    result = []
             results.append(result)
                 
         return results
 
     # Creates a data declaration string from given parts and their types.
     # The types list/string should have the same number of elements/characters as the parts list.
-    # Each element of the types list/string should be either 's', 'i', 'f', 't', 'I'
-    # meaning that the corresponding part will be serialized as a string, int, float, QDateTime or list[int].
+    # Each element of the types list/string should be either 's', 'i', 'f', 't', 'I', 'c' or 'C'
+    # meaning that the corresponding part will be serialized as a string, int, float, QDateTime, list[int], QColor or list[QColor].
     # If some part is None, it will be written as an empty string.
     # Returns the created declaration string
     def create_declaration(parts, types, sep = ';'):
         for type in types:
-            if type not in ['s', 'i', 'f', 't', 'I']:
+            if type not in ['s', 'i', 'f', 't', 'I', 'c', 'C']:
                 Logger.log_error("Invalid types given when creating a data declaration. Declaration will not be created.")
                 return ""
         if len(parts) != len(types):
@@ -78,6 +86,10 @@ class DataIO:
                 s += DataIO.create_declaration([part.date().year(), part.date().month(), part.date().day(), part.time().hour(), part.time().minute()], "iiiii", '_') + sep
             elif type == 'I':
                 s += DataIO.create_declaration(part, 'i' * len(part), '_') + sep
+            elif type == 'c':
+                s += DataIO.create_declaration([part.red(), part.green(), part.blue(), part.alpha()], "iiii", '_') + sep
+            elif type == 'C':
+                s += DataIO.create_declaration(part, 'c' * len(part), '&') + sep
         s = s[:-1]
         return s
 
@@ -126,9 +138,23 @@ class DataIO:
     # Parses a declaration string in format "year_month_day_hour_minute" into a QDateTime object.
     # Returns the QDateTime object, or None if something is invalid in the declaration string.
     def parse_datetime(decl, sep = '_'):
+        if decl is None or len(decl) < 1:
+            return None
         parts = DataIO.parse_declaration(decl, "iiiii", sep)
         if parts[0] is None or parts[1] is None or parts[2] is None or parts[3] is None or parts[4] is None:
             Logger.log_error("Invalid QDateTime when parsing it from a declaration. It will be None")
             return None
         datetime = QDateTime(QDate(parts[0], parts[1], parts[2]), QTime(parts[3], parts[4]))
         return datetime
+
+    # Parses a declaration string in format "red_blue_green_alpha" into a QColor object.
+    # Returns the QColor object, or None if something is invalid in the declaration string.
+    def parse_color(decl, sep = '_'):
+        if decl is None or len(decl) < 1:
+            return None
+        parts = DataIO.parse_declaration(decl, "iiii", sep)
+        if parts[0] is None or parts[1] is None or parts[2] is None or parts[3] is None:
+            Logger.log_error("Invalid QColor when parsing it from a declaration. It will be None")
+            return None
+        color = QColor(parts[0], parts[1], parts[2], parts[3])
+        return color
