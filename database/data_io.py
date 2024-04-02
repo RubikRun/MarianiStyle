@@ -39,6 +39,33 @@ class DataIO:
                 
         return results
 
+    # Creates a data declaration string from given parts and their types.
+    # The types list/string should have the same number of elements/characters as the parts list.
+    # Each element of the types list/string should be either 's', 'i' or 'f'
+    # meaning that the corresponding part will be serialized as a string, int or float.
+    # If some part is None, it will be written as an empty string.
+    # Returns the created declaration string
+    def create_declaration(parts, types):
+        for type in types:
+            if type not in ['s', 'i', 'f']:
+                Logger.log_error("Invalid types given when creating a data declaration. Declaration will not be created.")
+                return ""
+        if len(parts) != len(types):
+            Logger.log_error("Different number of parts and types given when creating a data declaration. Declaration will not be created.")
+            return ""
+        s = ""
+        for idx, part in enumerate(parts):
+            if part is None:
+                s += ";"
+                continue
+            type = types[idx]
+            if type == 's':
+                s += part + ';'
+            elif type == 'i' or type == 'f':
+                s += str(part) + ";"
+        s = s[:-1]
+        return s
+
     # Parses a variable assignment string.
     # The string should be of format "$VARIABLE_NAME=VARIABLE_VALUE"
     # where VARIABLE_NAME should match the var_name parameter here
