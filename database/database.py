@@ -152,6 +152,17 @@ class Database:
         for client in self.clients:
             file.write(client.serialize() + "\n")
 
+    def export_reservations(self, filepath):
+        # Open file
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export reservations to this file - {}".format(filepath))
+            return
+        # Export reservations by serializing each one and writing it as a line in the file
+        for reservation in self.reservations:
+            file.write(reservation.serialize() + "\n")
+
     def add_employee(self, new_employee):
         # Check if ID is unique
         max_id = 0

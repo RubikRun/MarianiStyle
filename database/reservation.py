@@ -25,3 +25,10 @@ class Reservation:
 
         reservation = Reservation(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9])
         return reservation
+
+    def serialize(self):
+        decl = DataIO.create_declaration(
+            [self.id, self.employee_id, self.client_id, self.date_time, self.procedure, self.packet_instance_id, self.percent, self.kasa, self.bg_colors, self.fg_colors],
+            "iiitsiffCC"
+        )
+        return decl
