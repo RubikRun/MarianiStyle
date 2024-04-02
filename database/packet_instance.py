@@ -19,3 +19,7 @@ class PacketInstance:
 
         packet_instance = PacketInstance(data[0], data[1], data[2], data[3], data[4], data[5])
         return packet_instance
+
+    def serialize(self):
+        decl = DataIO.create_declaration([self.id, self.packet_id, self.client_id, self.employee_id, self.bought_on, self.use_count], "iiiiti")
+        return decl
