@@ -5,6 +5,7 @@ from database.database import Database
 
 database = Database()
 database.load_employees("data/employees.data")
+database.export_employees("data/employees.data")
 database.show_info()
 
 if __name__ == "__main__":

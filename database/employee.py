@@ -15,3 +15,7 @@ class Employee:
 
         employee = Employee(data[0], data[1])
         return employee
+
+    def serialize(self):
+        decl = DataIO.create_declaration([self.id, self.name], "is")
+        return decl

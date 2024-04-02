@@ -57,6 +57,20 @@ class Database:
         # TODO: Should load reservations from file into a list self.reservations of Reservation objects
         pass
 
+    def export_employees(self, filepath):
+        # Open file
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export employees to this file - {}".format(filepath))
+            return
+        # Export employees by serializing each one and writing it as a line in the file
+        for employee in self.employees:
+            file.write(employee.serialize() + "\n")
+        # Export employer's ID as a variable assignment
+        employer_id_asgn = DataIO.create_variable_assignment("EMPLOYER_ID", self.employer_id, 'i')
+        file.write(employer_id_asgn + "\n")
+
     def add_employee(self, new_employee):
         # Check if ID is unique
         max_id = 0
