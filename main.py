@@ -5,6 +5,7 @@ from database.database import Database
 
 database = Database()
 database.load_employees("data/employees.data")
+database.load_packets("data/packets.data")
 database.export_employees("data/employees.data")
 database.show_info()
 

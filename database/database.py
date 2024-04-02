@@ -42,8 +42,20 @@ class Database:
             self.employer_id = min([employee.id for employee in self.employees])
 
     def load_packets(self, filepath):
-        # TODO: Should load packets from file into a list self.packets of Packet objects
-        pass
+        self.packets = []
+        # Open file
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested packets file not found - {}. Loading of packets will be skipped".format(filepath))
+            return
+        # Load packets by deserializing each line of the file
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            packet = Packet.deserialize(line)
+            self.add_packet(packet)
 
     def load_packet_instances(self, filepath):
         # TODO: Should load packet instances from file into a list self.packet_instances of PacketInstance objects
@@ -87,9 +99,26 @@ class Database:
         # Add employee to list
         self.employees.append(new_employee)
 
+    def add_packet(self, new_packet):
+        # Check if ID is unique
+        max_id = 0
+        is_id_valid = True
+        for packet in self.packets:
+            if packet.id == new_packet.id:
+                is_id_valid = False
+            if packet.id > max_id:
+                max_id = packet.id
+        # If not unique, create a new ID
+        if not is_id_valid:
+            new_packet.id = max_id + 1
+            Logger.log_error("New packet has a duplicate ID. Packet will be added with a new ID = {}".format(new_packet.id))
+        # Add packet to list
+        self.packets.append(new_packet)
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "
+        # Show info about employees
         Logger.log_info(dashes + " Employees " + dashes)
         Logger.log_info("There are {} employees loaded.".format(len(self.employees)))
         for idx, employee in enumerate(self.employees):
@@ -97,3 +126,14 @@ class Database:
             Logger.log_info(tab * 2 + "id = {}".format(employee.id))
             Logger.log_info(tab * 2 + "name = {}".format(employee.name))
         Logger.log_info("Employer's ID is {}".format(self.employer_id))
+        Logger.log_info("")
+        # Show info about packets
+        Logger.log_info(dashes + " Packets " + dashes)
+        Logger.log_info("There are {} packets loaded.".format(len(self.packets)))
+        for idx, packet in enumerate(self.packets):
+            Logger.log_info(tab + "Packet {}:".format(idx))
+            Logger.log_info(tab * 2 + "id = {}".format(packet.id))
+            Logger.log_info(tab * 2 + "name = {}".format(packet.name))
+            Logger.log_info(tab * 2 + "price = {}".format(packet.price))
+            Logger.log_info(tab * 2 + "uses = {}".format(packet.uses))
+            Logger.log_info(tab * 2 + "validity = {}".format(packet.validity))
