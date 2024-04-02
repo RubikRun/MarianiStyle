@@ -74,8 +74,20 @@ class Database:
             self.add_packet_instance(packet_instance)
 
     def load_clients(self, filepath):
-        # TODO: Should load clients from file into a list self.clients of Client objects
-        pass
+        self.clients = []
+        # Open file
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested clients file not found - {}. Loading of clients will be skipped".format(filepath))
+            return
+        # Load clients by deserializing each line of the file
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            client = Client.deserialize(line)
+            self.add_client(client)
 
     def load_reservations(self, filepath):
         # TODO: Should load reservations from file into a list self.reservations of Reservation objects
@@ -165,6 +177,22 @@ class Database:
         # Add packet instance to list
         self.packet_instances.append(new_packet_instance)
 
+    def add_client(self, new_client):
+        # Check if ID is unique
+        max_id = 0
+        is_id_valid = True
+        for client in self.clients:
+            if client.id == new_client.id:
+                is_id_valid = False
+            if client.id > max_id:
+                max_id = client.id
+        # If not unique, create a new ID
+        if not is_id_valid:
+            new_client.id = max_id + 1
+            Logger.log_error("New client has a duplicate ID. Client will be added with a new ID = {}".format(new_client.id))
+        # Add client to list
+        self.clients.append(new_client)
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "
@@ -199,3 +227,14 @@ class Database:
             Logger.log_info(tab * 2 + "employee_id = {}".format(packet_instance.employee_id))
             Logger.log_info(tab * 2 + "bought_on = {}".format(packet_instance.bought_on))
             Logger.log_info(tab * 2 + "use_count = {}".format(packet_instance.use_count))
+        Logger.log_info("")
+        # Show info about clients
+        Logger.log_info(dashes + " Clients " + dashes)
+        Logger.log_info("There are {} clients loaded.".format(len(self.clients)))
+        for idx, client in enumerate(self.clients):
+            Logger.log_info(tab + "Client {}:".format(idx))
+            Logger.log_info(tab * 2 + "id = {}".format(client.id))
+            Logger.log_info(tab * 2 + "name = {}".format(client.name))
+            Logger.log_info(tab * 2 + "phone = {}".format(client.phone))
+            Logger.log_info(tab * 2 + "packet_instances = {}".format(client.packet_instances))
+        Logger.log_info("")
