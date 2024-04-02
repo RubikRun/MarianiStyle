@@ -18,3 +18,7 @@ class Packet:
 
         packet = Packet(data[0], data[1], data[2], data[3], data[4])
         return packet
+
+    def serialize(self):
+        decl = DataIO.create_declaration([self.id, self.name, self.price, self.uses, self.validity], "isfii")
+        return decl

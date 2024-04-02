@@ -83,6 +83,17 @@ class Database:
         employer_id_asgn = DataIO.create_variable_assignment("EMPLOYER_ID", self.employer_id, 'i')
         file.write(employer_id_asgn + "\n")
 
+    def export_packets(self, filepath):
+        # Open file
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export packets to this file - {}".format(filepath))
+            return
+        # Export packets by serializing each one and writing it as a line in the file
+        for packet in self.packets:
+            file.write(packet.serialize() + "\n")
+
     def add_employee(self, new_employee):
         # Check if ID is unique
         max_id = 0
