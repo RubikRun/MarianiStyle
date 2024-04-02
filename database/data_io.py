@@ -91,3 +91,14 @@ class DataIO:
                     return value
                 except ValueError:
                     Logger.log_error("Value in a variable assignment is not a float. Assignment will be skipped.")
+
+    def create_variable_assignment(var_name, var_value, type):
+        asgn = "$" + var_name + "="
+        if type == 's':
+            asgn += var_value
+        elif type == 'i' or type == 'f':
+            asgn += str(var_value)
+        else:
+            Logger.log_error("Invalid type given when creating a variable assignment string. Assignment will not be created.")
+            return ""
+        return asgn
