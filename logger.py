@@ -33,4 +33,4 @@ class Logger:
     # On level 0 only error messages are printed
     # On level 1 error and warning messages are printed
     # On level 2 error, warning and info messages are printed
-    log_level = 1
+    log_level = 2
