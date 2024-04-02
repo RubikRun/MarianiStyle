@@ -1,5 +1,6 @@
 {
     "files": [
+        "logger.py",
         "main.py"
     ]
 }
