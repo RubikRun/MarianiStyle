@@ -1,14 +1,18 @@
+from ui.calendar_window import CalendarWindow
+
 from PySide2.QtCore import Qt, QSize
 from PySide2.QtCore import Slot
-from PySide2.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
+from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PySide2.QtGui import QFont, QIcon
 
 class ScheduleDateNavigatorWidget(QWidget):
-    def __init__(self, date, left_callback, right_callback):
+    def __init__(self, date, left_callback, right_callback, date_changed_callback):
         super().__init__()
         self.date = date
         self.left_callback = left_callback
         self.right_callback = right_callback
+        self.date_changed_callback = date_changed_callback
+        self.calendar_window = None
 
         self.init_constants()
         self.create_ui()
@@ -26,11 +30,12 @@ class ScheduleDateNavigatorWidget(QWidget):
         self.left_button.setFixedWidth(100)
         self.layout.addWidget(self.left_button)
 
-        self.date_label = QLabel(self.date.toString("dd.MM.yyyy"))
-        self.date_label.setFont(self.FONT)
-        self.date_label.setFixedWidth(self.FONT.pointSize() * 10)
-        self.date_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout.addWidget(self.date_label)
+        self.date_button = QPushButton(self.date.toString("dd.MM.yyyy"))
+        self.date_button.setFont(self.FONT)
+        self.date_button.clicked.connect(self.date_pressed)
+        self.date_button.setFixedWidth(100)
+        self.date_button.setFixedHeight(40)
+        self.layout.addWidget(self.date_button)
 
         self.right_button = QPushButton()
         self.right_button.clicked.connect(self.right_pressed)
@@ -46,3 +51,8 @@ class ScheduleDateNavigatorWidget(QWidget):
     @Slot()
     def right_pressed(self):
         self.right_callback()
+
+    @Slot()
+    def date_pressed(self):
+        self.calendar_window = CalendarWindow(self.date_changed_callback)
+        self.calendar_window.show()

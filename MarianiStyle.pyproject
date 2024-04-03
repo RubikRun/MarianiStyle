@@ -10,6 +10,7 @@
         "handlers/schedule_handler.py",
         "logger.py",
         "main.py",
+        "ui/calendar_window.py",
         "ui/color_buttons_widget.py",
         "ui/home_widget.py",
         "ui/main_window.py",
