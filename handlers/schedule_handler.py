@@ -54,3 +54,11 @@ class ScheduleHandler:
             else:
                 vrow += 1
         return rmap
+
+    def get_percent_sum(self, employee_id):
+        psum = 0
+        for hour in range(self.hour_begin, self.hour_end + 1):
+            rlist = self.get_reservations(employee_id, hour)
+            for reservation in rlist:
+                psum += reservation.percent
+        return psum * 0.4

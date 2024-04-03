@@ -89,6 +89,7 @@ class ScheduleTablesWidget(QWidget):
         self.tables = {}
         for employee in self.employees:
             if employee.id == self.employer.id:
+                name_view = employee.name
                 qcols_count = 4
                 qcols_labels = ["Час", "Клиент", "Процедура", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
@@ -99,6 +100,7 @@ class ScheduleTablesWidget(QWidget):
                     lambda reservation : str(reservation.kasa)
                 ]
             else:
+                name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_percent_sum(employee.id))
                 qcols_count = 5
                 qcols_labels = ["Час", "Клиент", "Процедура", "%", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
@@ -111,7 +113,7 @@ class ScheduleTablesWidget(QWidget):
                 ]
 
             self.tables[employee.id] = TableBase(
-                employee.name,
+                name_view,
                 self.vrows_count[employee.id],
                 self.vrows_sizes[employee.id],
                 qcols_count,
