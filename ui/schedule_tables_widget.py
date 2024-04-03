@@ -94,7 +94,7 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
                 viewer_callbacks = [
                     lambda reservation : reservation.date_time.time().toString("HH:mm"),
-                    lambda reservation : self.database.get_client(reservation.client_id).name,
+                    lambda reservation : self.database.get_client(reservation.client_id).get_view(),
                     lambda reservation : reservation.procedure,
                     lambda reservation : str(reservation.kasa)
                 ]
@@ -104,7 +104,7 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
                 viewer_callbacks = [
                     lambda reservation : reservation.date_time.time().toString("HH:mm"),
-                    lambda reservation : self.database.get_client(reservation.client_id).name,
+                    lambda reservation : self.database.get_client(reservation.client_id).get_view(),
                     lambda reservation : reservation.procedure,
                     lambda reservation : str(reservation.percent),
                     lambda reservation : str(reservation.kasa)

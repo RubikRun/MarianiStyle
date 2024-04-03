@@ -23,3 +23,6 @@ class Client:
     def serialize(self):
         decl = DataIO.create_declaration([self.id, self.name, self.phone, self.packet_instances], "issI")
         return decl
+
+    def get_view(self):
+        return "{} ({})".format(self.name, self.phone)
