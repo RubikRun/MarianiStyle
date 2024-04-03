@@ -13,6 +13,7 @@
         "ui/color_buttons_widget.py",
         "ui/home_widget.py",
         "ui/main_window.py",
+        "ui/schedule_date_navigator_widget.py",
         "ui/schedule_tables_widget.py",
         "ui/table_base.py"
     ]
