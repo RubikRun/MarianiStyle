@@ -31,10 +31,12 @@ class Database:
         if self.employer_id is None:
             Logger.log_error("Employer's ID was not assigned. Employer will be set to be the employee with the minimum ID")
             self.employer_id = min([employee.id for employee in self.employees])
-        # Check if employer's ID exists
+        # Check if employer's ID exists and put employer first in the list
         employer_id_exists = False
-        for employee in self.employees:
+        for idx, employee in enumerate(self.employees):
             if employee.id == self.employer_id:
+                if idx != 0:
+                    self.employees[0], self.employees[idx] = self.employees[idx], self.employees[0]
                 employer_id_exists = True
                 break
         if not employer_id_exists:
@@ -242,6 +244,17 @@ class Database:
             Logger.log_error("New reservation has a duplicate ID. Reservation will be added with a new ID = {}".format(new_reservation.id))
         # Add reservation to list
         self.reservations.append(new_reservation)
+
+    def get_employer(self):
+        for employee in self.employees:
+            if employee.id == self.employer_id:
+                return employee
+
+    def get_client(self, client_id):
+        for client in self.clients:
+            if client.id == client_id:
+                return client
+        Logger.log_error("Database cannot find client with requested ID = {}".format(client_id))
 
     def show_info(self):
         dashes = "-" * 10

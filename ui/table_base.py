@@ -5,6 +5,7 @@ from PySide2.QtGui import QFont
 from PySide2.QtCore import Qt
 
 class TableBase(QWidget):
+    # name - string - Name of the table to be used for a QLabel above the table
     # vrows_count - int - Number of virtual rows
     # vrows_sizes - list[int] - Size of each virtual row, as a number of Qt rows that it takes up
     # qcols_count - int - Number of Qt columns
@@ -17,10 +18,11 @@ class TableBase(QWidget):
     # updater_callback - func : int, int, string -> bool - Function to be called with an object's ID, column index and cell's updated string
     #                    if the object is updated in UI. Function should return true if the update was successful,
     #                    and false if the requested string value is invalid for that column meaning that it should be reverted to old value in UI
-    def __init__(self, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map, viewer_callbacks, deleter_callback, updater_callback):
+    def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map, viewer_callbacks, deleter_callback, updater_callback):
         super().__init__()
         self.init_constants()
 
+        self.name = name
         self.vrows_count = vrows_count
         self.vrows_sizes = vrows_sizes
         self.qcols_count = qcols_count
@@ -107,10 +109,12 @@ class TableBase(QWidget):
     def create_ui(self):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
 
-        self.label = QLabel("TableBase")
+        self.label = QLabel(self.name)
         self.label.setFont(self.FONT)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.layout.addWidget(self.label)
 
         self.create_table()
@@ -145,10 +149,10 @@ class TableBase(QWidget):
         self.table.cellChanged.connect(self.on_cell_changed)
 
     def set_item(self, qrow, qcol, str_value):
+        self.cells_cache[qrow][qcol] = str_value
         widget_item = QTableWidgetItem(str_value)
         widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setItem(qrow, qcol, widget_item)
-        self.cells_cache[qrow][qcol] = widget_item.text()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
@@ -161,8 +165,7 @@ class TableBase(QWidget):
         if selected_items:
             qrow = selected_items[0].row()
             for qcol in range(self.table.columnCount()):
-                self.table.setItem(qrow, qcol, None)
-                self.cells_cache[qrow][qcol] = ""
+                self.set_item(qrow, qcol, "")
             vrow = self.get_vrow_idx(qrow)
             if vrow in self.objs_map:
                 deleted_obj_id = self.objs_map[vrow].id
