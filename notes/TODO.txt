@@ -1,0 +1,1 @@
+1. Bug: insode ScheduleTablesWidget coloring of empty rows works in UI but is not saved to database

@@ -150,3 +150,25 @@ class ScheduleTablesWidget(QWidget):
         scrollbar_3.valueChanged.connect(lambda value: scrollbar_0.setValue(value))
         scrollbar_3.valueChanged.connect(lambda value: scrollbar_1.setValue(value))
         scrollbar_3.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
+
+    def color_selected_cells(self, color, bg_fg):
+        for employee in self.employees:
+            def update_color_callback(id, column):
+                if bg_fg:
+                    colors = self.database.get_reservation(id).bg_colors
+                else:
+                    colors = self.database.get_reservation(id).fg_colors
+                qcols_count = self.tables[employee.id].qcols_count
+                if column < 0 or column >= qcols_count:
+                    Logger.log_error("Trying to update color of a selected cell in database but the requested column is out of bounds. Color will not be written in database.")
+                    return
+                # Colors list might not have as many elements as the columns. If it doesn't we will extend it with the needed amount of None's
+                if column >= len(colors):
+                    colors += [None] * (column - len(colors) + 1)
+                colors[column] = color
+
+            self.tables[employee.id].color_selected_cells(
+                color,
+                bg_fg,
+                update_color_callback
+            )

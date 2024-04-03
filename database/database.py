@@ -256,6 +256,12 @@ class Database:
                 return client
         Logger.log_error("Database cannot find client with requested ID = {}".format(client_id))
 
+    def get_reservation(self, reservation_id):
+        for reservation in self.reservations:
+            if reservation.id == reservation_id:
+                return reservation
+        Logger.log_error("Database cannot find reservation with requested ID = {}".format(reservation_id))
+
     def delete_reservation(self, reservation_id):
         for ridx, reservation in enumerate(self.reservations):
             if reservation.id == reservation_id:

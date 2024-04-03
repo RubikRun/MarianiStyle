@@ -16,11 +16,10 @@ class HomeWidget(QWidget):
     def create_ui(self):
         self.layout = QGridLayout(self)
 
-        # TODO: Connect the correct 2 functions here
-        self.color_buttons_widget = ColorButtonsWidget(None, None)
+        self.schedule_tables_widget = ScheduleTablesWidget(QDate(2024, 4, 8), self.database)
+        self.color_buttons_widget = ColorButtonsWidget(self.schedule_tables_widget.color_selected_cells)
+
         self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)
-
-        self.schedule_tables_widget = ScheduleTablesWidget(QDate(2024, 4, 8), self.database)
         self.layout.addWidget(self.schedule_tables_widget, 1, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)

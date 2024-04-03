@@ -150,6 +150,9 @@ class TableBase(QWidget):
 
     def fill_table(self):
         self.cells_cache = [[""] * self.qcols_count for _ in range(self.qrows_count)]
+        for qrow in range(self.qrows_count):
+            for qcol in range(self.qcols_count):
+                self.set_item(qrow, qcol, "")
         for vrow, obj in self.objs_map.items():
             for qcol, viewer_callback in enumerate(self.viewer_callbacks):
                 obj_view = viewer_callback(obj)
@@ -192,8 +195,12 @@ class TableBase(QWidget):
                 self.set_item(qrow, qcol, "")
             vrow = self.get_vrow_idx(qrow)
             if vrow in self.objs_map:
-                deleted_obj_id = self.objs_map[vrow].id
-                self.deleter_callback(deleted_obj_id)
+                try:
+                    deleted_obj_id = self.objs_map[vrow].id
+                    self.deleter_callback(deleted_obj_id)
+                except AttributeError:
+                    # The objects in the table might not have ID, in this case ignore delete functionality
+                    pass
 
     def on_cell_changed(self, qrow, qcol):
         item = self.table.item(qrow, qcol)
@@ -203,13 +210,46 @@ class TableBase(QWidget):
                 return
             vrow = self.get_vrow_idx(qrow)
             if vrow in self.objs_map:
-                updated_obj_id = self.objs_map[vrow].id
-                if self.updater_callback(updated_obj_id, qcol, item.text()):
-                    self.cells_cache[qrow][qcol] = item.text()
-                    do_revert = False
+                try:
+                    updated_obj_id = self.objs_map[vrow].id
+                    if self.updater_callback(updated_obj_id, qcol, item.text()):
+                        self.cells_cache[qrow][qcol] = item.text()
+                        do_revert = False
+                except AttributeError:
+                    # The objects in the table might not have ID, in this case ignore update functionality
+                    pass
         if do_revert:
             self.set_item(qrow, qcol, self.cells_cache[qrow][qcol])
 
     def set_spacing_and_margin(self, spacing, ml, mu, mr, md):
         self.layout.setSpacing(spacing)
         self.layout.setContentsMargins(ml, mu, mr, md)
+
+    # Colors the currently selected cells of the table with the given color,
+    # colors their background or foreground depending on the bg_fg parameter,
+    # calls the given update_color_callback function on each colored column of an object,
+    # so if column "column" of object with id "id" is colored then update_color_callback(id, column) will be called.
+    def color_selected_cells(self, color, bg_fg, update_color_callback):
+        selected_items = self.table.selectedItems()
+
+        if selected_items:
+            for item in selected_items:
+                qrow = item.row()
+                qcol = item.column()
+                item = self.table.item(qrow, qcol)
+                if item:
+                    vrow = self.get_vrow_idx(qrow)
+                    if vrow in self.objs_map:
+                        try:
+                            updated_obj_id = self.objs_map[vrow].id
+                            update_color_callback(updated_obj_id, qcol)
+                        except AttributeError:
+                            # The objects in the table might not have ID, in this case ignore color functionality
+                            pass
+                    if bg_fg:
+                        item.setBackground(color)
+                    else:
+                        item.setForeground(color)
+                else:
+                    Logger.log_error("Trying to paint a cell from ScheduleTablesWidget with the color from clicked color button but item doesn't exist")
+        self.table.clearSelection()

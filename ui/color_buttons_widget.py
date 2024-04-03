@@ -3,12 +3,11 @@ from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
 from PySide2.QtGui import QColor, QFont
 
 class ColorButtonsWidget(QWidget):
-    def __init__(self, paint_cells_bg_callback, paint_cells_fg_callback):
+    def __init__(self, paint_cells_callback):
         super().__init__()
         self.init_constants()
 
-        self.paint_cells_bg_callback = paint_cells_bg_callback
-        self.paint_cells_fg_callback = paint_cells_fg_callback
+        self.paint_cells_callback = paint_cells_callback
 
         self.create_ui()
 
@@ -64,10 +63,10 @@ class ColorButtonsWidget(QWidget):
 
     def bg_pushed_wrapper(self, color):
         def pushed():
-            self.paint_cells_bg_callback(QColor(color[0], color[1], color[2], color[3]))
+            self.paint_cells_callback(QColor(color[0], color[1], color[2], color[3]), True)
         return pushed
 
     def fg_pushed_wrapper(self, color):
         def pushed():
-            self.paint_cells_fg_callback(QColor(color[0], color[1], color[2], color[3]))
+            self.paint_cells_callback(QColor(color[0], color[1], color[2], color[3]), False)
         return pushed
