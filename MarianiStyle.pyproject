@@ -9,6 +9,7 @@
         "database/reservation.py",
         "logger.py",
         "main.py",
-        "ui/main_window.py"
+        "ui/main_window.py",
+        "ui/table_base.py"
     ]
 }
