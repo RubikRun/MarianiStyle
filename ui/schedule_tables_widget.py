@@ -119,7 +119,7 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes,
                 self.schedule_handler.get_reservations_map(employee.id),
                 viewer_callbacks,
-                lambda id : None,
+                self.database.delete_reservation,
                 lambda id, col, s : False
             )
             if employee.id != self.employees[-1].id:

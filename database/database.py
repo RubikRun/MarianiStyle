@@ -256,6 +256,20 @@ class Database:
                 return client
         Logger.log_error("Database cannot find client with requested ID = {}".format(client_id))
 
+    def delete_reservation(self, reservation_id):
+        for ridx, reservation in enumerate(self.reservations):
+            if reservation.id == reservation_id:
+                if reservation.packet_instance_id >= 0:
+                    for pidx, packet_instance in enumerate(self.packet_instances):
+                        if packet_instance.id == reservation.packet_instance_id:
+                            if packet_instance.use_count >= 1:
+                                packet_instance.use_count -= 1
+                            else:
+                                Logger.log_error(
+                                    "Database is deleting a reservation that uses a packet instance of a user. Trying to decrement the use_count of the packet instance but it's < 1"
+                                )
+                del self.reservations[ridx]
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "

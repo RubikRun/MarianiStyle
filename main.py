@@ -10,11 +10,6 @@ database.load_packets("data/packets.data")
 database.load_packet_instances("data/packet_instances.data")
 database.load_clients("data/clients.data")
 database.load_reservations("data/reservations.data")
-database.export_employees("data/employees.data")
-database.export_packets("data/packets.data")
-database.export_packet_instances("data/packet_instances.data")
-database.export_clients("data/clients.data")
-database.export_reservations("data/reservations.data")
 
 database.show_info()
 
