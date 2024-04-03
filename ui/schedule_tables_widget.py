@@ -2,7 +2,7 @@ from logger import Logger
 from handlers.schedule_handler import ScheduleHandler
 from ui.table_base import TableBase
 
-from PySide2.QtCore import Qt, QTime
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
 from PySide2.QtGui import QFont
 
@@ -79,7 +79,7 @@ class ScheduleTablesWidget(QWidget):
             timegrid_map[vrow] = str(vrow + self.HOUR_BEGIN)
         self.timegrid_table = TableBase(
             "", self.vrows_count_timegrid, self.vrows_sizes_timegrid, 1, [""], [QHeaderView.ResizeToContents], timegrid_map,
-            [lambda s : s], lambda idx : None, lambda idx, col, s : False
+            [lambda s : s], lambda obj, column : None, lambda obj, column : None, lambda id : None, lambda id, col, s : False
         )
         self.timegrid_table.setFixedWidth(40)
         self.timegrid_table.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -119,6 +119,8 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes,
                 self.schedule_handler.get_reservations_map(employee.id),
                 viewer_callbacks,
+                lambda obj, column : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
+                lambda obj, column : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
                 self.database.delete_reservation,
                 lambda id, col, s : False
             )

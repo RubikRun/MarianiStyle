@@ -14,11 +14,14 @@ class TableBase(QWidget):
     # objs_map - dict{ int -> any } - Maps virtual rows to objects of any type
     # viewer_callbacks - list[func : any -> string] - Functions for retrieving the string content of each column.
     #                    Each function can be called on each object from the map to get a string from it for the corresponding column
+    # bg_get_color_callback - func : any, column -> QColor - Function that returns a background QColor for each object and each of its columns
+    # fg_get_color_callback - func : any, column -> QColor - Function that returns a foreground QColor for each object and each of its columns
     # deleter_callback - func : int -> None - Function to be called with an object's ID if the object is deleted in UI
     # updater_callback - func : int, int, string -> bool - Function to be called with an object's ID, column index and cell's updated string
     #                    if the object is updated in UI. Function should return true if the update was successful,
     #                    and false if the requested string value is invalid for that column meaning that it should be reverted to old value in UI
-    def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map, viewer_callbacks, deleter_callback, updater_callback):
+    def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map,
+                 viewer_callbacks, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback):
         super().__init__()
         self.init_constants()
 
@@ -30,6 +33,8 @@ class TableBase(QWidget):
         self.qcols_resize_modes = qcols_resize_modes
         self.objs_map = objs_map
         self.viewer_callbacks = viewer_callbacks
+        self.bg_get_color_callback = bg_get_color_callback
+        self.fg_get_color_callback = fg_get_color_callback
         self.deleter_callback = deleter_callback
         self.updater_callback = updater_callback
         self.validate()
@@ -86,6 +91,10 @@ class TableBase(QWidget):
                 self.viewer_callbacks += [lambda x : "missing viewer"] * (self.qcols_count - len(self.viewer_callbacks))
             else:
                 self.viewer_callbacks = self.viewer_callbacks[:self.qcols_count]
+        if self.bg_get_color_callback is None:
+            Logger.log_error("TableBase created with bg_get_color_callback that is None")
+        if self.fg_get_color_callback is None:
+            Logger.log_error("TableBase created with fg_get_color_callback that is None")
         if self.deleter_callback is None:
             Logger.log_error("TableBase created with deleter_callback that is None")
         if self.updater_callback is None:
@@ -141,11 +150,18 @@ class TableBase(QWidget):
 
     def fill_table(self):
         self.cells_cache = [[""] * self.qcols_count for _ in range(self.qrows_count)]
-        for vrow_idx, obj in self.objs_map.items():
-            for qcol_idx, viewer_callback in enumerate(self.viewer_callbacks):
+        for vrow, obj in self.objs_map.items():
+            for qcol, viewer_callback in enumerate(self.viewer_callbacks):
                 obj_view = viewer_callback(obj)
-                qrow_idx = self.get_qrow_idx(vrow_idx)
-                self.set_item(qrow_idx, qcol_idx, obj_view)
+                qrow = self.get_qrow_idx(vrow)
+                self.set_item(qrow, qcol, obj_view)
+
+                bg_color = self.bg_get_color_callback(obj, qcol)
+                if bg_color is not None:
+                    self.set_item_color(qrow, qcol, bg_color, True)
+                fg_color = self.fg_get_color_callback(obj, qcol)
+                if fg_color is not None:
+                    self.set_item_color(qrow, qcol, fg_color, False)
         self.table.cellChanged.connect(self.on_cell_changed)
 
     def set_item(self, qrow, qcol, str_value):
@@ -153,6 +169,14 @@ class TableBase(QWidget):
         widget_item = QTableWidgetItem(str_value)
         widget_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setItem(qrow, qcol, widget_item)
+
+    def set_item_color(self, qrow, qcol, color, bg_fg):
+        item = self.table.item(qrow, qcol)
+        if item:
+            if bg_fg:
+                item.setBackground(color)
+            else:
+                item.setForeground(color)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
