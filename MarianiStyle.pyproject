@@ -12,6 +12,8 @@
         "logger.py",
         "main.py",
         "ui/calendar_window.py",
+        "ui/client_register_form.py",
+        "ui/clients_window.py",
         "ui/color_buttons_widget.py",
         "ui/home_widget.py",
         "ui/input_field.py",

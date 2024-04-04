@@ -21,7 +21,6 @@ class InputField(QWidget):
 
         self.label = QLabel(self.label_str)
         self.label.setFont(self.label_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.line_edit = QLineEdit(self)
         self.line_edit.setFont(self.label_font)
         if self.completer_strings is not None:
