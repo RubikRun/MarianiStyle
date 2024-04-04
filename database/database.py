@@ -293,6 +293,22 @@ class Database:
                             )
                 del self.reservations[ridx]
 
+    def delete_packet_instance(self, packet_instance_id):
+        for pidx, packet_instance in enumerate(self.packet_instances):
+            if packet_instance.id != packet_instance_id:
+                continue
+            for client in self.clients:
+                client.packet_instances = [packet_instance_id for packet_instance_id in client.packet_instances if packet_instance_id != packet_instance_id]
+            # Find all reservations referencing this packet instance and set their packet_instance_id to -1.
+            # They don't really need it once they are created and once the packet instance is gone.
+            # All the info is in string form in reservation.procedure anyway.
+            for reservation in self.reservations:
+                if reservation.packet_instance_id == packet_instance_id:
+                    reservation.packet_instance_id = -1
+            del self.packet_instances[pidx]
+            return True
+        return False
+
     def delete_client(self, client_id):
         for cidx, client in enumerate(self.clients):
             if client.id != client_id:

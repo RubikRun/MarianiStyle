@@ -1,5 +1,3 @@
-from logger import Logger
-
 class ClientsHandler:
     # Returns the clients from given database sorted by name
     def get_clients_sorted_map(database):

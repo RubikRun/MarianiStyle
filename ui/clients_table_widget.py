@@ -72,5 +72,4 @@ class ClientsTableWidget(QWidget):
         self.layout.addWidget(self.table)
 
     def on_client_selected(self, client_id):
-        print("Client with ID = {} selected".format(client_id))
         self.on_client_selected_callback(client_id)
