@@ -3,7 +3,6 @@ from logger import Logger
 from handlers.clients_handler import ClientsHandler
 from ui.table_base import TableBase
 
-from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHeaderView
 

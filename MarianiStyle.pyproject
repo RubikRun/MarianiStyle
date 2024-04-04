@@ -9,6 +9,7 @@
         "database/reservation.py",
         "handlers/client_packets_handler.py",
         "handlers/clients_handler.py",
+        "handlers/packets_handler.py",
         "handlers/packets_sold_handler.py",
         "handlers/schedule_handler.py",
         "logger.py",

@@ -1,5 +1,5 @@
 from ui.packet_register_form import PacketRegisterForm
-#from ui.packets_table_widget import PacketsTableWidget
+from ui.packets_table_widget import PacketsTableWidget
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
@@ -27,9 +27,12 @@ class PacketsWindow(QDialog):
         self.packet_register_form = PacketRegisterForm(self.database, self.on_packets_update)
         self.layout.addWidget(self.packet_register_form, 0, 0, 1, 1)
 
-        #self.packets_table_widget = PacketsTableWidget(self.database, self.on_packets_update)
-        #self.layout.addWidget(self.packets_table_widget, 1, 0, 1, 1)
+        self.packets_table_widget = PacketsTableWidget(self.database, self.on_packets_update)
+        self.layout.addWidget(self.packets_table_widget, 1, 0, 1, 1)
 
-    def on_packets_update(self):
-        self.create_ui(True)
+    def on_packets_update(self, do_update_table = True):
+        if do_update_table:
+            self.create_ui(True)
+        else:
+            self.packet_register_form.create_ui(True)
         self.on_packets_update_callback()

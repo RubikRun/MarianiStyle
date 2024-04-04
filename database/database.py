@@ -298,7 +298,7 @@ class Database:
             if packet_instance.id != packet_instance_id:
                 continue
             for client in self.clients:
-                client.packet_instances = [packet_instance_id for packet_instance_id in client.packet_instances if packet_instance_id != packet_instance_id]
+                client.packet_instances = [piid for piid in client.packet_instances if piid != packet_instance_id]
             # Find all reservations referencing this packet instance and set their packet_instance_id to -1.
             # They don't really need it once they are created and once the packet instance is gone.
             # All the info is in string form in reservation.procedure anyway.
@@ -306,6 +306,21 @@ class Database:
                 if reservation.packet_instance_id == packet_instance_id:
                     reservation.packet_instance_id = -1
             del self.packet_instances[pidx]
+            return True
+        return False
+
+    def delete_packet(self, packet_id):
+        for pidx, packet in enumerate(self.packets):
+            if packet.id != packet_id:
+                continue
+            # Collect IDs of packet instances that reference this packet. They need to be deleted
+            todelete_packet_instance_ids = [packet_instance.id for packet_instance in self.packet_instances if packet_instance.packet_id == packet.id]
+            # Delete packet instances one by one using their IDs to avoid problems with traversing while deleting
+            for packet_instance_id in todelete_packet_instance_ids:
+                # This will delete the packet instance as well as remove it from clients and reservations that reference it
+                self.delete_packet_instance(packet_instance_id)
+            # Now we are safe to delete the packet
+            del self.packets[pidx]
             return True
         return False
 

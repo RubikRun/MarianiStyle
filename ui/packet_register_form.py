@@ -45,7 +45,7 @@ class PacketRegisterForm(QWidget):
         self.layout.addWidget(self.price_input_field)
         self.layout.setAlignment(self.price_input_field, Qt.AlignLeft)
 
-        self.price_singular_input_field = InputField("Цена без пакет", self.FONT)
+        self.price_singular_input_field = InputField("Единична цена", self.FONT)
         self.layout.addWidget(self.price_singular_input_field)
         self.layout.setAlignment(self.price_singular_input_field, Qt.AlignLeft)
 
@@ -82,14 +82,14 @@ class PacketRegisterForm(QWidget):
             Logger.log_error("Input singular price of new packet is not a float")
             return
         try:
-            uses = float(uses_str)
+            uses = int(uses_str)
         except ValueError:
-            Logger.log_error("Input uses of new packet is not a float")
+            Logger.log_error("Input uses of new packet is not an int")
             return
         try:
-            validity = float(validity_str)
+            validity = int(validity_str)
         except ValueError:
-            Logger.log_error("Input validity of new packet is not a float")
+            Logger.log_error("Input validity of new packet is not an int")
             return
 
         packet = Packet(-1, name, price, price_singular, uses, validity)
