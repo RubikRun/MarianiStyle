@@ -6,13 +6,13 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
 class ClientsWindow(QDialog):
-    def __init__(self, database, on_clients_update_callback, ):
+    def __init__(self, database, on_clients_update_callback):
         super().__init__()
         self.database = database
         self.on_clients_update_callback = on_clients_update_callback
 
         self.setWindowTitle("Клиенти")
-        self.setGeometry(200, 200, 1400, 600)
+        self.setGeometry(20, 40, 1000, 600)
 
         self.create_ui()
 
