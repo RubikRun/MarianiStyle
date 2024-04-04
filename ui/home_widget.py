@@ -16,7 +16,7 @@ class HomeWidget(QWidget):
         super().__init__()
 
         self.database = database
-        self.date = QDate(2024, 4, 8)
+        self.date = QDate(2024, 4, 4)
         self.clients_window = None
 
         self.init_constants()
