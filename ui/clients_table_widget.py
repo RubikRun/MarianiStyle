@@ -44,11 +44,30 @@ class ClientsTableWidget(QWidget):
             self.database.delete_client(client_id)
             self.on_clients_update_callback()
 
+        def updater_callback(client_id, column, str_val, vrow):
+            client = self.database.get_client(client_id)
+            if client is None:
+                return False
+
+            if column == 0:
+                if len(str_val) < 2:
+                    return False
+                client.name = str_val
+            elif column == 1:
+                if len(str_val) < 2 or len(str_val) > 20:
+                    return False
+                client.phone = str_val
+            else:
+                return False
+
+            self.on_clients_update_callback()
+            return True
+
         self.table = TableBase("Клиенти", len(clients_map), [1] * len(clients_map), 2, ["Име", "Телефон"], [QHeaderView.Stretch, QHeaderView.ResizeToContents],
                                clients_map, viewer_callback,
                                lambda obj, column, vrow : None, lambda obj, column, vrow : None,
                                deleter_callback,
-                               lambda id, col, s, vrow : False,
+                               updater_callback,
                                self.on_client_selected)
         self.layout.addWidget(self.table)
 

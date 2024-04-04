@@ -66,5 +66,5 @@ class HomeWidget(QWidget):
         self.create_ui(True)
 
     def clients_button_pressed(self):
-        self.clients_window = ClientsWindow(self, self.database, self.on_clients_update)
+        self.clients_window = ClientsWindow(self.database, self.on_clients_update)
         self.clients_window.show()

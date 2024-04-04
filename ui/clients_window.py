@@ -5,8 +5,8 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
 class ClientsWindow(QDialog):
-    def __init__(self, parent, database, on_clients_update_callback):
-        super().__init__(parent)
+    def __init__(self, database, on_clients_update_callback):
+        super().__init__()
         self.database = database
         self.on_clients_update_callback = on_clients_update_callback
 
