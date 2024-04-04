@@ -166,81 +166,81 @@ class Database:
             file.write(reservation.serialize() + "\n")
 
     def add_employee(self, new_employee):
+        # If ID is negative, create a new ID
+        if new_employee.id < 0:
+            new_employee.id = max([0] + [employee.id for employee in self.employees]) + 1
         # Check if ID is unique
-        max_id = 0
         is_id_valid = True
         for employee in self.employees:
             if employee.id == new_employee.id:
                 is_id_valid = False
-            if employee.id > max_id:
-                max_id = employee.id
         # If not unique, create a new ID
         if not is_id_valid:
-            new_employee.id = max_id + 1
+            new_employee.id = max([0] + [employee.id for employee in self.employees]) + 1
             Logger.log_error("New employee has a duplicate ID. Employee will be added with a new ID = {}".format(new_employee.id))
         # Add employee to list
         self.employees.append(new_employee)
 
     def add_packet(self, new_packet):
+        # If ID is negative, create a new ID
+        if new_packet.id < 0:
+            new_packet.id = max([0] + [packet.id for packet in self.packets]) + 1
         # Check if ID is unique
-        max_id = 0
         is_id_valid = True
         for packet in self.packets:
             if packet.id == new_packet.id:
                 is_id_valid = False
-            if packet.id > max_id:
-                max_id = packet.id
         # If not unique, create a new ID
         if not is_id_valid:
-            new_packet.id = max_id + 1
+            new_packet.id = max([0] + [packet.id for packet in self.packets]) + 1
             Logger.log_error("New packet has a duplicate ID. Packet will be added with a new ID = {}".format(new_packet.id))
         # Add packet to list
         self.packets.append(new_packet)
 
     def add_packet_instance(self, new_packet_instance):
+        # If ID is negative, create a new ID
+        if new_packet_instance.id < 0:
+            new_packet_instance.id = max([0] + [packet_instance.id for packet_instance in self.packet_instances]) + 1
         # Check if ID is unique
-        max_id = 0
         is_id_valid = True
         for packet_instance in self.packet_instances:
             if packet_instance.id == new_packet_instance.id:
                 is_id_valid = False
-            if packet_instance.id > max_id:
-                max_id = packet_instance.id
         # If not unique, create a new ID
         if not is_id_valid:
-            new_packet_instance.id = max_id + 1
+            new_packet_instance.id = max([0] + [packet_instance.id for packet_instance in self.packet_instances]) + 1
             Logger.log_error("New packet instance has a duplicate ID. Packet instance will be added with a new ID = {}".format(new_packet_instance.id))
         # Add packet instance to list
         self.packet_instances.append(new_packet_instance)
 
     def add_client(self, new_client):
+        # If ID is negative, create a new ID
+        if new_client.id < 0:
+            new_client.id = max([0] + [client.id for client in self.clients]) + 1
         # Check if ID is unique
-        max_id = 0
         is_id_valid = True
         for client in self.clients:
             if client.id == new_client.id:
                 is_id_valid = False
-            if client.id > max_id:
-                max_id = client.id
         # If not unique, create a new ID
         if not is_id_valid:
-            new_client.id = max_id + 1
+            new_client.id = max([0] + [client.id for client in self.clients]) + 1
             Logger.log_error("New client has a duplicate ID. Client will be added with a new ID = {}".format(new_client.id))
         # Add client to list
         self.clients.append(new_client)
 
     def add_reservation(self, new_reservation):
+        # If ID is negative, create a new ID
+        if new_reservation.id < 0:
+            new_reservation.id = max([0] + [reservation.id for reservation in self.reservations]) + 1
         # Check if ID is unique
-        max_id = 0
         is_id_valid = True
         for reservation in self.reservations:
             if reservation.id == new_reservation.id:
                 is_id_valid = False
-            if reservation.id > max_id:
-                max_id = reservation.id
         # If not unique, create a new ID
         if not is_id_valid:
-            new_reservation.id = max_id + 1
+            new_reservation.id = max([0] + [reservation.id for reservation in self.reservations]) + 1
             Logger.log_error("New reservation has a duplicate ID. Reservation will be added with a new ID = {}".format(new_reservation.id))
         # Add reservation to list
         self.reservations.append(new_reservation)
