@@ -12,16 +12,16 @@ class TableBase(QWidget):
     # qcols_labels - list[string] - Labels of each Qt column
     # qcols_resize_modes - list[QHeaderView.Stretch / QHeaderView.ResizeToContents] - Resize modes of each Qt column
     # objs_map - dict{ int -> any } - Maps virtual rows to objects of any type
-    # viewer_callbacks - list[func : any -> string] - Functions for retrieving the string content of each column.
-    #                    Each function can be called on each object from the map to get a string from it for the corresponding column
-    # bg_get_color_callback - func : any, column -> QColor - Function that returns a background QColor for each object and each of its columns
-    # fg_get_color_callback - func : any, column -> QColor - Function that returns a foreground QColor for each object and each of its columns
-    # deleter_callback - func : int -> None - Function to be called with an object's ID if the object is deleted in UI
-    # updater_callback - func : int, int, string -> bool - Function to be called with an object's ID, column index and cell's updated string
+    # viewer_callback - func : any, column, vrow -> string - Function for retrieving the string content of each column.
+    #                    The function can be called on each object from the map and each column to get a string from it for the corresponding column
+    # bg_get_color_callback - func : any, column, vrow -> QColor - Function that returns a background QColor for each object and each of its columns
+    # fg_get_color_callback - func : any, column, vrow -> QColor - Function that returns a foreground QColor for each object and each of its columns
+    # deleter_callback - func : int, vrow -> None - Function to be called with an object's ID if the object is deleted in UI
+    # updater_callback - func : int, int, string, vrow -> bool - Function to be called with an object's ID, column index and cell's updated string
     #                    if the object is updated in UI. Function should return true if the update was successful,
     #                    and false if the requested string value is invalid for that column meaning that it should be reverted to old value in UI
     def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map,
-                 viewer_callbacks, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback):
+                 viewer_callback, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback):
         super().__init__()
         self.init_constants()
 
@@ -32,7 +32,7 @@ class TableBase(QWidget):
         self.qcols_labels = qcols_labels
         self.qcols_resize_modes = qcols_resize_modes
         self.objs_map = objs_map
-        self.viewer_callbacks = viewer_callbacks
+        self.viewer_callback = viewer_callback
         self.bg_get_color_callback = bg_get_color_callback
         self.fg_get_color_callback = fg_get_color_callback
         self.deleter_callback = deleter_callback
@@ -58,8 +58,6 @@ class TableBase(QWidget):
         """
 
     def validate(self):
-        if self.vrows_count < 1:
-            Logger.log_error("TableBase created with vrows_count < 1")
         if len(self.vrows_sizes) != self.vrows_count:
             Logger.log_error("in TableBase the given vrows_sizes list doesn't match the vrows_count. It will be forced to match.")
             if len(self.vrows_sizes) < self.vrows_count:
@@ -85,12 +83,8 @@ class TableBase(QWidget):
                 Logger.log_error("TableBase created with objs_map containing an entry with a vrow_idx out of bounds.")
             if obj is None:
                 Logger.log_error("TableBase created with objs_map containing a None object")
-        if len(self.viewer_callbacks) != self.qcols_count:
-            Logger.log_error("TableBase created with viewer_callbacks list that doesn't match the qcols_count. It will be forced to match.")
-            if len(self.viewer_callbacks) < self.qcols_count:
-                self.viewer_callbacks += [lambda x : "missing viewer"] * (self.qcols_count - len(self.viewer_callbacks))
-            else:
-                self.viewer_callbacks = self.viewer_callbacks[:self.qcols_count]
+        if self.viewer_callback is None:
+            Logger.log_error("TableBase created with viewer_callback that is None")
         if self.bg_get_color_callback is None:
             Logger.log_error("TableBase created with bg_get_color_callback that is None")
         if self.fg_get_color_callback is None:
@@ -121,10 +115,11 @@ class TableBase(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        self.label = QLabel(self.name)
-        self.label.setFont(self.FONT)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.layout.addWidget(self.label)
+        if self.name is not None:
+            self.label = QLabel(self.name)
+            self.label.setFont(self.FONT)
+            self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self.layout.addWidget(self.label)
 
         self.create_table()
         self.fill_table()
@@ -154,15 +149,15 @@ class TableBase(QWidget):
             for qcol in range(self.qcols_count):
                 self.set_item(qrow, qcol, "")
         for vrow, obj in self.objs_map.items():
-            for qcol, viewer_callback in enumerate(self.viewer_callbacks):
-                obj_view = viewer_callback(obj)
+            for qcol in range(self.qcols_count):
+                obj_view = self.viewer_callback(obj, qcol, vrow)
                 qrow = self.get_qrow_idx(vrow)
                 self.set_item(qrow, qcol, obj_view)
 
-                bg_color = self.bg_get_color_callback(obj, qcol)
+                bg_color = self.bg_get_color_callback(obj, qcol, vrow)
                 if bg_color is not None:
                     self.set_item_color(qrow, qcol, bg_color, True)
-                fg_color = self.fg_get_color_callback(obj, qcol)
+                fg_color = self.fg_get_color_callback(obj, qcol, vrow)
                 if fg_color is not None:
                     self.set_item_color(qrow, qcol, fg_color, False)
         self.table.cellChanged.connect(self.on_cell_changed)
@@ -197,7 +192,7 @@ class TableBase(QWidget):
             if vrow in self.objs_map:
                 try:
                     deleted_obj_id = self.objs_map[vrow].id
-                    self.deleter_callback(deleted_obj_id)
+                    self.deleter_callback(deleted_obj_id, vrow)
                 except AttributeError:
                     # The objects in the table might not have ID, in this case ignore delete functionality
                     pass
@@ -212,7 +207,7 @@ class TableBase(QWidget):
             if vrow in self.objs_map:
                 try:
                     updated_obj_id = self.objs_map[vrow].id
-                    if self.updater_callback(updated_obj_id, qcol, item.text()):
+                    if self.updater_callback(updated_obj_id, qcol, item.text(), vrow):
                         self.cells_cache[qrow][qcol] = item.text()
                         do_revert = False
                 except AttributeError:
@@ -251,5 +246,57 @@ class TableBase(QWidget):
                     else:
                         item.setForeground(color)
                 else:
-                    Logger.log_error("Trying to paint a cell from ScheduleTablesWidget with the color from clicked color button but item doesn't exist")
+                    Logger.log_error("Trying to paint a cell from TableBase with the color from clicked color button but item doesn't exist")
         self.table.clearSelection()
+
+def join_table_base(first_table: TableBase, second_table: TableBase, name: str, qcols_labels: list):
+    qcols_count = first_table.qcols_count
+    if first_table.qcols_count != second_table.qcols_count:
+        Logger.log_error("Trying to join two TableBase's with different number of column. The smaller number will be used.")
+        qcols_count = min(first_table.qcols_count, second_table.qcols_count)
+    qcols_resize_modes = first_table.qcols_resize_modes
+    if len(first_table.qcols_resize_modes) != len(second_table.qcols_resize_modes):
+        Logger.log_error("Trying to join two TableBase's with different number of column resize modes. The smaller number will be used.")
+        if len(first_table.qcols_resize_modes) > len(second_table.qcols_resize_modes):
+            qcols_resize_modes = second_table.qcols_resize_modes
+    else:
+        for idx in range(len(first_table.qcols_resize_modes)):
+            if first_table.qcols_resize_modes[idx] != second_table.qcols_resize_modes[idx]:
+                Logger.log_error("Trying to join two TableBase's but some of the column resize modes are different. The ones of the first table will be used.")
+
+    objs_map = {}
+    for vrow, obj in first_table.objs_map.items():
+        objs_map[vrow] = obj
+    for vrow, obj in second_table.objs_map.items():
+        objs_map[vrow + first_table.vrows_count] = obj
+
+    def viewer_callback(obj, column, vrow):
+        if vrow < first_table.vrows_count:
+            return first_table.viewer_callback(obj, column, vrow)
+        else:
+            return second_table.viewer_callback(obj, column, vrow)
+
+    bg_get_color_callback = lambda obj, column, vrow : first_table.bg_get_color_callback(obj, column, vrow) if vrow < first_table.vrows_count \
+        else second_table.bg_get_color_callback(obj, column, vrow)
+    fg_get_color_callback = lambda obj, column, vrow : first_table.fg_get_color_callback(obj, column, vrow) if vrow < first_table.vrows_count \
+        else second_table.fg_get_color_callback(obj, column, vrow)
+    deleter_callback = lambda id, vrow : first_table.deleter_callback(id, vrow) if vrow < first_table.vrows_count \
+        else second_table.deleter_callback(id, vrow)
+    updater_callback = lambda id, column, s, vrow : first_table.updater_callback(id, column, s, vrow) if vrow < first_table.vrows_count \
+        else second_table.updater_callback(id, column, s, vrow)
+
+    table = TableBase(
+        name,
+        first_table.vrows_count + second_table.vrows_count,
+        first_table.vrows_sizes + second_table.vrows_sizes,
+        qcols_count,
+        qcols_labels,
+        qcols_resize_modes,
+        objs_map,
+        viewer_callback,
+        bg_get_color_callback,
+        fg_get_color_callback,
+        deleter_callback,
+        updater_callback
+    )
+    return table

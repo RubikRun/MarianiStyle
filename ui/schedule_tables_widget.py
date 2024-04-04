@@ -1,6 +1,7 @@
 from logger import Logger
 from handlers.schedule_handler import ScheduleHandler
-from ui.table_base import TableBase
+from handlers.packets_sold_handler import PacketsSoldHandler
+from ui.table_base import TableBase, join_table_base
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
@@ -17,6 +18,10 @@ class ScheduleTablesWidget(QWidget):
         self.employees = self.database.employees
         self.employer = self.database.get_employer()
         self.schedule_handler = ScheduleHandler(self.date, self.HOUR_BEGIN, self.HOUR_END, self.database)
+        self.packets_sold_handler = PacketsSoldHandler(self.date, self.database)
+        self.packet_instances_maps = {}
+        for employee in self.employees:
+            self.packet_instances_maps[employee.id] = self.packets_sold_handler.get_packet_instances_map(employee.id)
 
         self.init_vrows()
         self.create_ui()
@@ -70,6 +75,7 @@ class ScheduleTablesWidget(QWidget):
 
         self.create_timegrid_table()
         self.create_tables()
+        self.extend_tables_with_packets_sold()
         self.link_table_scrollbars()
 
     def create_timegrid_table(self):
@@ -79,8 +85,16 @@ class ScheduleTablesWidget(QWidget):
             timegrid_map[vrow] = str(vrow + self.HOUR_BEGIN)
         self.timegrid_table = TableBase(
             "", self.vrows_count_timegrid, self.vrows_sizes_timegrid, 1, [""], [QHeaderView.ResizeToContents], timegrid_map,
-            [lambda s : s], lambda obj, column : None, lambda obj, column : None, lambda id : None, lambda id, col, s : False
+            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
         )
+
+        suffix_vrows_count = max([len(pim) for _, pim in self.packet_instances_maps.items()])
+        suffix_table = TableBase(
+            "", suffix_vrows_count, [1] * suffix_vrows_count, 1, [""], [QHeaderView.ResizeToContents], {},
+            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
+        )
+        self.timegrid_table = join_table_base(self.timegrid_table, suffix_table, "", [""])
+
         self.timegrid_table.setFixedWidth(40)
         self.timegrid_table.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.layout.addWidget(self.timegrid_table)
@@ -93,24 +107,35 @@ class ScheduleTablesWidget(QWidget):
                 qcols_count = 4
                 qcols_labels = ["Час", "Клиент", "Процедура", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
-                viewer_callbacks = [
-                    lambda reservation : reservation.date_time.time().toString("HH:mm"),
-                    lambda reservation : self.database.get_client(reservation.client_id).get_view(),
-                    lambda reservation : reservation.procedure,
-                    lambda reservation : str(reservation.kasa)
-                ]
+                def viewer_callback(reservation, column, vrow):
+                    if column == 0:
+                        return reservation.date_time.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(reservation.client_id).get_view()
+                    elif column == 2:
+                        return reservation.procedure
+                    elif column == 3:
+                        return str(reservation.kasa)
+                    else:
+                        return ""
             else:
                 name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_percent_sum(employee.id))
                 qcols_count = 5
                 qcols_labels = ["Час", "Клиент", "Процедура", "%", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
-                viewer_callbacks = [
-                    lambda reservation : reservation.date_time.time().toString("HH:mm"),
-                    lambda reservation : self.database.get_client(reservation.client_id).get_view(),
-                    lambda reservation : reservation.procedure,
-                    lambda reservation : str(reservation.percent),
-                    lambda reservation : str(reservation.kasa)
-                ]
+                def viewer_callback(reservation, column, vrow):
+                    if column == 0:
+                        return reservation.date_time.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(reservation.client_id).get_view()
+                    elif column == 2:
+                        return reservation.procedure
+                    elif column == 3:
+                        return str(reservation.percent)
+                    elif column == 4:
+                        return str(reservation.kasa)
+                    else:
+                        return ""
 
             self.tables[employee.id] = TableBase(
                 name_view,
@@ -120,12 +145,69 @@ class ScheduleTablesWidget(QWidget):
                 qcols_labels,
                 qcols_resize_modes,
                 self.schedule_handler.get_reservations_map(employee.id),
-                viewer_callbacks,
-                lambda obj, column : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
-                lambda obj, column : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
-                self.database.delete_reservation,
-                lambda id, col, s : False
+                viewer_callback,
+                lambda obj, column, vrow : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
+                lambda obj, column, vrow : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
+                lambda id, vrow : self.database.delete_reservation(id),
+                lambda id, col, s, vrow : False
             )
+
+    def extend_tables_with_packets_sold(self):
+        for employee in self.employees:
+            if employee.id == self.employer.id:
+                qcols_count = 4
+                qcols_labels = ["Час", "Клиент", "Процедура", "Каса"]
+                qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
+                def viewer_callback(packet_instance, column, vrow):
+                    if column == 0:
+                        return packet_instance.bought_on.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(packet_instance.client_id).get_view()
+                    elif column == 2:
+                        return self.database.get_packet(packet_instance.packet_id).name
+                    elif column == 3:
+                        return str(self.database.get_packet(packet_instance.packet_id).price)
+                    else:
+                        return ""
+            else:
+                qcols_count = 5
+                qcols_labels = ["Час", "Клиент", "Процедура", "%", "Каса"]
+                qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+                def viewer_callback(packet_instance, column, vrow):
+                    if column == 0:
+                        return packet_instance.bought_on.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(packet_instance.client_id).get_view()
+                    elif column == 2:
+                        return self.database.get_packet(packet_instance.packet_id).name
+                    elif column == 3:
+                        return "0"
+                    elif column == 4:
+                        return str(self.database.get_packet(packet_instance.packet_id).price)
+                    else:
+                        return ""
+
+            packet_instances_map = self.packet_instances_maps[employee.id]
+            vrows_count = max([len(pim) for _, pim in self.packet_instances_maps.items()])
+            vrows_sizes = [1] * vrows_count
+
+            second_table = TableBase(
+                None,
+                vrows_count,
+                vrows_sizes,
+                qcols_count,
+                qcols_labels,
+                qcols_resize_modes,
+                packet_instances_map,
+                viewer_callback,
+                lambda obj, column, vrow : None,
+                lambda obj, column, vrow : None,
+                lambda id, vrow : None,
+                lambda id, col, s, vrow : False
+            )
+
+            first_table = self.tables[employee.id]
+            self.tables[employee.id] = join_table_base(first_table, second_table, first_table.name, first_table.qcols_labels)
             if employee.id != self.employees[-1].id:
                 self.tables[employee.id].table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.layout.addWidget(self.tables[employee.id])

@@ -33,10 +33,10 @@ class HomeWidget(QWidget):
         self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)
         self.layout.addWidget(self.schedule_tables_widget, 1, 0, 1, 1)
-        self.layout.addWidget(self.schedule_date_navigator_widget, 2, 0, 1, 1)
+        self.layout.addWidget(self.schedule_date_navigator_widget, 3, 0, 1, 1)
         self.layout.setAlignment(self.schedule_date_navigator_widget, Qt.AlignCenter)
         self.reservation_form.setFixedWidth(600)
-        self.layout.addWidget(self.reservation_form, 3, 0, 1, 1)
+        self.layout.addWidget(self.reservation_form, 4, 0, 1, 1)
         self.layout.setAlignment(self.reservation_form, Qt.AlignLeft)
 
     def do_next_date(self):
