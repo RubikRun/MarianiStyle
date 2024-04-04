@@ -9,10 +9,10 @@ from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
 class ClientRegisterForm(QWidget):
-    def __init__(self, database, register_callback):
+    def __init__(self, database, on_clients_update_callback):
         super().__init__()
         self.database = database
-        self.register_callback = register_callback
+        self.on_clients_update_callback = on_clients_update_callback
 
         self.init_constants()
         self.create_ui()
@@ -62,4 +62,4 @@ class ClientRegisterForm(QWidget):
 
         client = Client(-1, name, phone, [])
         self.database.add_client(client)
-        self.register_callback()
+        self.on_clients_update_callback()

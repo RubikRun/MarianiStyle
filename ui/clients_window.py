@@ -1,16 +1,17 @@
 from ui.client_register_form import ClientRegisterForm
+from ui.clients_table_widget import ClientsTableWidget
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
 class ClientsWindow(QDialog):
-    def __init__(self, parent, database, on_client_register_callback):
+    def __init__(self, parent, database, on_clients_update_callback):
         super().__init__(parent)
         self.database = database
-        self.on_client_register_callback = on_client_register_callback
+        self.on_clients_update_callback = on_clients_update_callback
 
         self.setWindowTitle("Клиенти")
-        self.setGeometry(200, 200, 800, 800)
+        self.setGeometry(200, 200, 800, 500)
 
         self.create_ui()
 
@@ -23,9 +24,15 @@ class ClientsWindow(QDialog):
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.client_register_form = ClientRegisterForm(self.database, self.on_client_register)
+        self.client_register_form = ClientRegisterForm(self.database, self.on_clients_update)
         self.layout.addWidget(self.client_register_form, 0, 0, 1, 1)
 
-    def on_client_register(self):
+        self.clients_table_widget = ClientsTableWidget(self.database, self.on_client_selected, self.on_clients_update)
+        self.layout.addWidget(self.clients_table_widget, 1, 0, 1, 1)
+
+    def on_clients_update(self):
         self.create_ui(True)
-        self.on_client_register_callback()
+        self.on_clients_update_callback()
+
+    def on_client_selected(self, client_id):
+        pass

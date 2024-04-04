@@ -21,7 +21,7 @@ class TableBase(QWidget):
     #                    if the object is updated in UI. Function should return true if the update was successful,
     #                    and false if the requested string value is invalid for that column meaning that it should be reverted to old value in UI
     def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map,
-                 viewer_callback, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback):
+                 viewer_callback, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback, on_obj_selected_callback = None):
         super().__init__()
         self.init_constants()
 
@@ -37,6 +37,7 @@ class TableBase(QWidget):
         self.fg_get_color_callback = fg_get_color_callback
         self.deleter_callback = deleter_callback
         self.updater_callback = updater_callback
+        self.on_obj_selected_callback = on_obj_selected_callback
         self.validate()
 
         self.qrows_count = sum(self.vrows_sizes)
@@ -142,6 +143,7 @@ class TableBase(QWidget):
             qrow_idx += vrow_size
         if qrow_idx != self.qrows_count:
             Logger.log_error("in TableBase qrow_idx doesn't match qrows_count after initializing the spans")
+        self.table.itemSelectionChanged.connect(self.on_selection_changed)
 
     def fill_table(self):
         self.cells_cache = [[""] * self.qcols_count for _ in range(self.qrows_count)]
@@ -215,6 +217,21 @@ class TableBase(QWidget):
                     pass
         if do_revert:
             self.set_item(qrow, qcol, self.cells_cache[qrow][qcol])
+
+    def on_selection_changed(self):
+        if self.on_obj_selected_callback is None:
+            return
+        selected_items = self.table.selectedItems()
+        if selected_items:
+            qrow = selected_items[0].row()
+            vrow = self.get_vrow_idx(qrow)
+            if vrow in self.objs_map:
+                try:
+                    selected_obj_id = self.objs_map[vrow].id
+                    self.on_obj_selected_callback(selected_obj_id)
+                except AttributeError:
+                    # The objects in the table might not have ID, in this case ignore select functionality
+                    pass
 
     def set_spacing_and_margin(self, spacing, ml, mu, mr, md):
         self.layout.setSpacing(spacing)

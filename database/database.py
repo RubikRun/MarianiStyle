@@ -293,6 +293,16 @@ class Database:
                             )
                 del self.reservations[ridx]
 
+    def delete_client(self, client_id):
+        for cidx, client in enumerate(self.clients):
+            if client.id != client_id:
+                continue
+            self.packet_instances = [packet_instance for packet_instance in self.packet_instances if packet_instance.client_id != client_id]
+            self.reservations = [reservation for reservation in self.reservations if reservation.client_id != client_id]
+            del self.clients[cidx]
+            return True
+        return False
+
     def show_info(self):
         dashes = "-" * 10
         tab = "    "
