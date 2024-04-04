@@ -13,9 +13,13 @@
         "ui/calendar_window.py",
         "ui/color_buttons_widget.py",
         "ui/home_widget.py",
+        "ui/input_field.py",
         "ui/main_window.py",
+        "ui/reservation_form.py",
         "ui/schedule_date_navigator_widget.py",
         "ui/schedule_tables_widget.py",
-        "ui/table_base.py"
+        "ui/table_base.py",
+        "ui/text_button.py",
+        "ui/time_picker_widget.py"
     ]
 }

@@ -26,3 +26,13 @@ class Client:
 
     def get_view(self):
         return "{} ({})".format(self.name, self.phone)
+
+    def get_packet_instances_views(self, database):
+        views = []
+        for packet_instance_id in self.packet_instances:
+            packet_instance = database.get_packet_instance(packet_instance_id)
+            if packet_instance is None:
+                views.append("")
+            else:
+                views.append(packet_instance.get_view(database))
+        return views

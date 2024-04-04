@@ -25,3 +25,9 @@ class PacketInstance:
     def serialize(self):
         decl = DataIO.create_declaration([self.id, self.packet_id, self.client_id, self.employee_id, self.bought_on, self.use_count], "iiiiti")
         return decl
+
+    def get_view(self, database):
+        packet = database.get_packet(self.packet_id)
+        if packet is None:
+            return ""
+        return "({}/{}) {}".format(self.use_count, packet.uses, packet.name)
