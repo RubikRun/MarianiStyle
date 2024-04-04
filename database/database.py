@@ -180,6 +180,7 @@ class Database:
             Logger.log_error("New employee has a duplicate ID. Employee will be added with a new ID = {}".format(new_employee.id))
         # Add employee to list
         self.employees.append(new_employee)
+        return new_employee.id
 
     def add_packet(self, new_packet):
         # If ID is negative, create a new ID
@@ -196,6 +197,7 @@ class Database:
             Logger.log_error("New packet has a duplicate ID. Packet will be added with a new ID = {}".format(new_packet.id))
         # Add packet to list
         self.packets.append(new_packet)
+        return new_packet.id
 
     def add_packet_instance(self, new_packet_instance):
         # If ID is negative, create a new ID
@@ -212,6 +214,7 @@ class Database:
             Logger.log_error("New packet instance has a duplicate ID. Packet instance will be added with a new ID = {}".format(new_packet_instance.id))
         # Add packet instance to list
         self.packet_instances.append(new_packet_instance)
+        return new_packet_instance.id
 
     def add_client(self, new_client):
         # If ID is negative, create a new ID
@@ -228,6 +231,7 @@ class Database:
             Logger.log_error("New client has a duplicate ID. Client will be added with a new ID = {}".format(new_client.id))
         # Add client to list
         self.clients.append(new_client)
+        return new_client.id
 
     def add_reservation(self, new_reservation):
         # If ID is negative, create a new ID
@@ -244,6 +248,7 @@ class Database:
             Logger.log_error("New reservation has a duplicate ID. Reservation will be added with a new ID = {}".format(new_reservation.id))
         # Add reservation to list
         self.reservations.append(new_reservation)
+        return new_reservation.id
 
     def get_employer(self):
         for employee in self.employees:
@@ -308,6 +313,7 @@ class Database:
             Logger.log_info(tab * 2 + "id = {}".format(packet.id))
             Logger.log_info(tab * 2 + "name = {}".format(packet.name))
             Logger.log_info(tab * 2 + "price = {}".format(packet.price))
+            Logger.log_info(tab * 2 + "price_singular = {}".format(packet.price_singular))
             Logger.log_info(tab * 2 + "uses = {}".format(packet.uses))
             Logger.log_info(tab * 2 + "validity = {}".format(packet.validity))
         Logger.log_info("")

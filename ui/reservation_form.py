@@ -1,23 +1,25 @@
+from logger import Logger
+
 from ui.input_field import InputField, ComboBoxInputField, ComboBox
 from ui.time_picker_widget import TimePickerInputWidget
 from ui.text_button import TextButton
 
-from PySide2.QtCore import Qt, Slot
+from database.reservation import Reservation
+from database.packet_instance import PacketInstance
+
+from PySide2.QtCore import Qt, Slot, QDateTime
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QCompleter
 
 class ReservationForm(QWidget):
-    def __init__(self, date, database, reserve_callback, buy_packet_callback):
+    def __init__(self, date, database, update_schedule_callback, reserve_callback, buy_packet_callback):
         super().__init__()
         self.date = date
         self.database = database
+        self.update_schedule_callback = update_schedule_callback
         self.reserve_callback = reserve_callback
         self.buy_packet_callback = buy_packet_callback
         self.init_constants()
-
-        self.employees = self.database.employees
-        self.clients = self.database.clients
-        self.packets = self.database.packets
 
         self.create_ui()
 
@@ -28,6 +30,10 @@ class ReservationForm(QWidget):
         self.HOUR_END = 20
 
     def create_ui(self, delete_old_layout = False):
+        self.employees = self.database.employees
+        self.clients = self.database.clients
+        self.packets = self.database.packets
+
         if delete_old_layout:
             # Create a temporary QWidget object and set its layout to be the current old layout.
             # That way, the temporary object is immediately deleted and it deletes the layout and all of its children widgets
@@ -56,7 +62,7 @@ class ReservationForm(QWidget):
 
     # Create the widgets specific to the currently selected packet mode
     def create_widgets_for_packet_mode(self):
-        packet_mode_index = self.packet_mode_cbox.index()
+        packet_mode_index = self.packet_mode_cbox.get_index()
 
         self.widgets_of_current_packet_mode = []
 
@@ -91,7 +97,7 @@ class ReservationForm(QWidget):
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         else:
             self.packet_cbox_input_field = ComboBoxInputField("Пакет", self.FONT, 350, int(self.FONT.pointSize() * 2.5),
-                                                              [packet.name + " (" + str(packet.price) + "лв.)" for packet in self.packets], self.widgets_of_current_packet_mode)
+                                                              [packet.get_view() for packet in self.packets], self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.packet_cbox_input_field, 4, 0, 1, 2)
             self.layout.setAlignment(self.packet_cbox_input_field, Qt.AlignLeft)
 
@@ -122,30 +128,100 @@ class ReservationForm(QWidget):
         self.clients = new_clients
         self.create_ui(True)
 
+    # Retrieves the currently selected client from database
+    def get_current_client(self):
+        client_view = self.client_input_field.get_text()
+        if client_view == "":
+            return None
+        for client in self.clients:
+            if client_view == client.get_view():
+                return client
+
+    # Retrieves the currently selected employee from database
+    def get_current_employee(self):
+        employee_name = self.employee_cbox.get_text()
+        for employee in self.employees:
+            if employee_name == employee.name:
+                return employee
+
+    # Retrieves the currently selected packet instance for the given client
+    def get_packet_instance(self, client):
+        packet_instance_view = self.packet_cbox_input_field.get_text()
+        if packet_instance_view is None or packet_instance_view == "":
+            return None
+        packet_instance = client.get_packet_instance_from_view(self.database, packet_instance_view)
+        return packet_instance
+
+    # Retrieves the currently selected packet from database
+    def get_packet(self):
+        packet_view = self.packet_cbox_input_field.get_text()
+        if packet_view is None or packet_view == "":
+            return None
+        for packet in self.packets:
+            if packet_view == packet.get_view():
+                return packet
+
     # If packet mode is 1, we have a combo box which shows the packet instances
     # of the currently selected client, if there is one.
     # This function updates the combo box items with the views of the packet instances
     # of the selected client. To be called whenever the selected client changes.
     def update_with_packet_instances_of_client(self):
-        if self.packet_mode_cbox.index() != 1:
+        if self.packet_mode_cbox.get_index() != 1:
             return
 
-        client_view = self.client_input_field.get_text()
-        if client_view == "":
-            self.packet_cbox_input_field.clear()
-            return
-        client_exists = False
-        for cl in self.clients:
-            if client_view == cl.get_view():
-                client = cl
-                client_exists = True
+        client = self.get_current_client()
 
         self.packet_cbox_input_field.clear()
-        if client_exists:
+        if client is not None:
             self.packet_cbox_input_field.set_items(client.get_packet_instances_views(self.database))
 
     # Called when the reserve/buy button is pressed
     @Slot()
     def reserve_pressed(self):
-        # TODO
-        print("reserve_pressed()")
+        employee = self.get_current_employee()
+        client = self.get_current_client()
+
+        packet_mode_index = self.packet_mode_cbox.get_index()
+        if packet_mode_index == 0:
+            time = self.time_picker_input_widget.get_time()
+            date_time = QDateTime(self.date, time)
+            procedure = self.procedure_input_field.get_text()
+            price = self.price_input_field.get_float()
+
+            reservation = Reservation(-1, employee.id, client.id, date_time, procedure, -1, price, price, [], [])
+            self.database.add_reservation(reservation)
+        elif packet_mode_index == 1:
+            time = self.time_picker_input_widget.get_time()
+            date_time = QDateTime(self.date, time)
+            packet_instance = self.get_packet_instance(client)
+            if packet_instance is None:
+                Logger.log_error("Invalid/No packet instance selected for selected client")
+                return
+            packet = self.database.get_packet(packet_instance.packet_id)
+            if packet is None:
+                Logger.log_error("Selected packet instance references a non-existing packet")
+                return
+            if packet_instance.use_count >= packet.uses:
+                Logger.log_error("Selected packet instance is all used")
+                return
+            packet_instance.use_count += 1
+
+            reservation = Reservation(-1, employee.id, client.id, date_time, packet_instance.get_view(self.database), packet_instance.id, packet.price_singular, 0, [], [])
+            self.database.add_reservation(reservation)
+        else:
+            packet = self.get_packet()
+            if packet is None:
+                Logger.log_error("Invalid/No packet selected")
+                return
+            new_packet_instance = PacketInstance(-1, packet.id, client.id, employee.id, QDateTime.currentDateTime(), 0)
+            packet_instance_id = self.database.add_packet_instance(new_packet_instance)
+            if packet_instance_id < 0:
+                Logger.log_error("Could not create packet instance in database")
+                return
+            packet_instance = self.database.get_packet_instance(packet_instance_id)
+            if packet_instance is None:
+                Logger.log_error("Cannot retrieve newly created packet instance from database")
+                return
+            client.packet_instances.append(packet_instance.id)
+
+        self.update_schedule_callback(True)

@@ -1,1 +1,4 @@
 1. Bug: insode ScheduleTablesWidget coloring of empty rows works in UI but is not saved to database
+2. Bug (potential): If I delete a reservation from UI and it uses a packet, then the packet instance's use_count is decremented but will it be updated in ReservationForm's UI?
+    Or should it specifically call an update function that recreates ReservationForm?
+3. Feature: Maybe don't show used packet instances in ReservationForm

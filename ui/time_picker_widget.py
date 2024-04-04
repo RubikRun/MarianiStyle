@@ -65,3 +65,6 @@ class TimePickerInputWidget(QWidget):
         self.layout.addWidget(self.time_picker_widget)
         if self.widgets_list is not None:
             self.widgets_list.append(self)
+
+    def get_time(self):
+        return self.time_picker_widget.get_time()

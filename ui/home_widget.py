@@ -28,7 +28,7 @@ class HomeWidget(QWidget):
         self.schedule_tables_widget = ScheduleTablesWidget(self.date, self.database)
         self.color_buttons_widget = ColorButtonsWidget(self.schedule_tables_widget.color_selected_cells)
         self.schedule_date_navigator_widget = ScheduleDateNavigatorWidget(self.date, self.do_prev_date, self.do_next_date, self.do_change_date)
-        self.reservation_form = ReservationForm(self.date, self.database, None, None)
+        self.reservation_form = ReservationForm(self.date, self.database, self.create_ui, None, None)
 
         self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)

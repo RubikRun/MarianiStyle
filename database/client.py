@@ -36,3 +36,11 @@ class Client:
             else:
                 views.append(packet_instance.get_view(database))
         return views
+
+    def get_packet_instance_from_view(self, database, packet_instance_view):
+        for packet_instance_id in self.packet_instances:
+            packet_instance = database.get_packet_instance(packet_instance_id)
+            if packet_instance is None:
+                return None
+            if packet_instance.get_view(database) == packet_instance_view:
+                return packet_instance

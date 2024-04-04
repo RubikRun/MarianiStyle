@@ -1,3 +1,5 @@
+from logger import Logger
+
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QLabel, QLineEdit, QCompleter, QComboBox
 
@@ -36,6 +38,22 @@ class InputField(QWidget):
     def get_text(self):
         return self.line_edit.text().strip()
 
+    def get_int(self):
+        try:
+            value = int(self.get_text())
+            return value
+        except ValueError:
+            Logger.log_error("Trying to get_int() from InputField but the input text is not an integer. Will use -1.")
+            return -1
+
+    def get_float(self):
+        try:
+            value = float(self.get_text())
+            return value
+        except ValueError:
+            Logger.log_error("Trying to get_float() from InputField but the input text is not an integer. Will use -1.0")
+            return -1.0
+
 class ComboBox(QWidget):
     def __init__(self, label_font, fixed_width, fixed_height, items = None, on_index_change_callback = None, widgets_list = None):
         super().__init__()
@@ -72,8 +90,11 @@ class ComboBox(QWidget):
     def clear(self):
         self.cbox.clear()
 
-    def index(self):
+    def get_index(self):
         return self.cbox.currentIndex()
+
+    def get_text(self):
+        return self.cbox.currentText()
 
 class ComboBoxInputField(QWidget):
     def __init__(self, label_str, label_font, fixed_width, fixed_height, items = None, widgets_list = None):
@@ -112,3 +133,9 @@ class ComboBoxInputField(QWidget):
 
     def clear(self):
         self.cbox.clear()
+
+    def get_index(self):
+        return self.cbox.currentIndex()
+
+    def get_text(self):
+        return self.cbox.currentText()
