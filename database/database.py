@@ -2,6 +2,7 @@ from logger import Logger
 from database.data_io import DataIO
 from database.employee import Employee
 from database.packet import Packet
+from database.voucher import Voucher
 from database.packet_instance import PacketInstance
 from database.client import Client
 from database.reservation import Reservation
@@ -75,6 +76,22 @@ class Database:
             packet_instance = PacketInstance.deserialize(line)
             self.add_packet_instance(packet_instance)
 
+    def load_vouchers(self, filepath):
+        self.vouchers = []
+        # Open file
+        try:
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            Logger.log_error("Requested vouchers file not found - {}. Loading of vouchers will be skipped".format(filepath))
+            return
+        # Load vouchers by deserializing each line of the file
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            voucher = Voucher.deserialize(line)
+            self.add_voucher(voucher)
+
     def load_clients(self, filepath):
         self.clients = []
         # Open file
@@ -142,6 +159,17 @@ class Database:
         # Export packet instances by serializing each one and writing it as a line in the file
         for packet_instance in self.packet_instances:
             file.write(packet_instance.serialize() + "\n")
+
+    def export_vouchers(self, filepath):
+        # Open file
+        try:
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export vouchers to this file - {}".format(filepath))
+            return
+        # Export vouchers by serializing each one and writing it as a line in the file
+        for voucher in self.vouchers:
+            file.write(voucher.serialize() + "\n")
 
     def export_clients(self, filepath):
         # Open file
@@ -216,6 +244,23 @@ class Database:
         self.packet_instances.append(new_packet_instance)
         return new_packet_instance.id
 
+    def add_voucher(self, new_voucher):
+        # If ID is negative, create a new ID
+        if new_voucher.id < 0:
+            new_voucher.id = max([0] + [voucher.id for voucher in self.vouchers]) + 1
+        # Check if ID is unique
+        is_id_valid = True
+        for voucher in self.vouchers:
+            if voucher.id == new_voucher.id:
+                is_id_valid = False
+        # If not unique, create a new ID
+        if not is_id_valid:
+            new_voucher.id = max([0] + [voucher.id for voucher in self.vouchers]) + 1
+            Logger.log_error("New voucher has a duplicate ID. voucher will be added with a new ID = {}".format(new_voucher.id))
+        # Add voucher to list
+        self.vouchers.append(new_voucher)
+        return new_voucher.id
+
     def add_client(self, new_client):
         # If ID is negative, create a new ID
         if new_client.id < 0:
@@ -272,6 +317,12 @@ class Database:
             if packet_instance.id == packet_instance_id:
                 return packet_instance
         Logger.log_error("Database cannot find packet instance with requested ID = {}".format(packet_instance_id))
+
+    def get_voucher(self, voucher_id):
+        for voucher in self.vouchers:
+            if voucher.id == voucher_id:
+                return voucher
+        Logger.log_error("Database cannot find voucher with requested ID = {}".format(voucher_id))
 
     def get_reservation(self, reservation_id):
         for reservation in self.reservations:
@@ -369,6 +420,19 @@ class Database:
             Logger.log_info(tab * 2 + "employee_id = {}".format(packet_instance.employee_id))
             Logger.log_info(tab * 2 + "bought_on = {}".format(packet_instance.bought_on))
             Logger.log_info(tab * 2 + "use_count = {}".format(packet_instance.use_count))
+        Logger.log_info("")
+        # Show info about vouchers
+        Logger.log_info(dashes + " Vouchers " + dashes)
+        Logger.log_info("There are {} vouchers loaded.".format(len(self.vouchers)))
+        for idx, voucher in enumerate(self.vouchers):
+            Logger.log_info(tab + "Voucher {}:".format(idx))
+            Logger.log_info(tab * 2 + "id = {}".format(voucher.id))
+            Logger.log_info(tab * 2 + "client_id = {}".format(voucher.client_id))
+            Logger.log_info(tab * 2 + "employee_id = {}".format(voucher.employee_id))
+            Logger.log_info(tab * 2 + "bought_on = {}".format(voucher.bought_on))
+            Logger.log_info(tab * 2 + "validity = {}".format(voucher.validity))
+            Logger.log_info(tab * 2 + "price = {}".format(voucher.price))
+            Logger.log_info(tab * 2 + "spent = {}".format(voucher.spent))
         Logger.log_info("")
         # Show info about clients
         Logger.log_info(dashes + " Clients " + dashes)

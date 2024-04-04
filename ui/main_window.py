@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
         self.database.export_employees("data/employees.data")
         self.database.export_packets("data/packets.data")
         self.database.export_packet_instances("data/packet_instances.data")
+        self.database.export_vouchers("data/vouchers.data")
         self.database.export_clients("data/clients.data")
         self.database.export_reservations("data/reservations.data")
         event.accept()

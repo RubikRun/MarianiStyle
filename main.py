@@ -8,6 +8,7 @@ database = Database()
 database.load_employees("data/employees.data")
 database.load_packets("data/packets.data")
 database.load_packet_instances("data/packet_instances.data")
+database.load_vouchers("data/vouchers.data")
 database.load_clients("data/clients.data")
 database.load_reservations("data/reservations.data")
 
