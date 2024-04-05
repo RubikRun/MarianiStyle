@@ -6,6 +6,7 @@ from ui.text_button import TextButton
 
 from database.reservation import Reservation
 from database.packet_instance import PacketInstance
+from database.voucher import Voucher
 
 from PySide2.QtCore import Qt, Slot, QDateTime
 from PySide2.QtGui import QFont
@@ -289,7 +290,24 @@ class ReservationForm(QWidget):
             reservation = Reservation(-1, employee.id, client.id, date_time, "{} (с ваучер)".format(procedure), -1, 1, price, 0, [], [])
             self.database.add_reservation(reservation)
         else:
-            # TODO
-            pass
+            price_str = self.price_input_field.get_text()
+            try:
+                price = float(price_str)
+            except ValueError:
+                Logger.log_error("Input price when creating a voucher is not a float. Voucher will not be created.")
+                return
+            validity_str = self.validity_cbox.get_text()
+            try:
+                validity = float(validity_str)
+            except ValueError:
+                Logger.log_error("Input validity when creating a voucher is not a float. Voucher will not be created.")
+                return
+
+            new_voucher = Voucher(-1, client.id, employee.id, QDateTime.currentDateTime(), validity, price, 0)
+            new_voucher_id = self.database.add_voucher(new_voucher)
+            if new_voucher_id < 1:
+                Logger.log_error("Trying to create a voucher but it could not be created in database.")
+                return
+            client.vouchers.append(new_voucher_id)
 
         self.update_schedule_callback(True)
