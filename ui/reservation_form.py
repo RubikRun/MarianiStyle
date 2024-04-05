@@ -249,6 +249,9 @@ class ReservationForm(QWidget):
             if packet_instance.use_count >= packet.uses:
                 Logger.log_error("Selected packet instance is all used")
                 return
+            if packet_instance.is_expired(self.database):
+                Logger.log_error("Packet is expired. Reservation will not be made.")
+                return
             packet_instance.use_count += 1
 
             reservation = Reservation(-1, employee.id, client.id, date_time, packet_instance.get_view(self.database), packet_instance.id, 0, packet.price_singular, 0, [], [])

@@ -1,6 +1,8 @@
 from database.data_io import DataIO
 from logger import Logger
 
+from PySide2.QtCore import QDateTime
+
 class PacketInstance:
     def __init__(self, id, packet_id, client_id, employee_id, bought_on, use_count):
         self.id = id
@@ -31,3 +33,13 @@ class PacketInstance:
         if packet is None:
             return ""
         return "({}/{}) {}".format(self.use_count, packet.uses, packet.name)
+
+    def is_expired(self, database):
+        packet = database.get_packet(self.packet_id)
+        if packet is None:
+            return True
+
+        current = QDateTime.currentDateTime()
+        endtime = self.bought_on.addMonths(packet.validity)
+
+        return current > endtime

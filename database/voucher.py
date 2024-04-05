@@ -1,6 +1,8 @@
 from database.data_io import DataIO
 from logger import Logger
 
+from PySide2.QtCore import QDateTime
+
 class Voucher:
     def __init__(self, id, client_id, employee_id, bought_on, validity, price, spent):
         self.id = id
@@ -31,3 +33,10 @@ class Voucher:
         if full_or_remaining:
             return "Ваучер {}лв".format(int(self.price))
         return "Ваучер {}лв".format(int(self.price - self.spent))
+
+    def is_expired(self, database):
+        current = QDateTime.currentDateTime()
+        endtime = self.bought_on.addMonths(self.validity)
+
+        return current > endtime
+
