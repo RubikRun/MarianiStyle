@@ -1,5 +1,11 @@
-1. Bug: insode ScheduleTablesWidget coloring of empty rows works in UI but is not saved to database
-2. Bug (potential): If I delete a reservation from UI and it uses a packet, then the packet instance's use_count is decremented but will it be updated in ReservationForm's UI?
-    Or should it specifically call an update function that recreates ReservationForm?
-3. Feature: Maybe don't show used packet instances in ReservationForm
-4. Feature: Maybe when reserve button is pressed clients window should be updated to reflect newly buyed vouchers/packets
+1. Долу след последния час да излизат и продадените ваучери заедно с пакетите
+2. Долу след последния час продадените пакети и ваучери да са автоматично оцветени в синьо
+3. Да не е задължителен телефон
+4. Цените да са без запетая навсякъде освен на 2-те суми
+5. Шрифт променяч
+6. Да се променят резервации в UI
+7. Да се зареждат цветовете от конфиг файл + Сложи исканите цветове и черно за букви и бяло за фон
+8. Календара по-горе и по-дясно
+9. Когато се изтриват резервации, да се ъпдейтва ReservationForm
+10. Бутон за скриване/показване на използвани пакети
+11. Когато се цукне бутон Запази да се ъпдейтва клиентския прозорец
