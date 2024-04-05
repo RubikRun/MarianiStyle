@@ -232,7 +232,7 @@ class ReservationForm(QWidget):
             procedure = self.procedure_input_field.get_text()
             price = self.price_input_field.get_float()
 
-            reservation = Reservation(-1, employee.id, client.id, date_time, procedure, -1, price, price, [], [])
+            reservation = Reservation(-1, employee.id, client.id, date_time, procedure, -1, 0, price, price, [], [])
             self.database.add_reservation(reservation)
         elif packet_mode_index == 1:
             time = self.time_picker_input_widget.get_time()
@@ -250,7 +250,7 @@ class ReservationForm(QWidget):
                 return
             packet_instance.use_count += 1
 
-            reservation = Reservation(-1, employee.id, client.id, date_time, packet_instance.get_view(self.database), packet_instance.id, packet.price_singular, 0, [], [])
+            reservation = Reservation(-1, employee.id, client.id, date_time, packet_instance.get_view(self.database), packet_instance.id, 0, packet.price_singular, 0, [], [])
             self.database.add_reservation(reservation)
         elif packet_mode_index == 2:
             packet = self.get_packet()
@@ -286,7 +286,7 @@ class ReservationForm(QWidget):
                 Logger.log_error("Couldn't use the input amount from client's vouchers. Reservation will not be made.")
                 return
 
-            reservation = Reservation(-1, employee.id, client.id, date_time, "{} (с ваучер)".format(procedure), -1, price, 0, [], [])
+            reservation = Reservation(-1, employee.id, client.id, date_time, "{} (с ваучер)".format(procedure), -1, 1, price, 0, [], [])
             self.database.add_reservation(reservation)
         else:
             # TODO

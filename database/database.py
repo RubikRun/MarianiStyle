@@ -456,6 +456,7 @@ class Database:
             Logger.log_info(tab * 2 + "date_time = {}".format(reservation.date_time))
             Logger.log_info(tab * 2 + "procedure = {}".format(reservation.procedure))
             Logger.log_info(tab * 2 + "packet_instance_id = {}".format(reservation.packet_instance_id))
+            Logger.log_info(tab * 2 + "with_voucher = {}".format(reservation.with_voucher))
             Logger.log_info(tab * 2 + "percent = {}".format(reservation.percent))
             Logger.log_info(tab * 2 + "kasa = {}".format(reservation.kasa))
             Logger.log_info(tab * 2 + "bg_colors = {}".format(reservation.bg_colors))
