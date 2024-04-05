@@ -6,7 +6,6 @@ class ClientVouchersHandler:
             return {}
 
         vouchers = [v for v in database.vouchers if v.client_id == client_id]
-        print("vouchers =", [v.client_id for v in database.vouchers])
         vouchers_map = {}
         for vrow, voucher in enumerate(vouchers):
             vouchers_map[vrow] = voucher

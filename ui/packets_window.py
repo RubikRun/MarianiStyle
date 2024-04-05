@@ -11,7 +11,7 @@ class PacketsWindow(QDialog):
         self.update_home_widget_callback = update_home_widget_callback
 
         self.setWindowTitle("Пакети")
-        self.setGeometry(20, 40, 1000, 600)
+        self.setGeometry(20, 40, 600, 600)
 
         self.create_ui()
 

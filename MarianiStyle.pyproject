@@ -32,6 +32,7 @@
         "ui/packets_table_widget.py",
         "ui/packets_window.py",
         "ui/reservation_form.py",
+        "ui/reservation_window.py",
         "ui/schedule_date_navigator_widget.py",
         "ui/schedule_tables_widget.py",
         "ui/table_base.py",

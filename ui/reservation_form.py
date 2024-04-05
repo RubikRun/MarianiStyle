@@ -15,11 +15,11 @@ from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QPushBu
 from ui.font_changer_widget import FontGlobal
 
 class ReservationForm(QWidget):
-    def __init__(self, date, database, update_schedule_callback):
+    def __init__(self, date, database, reservation_made_callback):
         super().__init__()
         self.date = date
         self.database = database
-        self.update_schedule_callback = update_schedule_callback
+        self.reservation_made_callback = reservation_made_callback
         self.init_constants()
 
         self.create_ui()
@@ -313,4 +313,4 @@ class ReservationForm(QWidget):
                 return
             client.vouchers.append(new_voucher_id)
 
-        self.update_schedule_callback(True)
+        self.reservation_made_callback()
