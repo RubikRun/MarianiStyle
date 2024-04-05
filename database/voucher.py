@@ -27,7 +27,7 @@ class Voucher:
         decl = DataIO.create_declaration([self.id, self.client_id, self.employee_id, self.bought_on, self.validity, self.price, self.spent], "iiitiff")
         return decl
 
-    def get_view(self, database, with_spent = False):
-        if with_spent:
-            return "Ваучер {}лв/{}лв".format(self.spent, self.price)
-        return "Ваучер {}лв".format(self.price)
+    def get_view(self, full_or_remaining = False):
+        if full_or_remaining:
+            return "Ваучер {}лв".format(int(self.price))
+        return "Ваучер {}лв".format(int(self.price - self.spent))

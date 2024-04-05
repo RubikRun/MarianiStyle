@@ -443,6 +443,7 @@ class Database:
             Logger.log_info(tab * 2 + "name = {}".format(client.name))
             Logger.log_info(tab * 2 + "phone = {}".format(client.phone))
             Logger.log_info(tab * 2 + "packet_instances = {}".format(client.packet_instances))
+            Logger.log_info(tab * 2 + "vouchers = {}".format(client.vouchers))
         Logger.log_info("")
         # Show info about reservations
         Logger.log_info(dashes + " Reservation " + dashes)

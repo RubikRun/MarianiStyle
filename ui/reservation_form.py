@@ -50,7 +50,7 @@ class ReservationForm(QWidget):
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)
         self.layout.setAlignment(self.employee_cbox, Qt.AlignLeft)
 
-        self.client_input_field = InputField("Клиент", self.FONT, None, [client.get_view() for client in self.clients], self.update_with_packet_instances_of_client)
+        self.client_input_field = InputField("Клиент", self.FONT, None, [client.get_view() for client in self.clients], self.on_client_updated)
         self.layout.addWidget(self.client_input_field, 2, 0, 1, 2)
 
         self.packet_mode_cbox = ComboBox(self.FONT, 250, int(self.FONT.pointSize() * 2.5),
@@ -110,16 +110,21 @@ class ReservationForm(QWidget):
             self.layout.addWidget(self.time_picker_input_widget, 4, 0, 1, 2)
             self.layout.setAlignment(self.time_picker_input_widget, Qt.AlignLeft)
 
-            self.packet_cbox_input_field = ComboBoxInputField("Ваучер", self.FONT, 150, int(self.FONT.pointSize() * 2.5), None, self.widgets_of_current_packet_mode)
-            self.layout.addWidget(self.packet_cbox_input_field, 5, 0, 1, 2)
-            self.layout.setAlignment(self.packet_cbox_input_field, Qt.AlignLeft)
+            self.vouchers_label = QLabel()
+            self.vouchers_label.setFont(self.FONT)
+            self.vouchers_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self.layout.addWidget(self.vouchers_label, 5, 0, 1, 2)
+            self.widgets_of_current_packet_mode.append(self.vouchers_label)
             self.update_with_vouchers_of_client()
 
+            self.procedure_input_field = InputField("Процедура", self.FONT, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.procedure_input_field, 6, 0, 1, 2)
+
             self.price_input_field = InputField("Цена", self.FONT, self.widgets_of_current_packet_mode)
-            self.layout.addWidget(self.price_input_field, 6, 0, 1, 2)
+            self.layout.addWidget(self.price_input_field, 7, 0, 1, 2)
 
             self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
-            self.layout.addWidget(self.reserve_button, 7, 0, 1, 1)
+            self.layout.addWidget(self.reserve_button, 8, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         else:
             self.price_input_field = InputField("Стойност", self.FONT, self.widgets_of_current_packet_mode)
@@ -184,6 +189,10 @@ class ReservationForm(QWidget):
             if packet_view == packet.get_view():
                 return packet
 
+    def on_client_updated(self):
+        self.update_with_packet_instances_of_client()
+        self.update_with_vouchers_of_client()
+
     # If packet mode is 1, we have a combo box which shows the packet instances
     # of the currently selected client, if there is one.
     # This function updates the combo box items with the views of the packet instances
@@ -200,8 +209,15 @@ class ReservationForm(QWidget):
 
     # Same as above but for packet mode 3
     def update_with_vouchers_of_client(self):
-        # TODO
-        pass
+        if self.packet_mode_cbox.get_index() != 3:
+            return
+
+        client = self.get_current_client()
+
+        if client is None:
+            self.vouchers_label.setText("(няма избран клиент)")
+        else:
+            self.vouchers_label.setText("Клиентът има ваучери на обща стойност: {}лв".format(int(client.get_vouchers_remaining_sum(self.database))))
 
     # Called when the reserve/buy button is pressed
     @Slot()
@@ -252,8 +268,26 @@ class ReservationForm(QWidget):
                 return
             client.packet_instances.append(packet_instance.id)
         elif packet_mode_index == 3:
-            # TODO
-            pass
+            time = self.time_picker_input_widget.get_time()
+            date_time = QDateTime(self.date, time)
+            procedure = self.procedure_input_field.get_text()
+            price_str = self.price_input_field.get_text()
+            try:
+                price = float(price_str)
+            except ValueError:
+                Logger.log_error("Input price to be used from client's vouchers is not a float. Reservation will not be made.")
+                return
+            vouchers_rsum = client.get_vouchers_remaining_sum(self.database)
+            if price > vouchers_rsum:
+                Logger.log_error("Input price is higher than what client has in their vouchers. Reservation will not be made.")
+                return
+
+            if not client.use_amount_from_vouchers(price, self.database):
+                Logger.log_error("Couldn't use the input amount from client's vouchers. Reservation will not be made.")
+                return
+
+            reservation = Reservation(-1, employee.id, client.id, date_time, "{} (с ваучер)".format(procedure), -1, price, 0, [], [])
+            self.database.add_reservation(reservation)
         else:
             # TODO
             pass
