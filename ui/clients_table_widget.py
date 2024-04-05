@@ -13,11 +13,7 @@ class ClientsTableWidget(QWidget):
         self.on_client_selected_callback = on_client_selected_callback
         self.on_clients_update_callback = on_clients_update_callback
 
-        self.init_constants()
         self.create_ui()
-
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:

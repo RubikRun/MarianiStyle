@@ -5,6 +5,8 @@ from PySide2.QtCore import Slot
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PySide2.QtGui import QFont, QIcon
 
+from ui.font_changer_widget import FontGlobal
+
 class ScheduleDateNavigatorWidget(QWidget):
     def __init__(self, date, left_callback, right_callback, date_changed_callback):
         super().__init__()
@@ -14,13 +16,14 @@ class ScheduleDateNavigatorWidget(QWidget):
         self.date_changed_callback = date_changed_callback
         self.calendar_window = None
 
-        self.init_constants()
         self.create_ui()
 
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
-
-    def create_ui(self):
+    def create_ui(self, delete_old_layout = False):
+        if delete_old_layout:
+            # Create a temporary QWidget object and set its layout to be the current old layout.
+            # That way, the temporary object is immediately deleted and it deletes the layout and all of its children widgets
+            QWidget().setLayout(self.layout)
+            # After that we can just create a new layout
         self.layout = QHBoxLayout(self)
 
         self.left_button = QPushButton()
@@ -31,7 +34,7 @@ class ScheduleDateNavigatorWidget(QWidget):
         self.layout.addWidget(self.left_button)
 
         self.date_button = QPushButton(self.date.toString("dd.MM.yyyy"))
-        self.date_button.setFont(self.FONT)
+        self.date_button.setFont(FontGlobal.font)
         self.date_button.clicked.connect(self.date_pressed)
         self.date_button.setFixedWidth(100)
         self.date_button.setFixedHeight(40)

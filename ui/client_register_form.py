@@ -8,13 +8,14 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
+from ui.font_changer_widget import FontGlobal
+
 class ClientRegisterForm(QWidget):
     def __init__(self, database, on_register_update_callback):
         super().__init__()
         self.database = database
         self.on_register_update_callback = on_register_update_callback
 
-        self.init_constants()
         self.create_ui()
 
     def create_ui(self, delete_old_layout = False):
@@ -29,25 +30,21 @@ class ClientRegisterForm(QWidget):
         self.layout.setSpacing(10)
 
         self.register_label = QLabel("Регистриране на клиент")
-        self.register_label.setFont(self.FONT_HEADER)
+        self.register_label.setFont(FontGlobal.font_header)
         self.register_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.layout.addWidget(self.register_label)
 
-        self.name_input_field = InputField("Име", self.FONT)
+        self.name_input_field = InputField("Име", FontGlobal.font)
         self.layout.addWidget(self.name_input_field)
         self.layout.setAlignment(self.name_input_field, Qt.AlignLeft)
 
-        self.phone_input_field = InputField("Телефон", self.FONT)
+        self.phone_input_field = InputField("Телефон", FontGlobal.font)
         self.layout.addWidget(self.phone_input_field)
         self.layout.setAlignment(self.phone_input_field, Qt.AlignLeft)
 
-        self.register_button = TextButton("Регистрирай", self.FONT, 150, 40, self.register_pressed)
+        self.register_button = TextButton("Регистрирай", FontGlobal.font, 150, 40, self.register_pressed)
         self.layout.addWidget(self.register_button)
         self.layout.setAlignment(self.register_button, Qt.AlignLeft)
-
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
-        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
 
     @Slot()
     def register_pressed(self):

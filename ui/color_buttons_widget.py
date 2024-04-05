@@ -2,25 +2,28 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
 from PySide2.QtGui import QColor, QFont
 
+from ui.font_changer_widget import FontGlobal
+
 class ColorButtonsWidget(QWidget):
     def __init__(self, paint_cells_callback):
         super().__init__()
-        self.init_constants()
 
         self.paint_cells_callback = paint_cells_callback
 
         self.create_ui()
 
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
-
-    def create_ui(self):
+    def create_ui(self, delete_old_layout = False):
+        if delete_old_layout:
+            # Create a temporary QWidget object and set its layout to be the current old layout.
+            # That way, the temporary object is immediately deleted and it deletes the layout and all of its children widgets
+            QWidget().setLayout(self.layout)
+            # After that we can just create a new layout
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(10)
 
         self.bg_label = QLabel("Клетка")
-        self.bg_label.setFont(self.FONT)
+        self.bg_label.setFont(FontGlobal.font)
         self.bg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.bg_label)
 
@@ -41,7 +44,7 @@ class ColorButtonsWidget(QWidget):
             self.layout.addWidget(self.bg_buttons[color])
 
         self.fg_label = QLabel("Текст")
-        self.fg_label.setFont(self.FONT)
+        self.fg_label.setFont(FontGlobal.font)
         self.fg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.fg_label)
 

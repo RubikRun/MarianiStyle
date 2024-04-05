@@ -12,6 +12,8 @@ from PySide2.QtCore import Qt, Slot, QDateTime
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QCompleter
 
+from ui.font_changer_widget import FontGlobal
+
 class ReservationForm(QWidget):
     def __init__(self, date, database, update_schedule_callback):
         super().__init__()
@@ -23,8 +25,6 @@ class ReservationForm(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
-        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
         self.HOUR_BEGIN = 8
         self.HOUR_END = 20
 
@@ -43,18 +43,18 @@ class ReservationForm(QWidget):
         self.layout.setContentsMargins(10, 10, 10, 10)
 
         self.reserve_label = QLabel("Запазване на час")
-        self.reserve_label.setFont(self.FONT_HEADER)
+        self.reserve_label.setFont(FontGlobal.font_header)
         self.reserve_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.reserve_label, 0, 0, 1, 2)
 
-        self.employee_cbox = ComboBox(self.FONT, 100, int(self.FONT.pointSize() * 2.5), [employee.name for employee in self.employees])
+        self.employee_cbox = ComboBox(FontGlobal.font, 100, int(FontGlobal.font.pointSize() * 2.5), [employee.name for employee in self.employees])
         self.layout.addWidget(self.employee_cbox, 1, 0, 1, 2)
         self.layout.setAlignment(self.employee_cbox, Qt.AlignLeft)
 
-        self.client_input_field = InputField("Клиент", self.FONT, None, [client.get_view() for client in self.clients], self.on_client_updated)
+        self.client_input_field = InputField("Клиент", FontGlobal.font, None, [client.get_view() for client in self.clients], self.on_client_updated)
         self.layout.addWidget(self.client_input_field, 2, 0, 1, 2)
 
-        self.packet_mode_cbox = ComboBox(self.FONT, 250, int(self.FONT.pointSize() * 2.5),
+        self.packet_mode_cbox = ComboBox(FontGlobal.font, 250, int(FontGlobal.font.pointSize() * 2.5),
                                          ["Без пакет", "С пакет", "Купуване на пакет", "С ваучер", "Купуване на ваучер"], self.packet_mode_changed)
         self.layout.addWidget(self.packet_mode_cbox, 3, 0, 1, 2)
         self.layout.setAlignment(self.packet_mode_cbox, Qt.AlignLeft)
@@ -68,76 +68,76 @@ class ReservationForm(QWidget):
         self.widgets_of_current_packet_mode = []
 
         if packet_mode_index == 0:
-            self.time_picker_input_widget = TimePickerInputWidget("Време", self.FONT, self.HOUR_BEGIN, self.HOUR_END,
-                                                                  290, int(self.FONT.pointSize() * 2.3), self.widgets_of_current_packet_mode)
+            self.time_picker_input_widget = TimePickerInputWidget("Време", FontGlobal.font, self.HOUR_BEGIN, self.HOUR_END,
+                                                                  290, int(FontGlobal.font.pointSize() * 2.3), self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.time_picker_input_widget, 4, 0, 1, 2)
             self.layout.setAlignment(self.time_picker_input_widget, Qt.AlignLeft)
 
-            self.procedure_input_field = InputField("Процедура", self.FONT, self.widgets_of_current_packet_mode)
+            self.procedure_input_field = InputField("Процедура", FontGlobal.font, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.procedure_input_field, 5, 0, 1, 2)
 
-            self.price_input_field = InputField("Цена", self.FONT, self.widgets_of_current_packet_mode)
+            self.price_input_field = InputField("Цена", FontGlobal.font, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.price_input_field, 6, 0, 1, 2)
 
-            self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.reserve_button = TextButton("Запази", FontGlobal.font, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 7, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         elif packet_mode_index == 1:
-            self.time_picker_input_widget = TimePickerInputWidget("Време", self.FONT, self.HOUR_BEGIN, self.HOUR_END,
-                                                                  290, int(self.FONT.pointSize() * 2.3), self.widgets_of_current_packet_mode)
+            self.time_picker_input_widget = TimePickerInputWidget("Време", FontGlobal.font, self.HOUR_BEGIN, self.HOUR_END,
+                                                                  290, int(FontGlobal.font.pointSize() * 2.3), self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.time_picker_input_widget, 4, 0, 1, 2)
             self.layout.setAlignment(self.time_picker_input_widget, Qt.AlignLeft)
 
-            self.packet_cbox_input_field = ComboBoxInputField("Пакет", self.FONT, 350, int(self.FONT.pointSize() * 2.5), None, self.widgets_of_current_packet_mode)
+            self.packet_cbox_input_field = ComboBoxInputField("Пакет", FontGlobal.font, 350, int(FontGlobal.font.pointSize() * 2.5), None, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.packet_cbox_input_field, 5, 0, 1, 2)
             self.layout.setAlignment(self.packet_cbox_input_field, Qt.AlignLeft)
             self.update_with_packet_instances_of_client()
 
-            self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.reserve_button = TextButton("Запази", FontGlobal.font, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 6, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         elif packet_mode_index == 2:
-            self.packet_cbox_input_field = ComboBoxInputField("Пакет", self.FONT, 350, int(self.FONT.pointSize() * 2.5),
+            self.packet_cbox_input_field = ComboBoxInputField("Пакет", FontGlobal.font, 350, int(FontGlobal.font.pointSize() * 2.5),
                                                               [packet.get_view() for packet in self.packets], self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.packet_cbox_input_field, 4, 0, 1, 2)
             self.layout.setAlignment(self.packet_cbox_input_field, Qt.AlignLeft)
 
-            self.reserve_button = TextButton("Купи", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.reserve_button = TextButton("Купи", FontGlobal.font, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 5, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         elif packet_mode_index == 3:
-            self.time_picker_input_widget = TimePickerInputWidget("Време", self.FONT, self.HOUR_BEGIN, self.HOUR_END,
-                                                                  290, int(self.FONT.pointSize() * 2.3), self.widgets_of_current_packet_mode)
+            self.time_picker_input_widget = TimePickerInputWidget("Време", FontGlobal.font, self.HOUR_BEGIN, self.HOUR_END,
+                                                                  290, int(FontGlobal.font.pointSize() * 2.3), self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.time_picker_input_widget, 4, 0, 1, 2)
             self.layout.setAlignment(self.time_picker_input_widget, Qt.AlignLeft)
 
             self.vouchers_label = QLabel()
-            self.vouchers_label.setFont(self.FONT)
+            self.vouchers_label.setFont(FontGlobal.font)
             self.vouchers_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
             self.layout.addWidget(self.vouchers_label, 5, 0, 1, 2)
             self.widgets_of_current_packet_mode.append(self.vouchers_label)
             self.update_with_vouchers_of_client()
 
-            self.procedure_input_field = InputField("Процедура", self.FONT, self.widgets_of_current_packet_mode)
+            self.procedure_input_field = InputField("Процедура", FontGlobal.font, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.procedure_input_field, 6, 0, 1, 2)
 
-            self.price_input_field = InputField("Цена", self.FONT, self.widgets_of_current_packet_mode)
+            self.price_input_field = InputField("Цена", FontGlobal.font, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.price_input_field, 7, 0, 1, 2)
 
-            self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.reserve_button = TextButton("Запази", FontGlobal.font, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 8, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
         else:
-            self.price_input_field = InputField("Стойност", self.FONT, self.widgets_of_current_packet_mode)
+            self.price_input_field = InputField("Стойност", FontGlobal.font, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.price_input_field, 4, 0, 1, 2)
 
-            self.validity_cbox = ComboBoxInputField("Валидност", self.FONT, 60, int(self.FONT.pointSize() * 2.5),
+            self.validity_cbox = ComboBoxInputField("Валидност", FontGlobal.font, 60, int(FontGlobal.font.pointSize() * 2.5),
                                                     [str(months) for months in range(1, 13)], self.widgets_of_current_packet_mode)
             self.validity_cbox.cbox.setCurrentIndex(4) # set default validity to be 5 months
             self.layout.addWidget(self.validity_cbox, 5, 0, 1, 2)
             self.layout.setAlignment(self.validity_cbox, Qt.AlignLeft)
 
-            self.reserve_button = TextButton("Купи", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.reserve_button = TextButton("Купи", FontGlobal.font, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 6, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
 

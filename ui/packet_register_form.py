@@ -8,18 +8,15 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
+from ui.font_changer_widget import FontGlobal
+
 class PacketRegisterForm(QWidget):
     def __init__(self, database, on_packets_update_callback):
         super().__init__()
         self.database = database
         self.on_packets_update_callback = on_packets_update_callback
 
-        self.init_constants()
         self.create_ui()
-
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
-        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:
@@ -33,31 +30,31 @@ class PacketRegisterForm(QWidget):
         self.layout.setSpacing(10)
 
         self.register_label = QLabel("Създаване на пакет")
-        self.register_label.setFont(self.FONT_HEADER)
+        self.register_label.setFont(FontGlobal.font_header)
         self.register_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.layout.addWidget(self.register_label)
 
-        self.name_input_field = InputField("Име", self.FONT)
+        self.name_input_field = InputField("Име", FontGlobal.font)
         self.layout.addWidget(self.name_input_field)
         self.layout.setAlignment(self.name_input_field, Qt.AlignLeft)
 
-        self.price_input_field = InputField("Цена на пакет", self.FONT)
+        self.price_input_field = InputField("Цена на пакет", FontGlobal.font)
         self.layout.addWidget(self.price_input_field)
         self.layout.setAlignment(self.price_input_field, Qt.AlignLeft)
 
-        self.price_singular_input_field = InputField("Единична цена", self.FONT)
+        self.price_singular_input_field = InputField("Единична цена", FontGlobal.font)
         self.layout.addWidget(self.price_singular_input_field)
         self.layout.setAlignment(self.price_singular_input_field, Qt.AlignLeft)
 
-        self.uses_input_field = InputField("Брой ползвания", self.FONT)
+        self.uses_input_field = InputField("Брой ползвания", FontGlobal.font)
         self.layout.addWidget(self.uses_input_field)
         self.layout.setAlignment(self.uses_input_field, Qt.AlignLeft)
 
-        self.validity_input_field = InputField("Валидност", self.FONT)
+        self.validity_input_field = InputField("Валидност", FontGlobal.font)
         self.layout.addWidget(self.validity_input_field)
         self.layout.setAlignment(self.validity_input_field, Qt.AlignLeft)
 
-        self.register_button = TextButton("Създай", self.FONT, 150, 40, self.register_pressed)
+        self.register_button = TextButton("Създай", FontGlobal.font, 150, 40, self.register_pressed)
         self.layout.addWidget(self.register_button)
         self.layout.setAlignment(self.register_button, Qt.AlignLeft)
 

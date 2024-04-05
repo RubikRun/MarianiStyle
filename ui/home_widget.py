@@ -6,7 +6,7 @@ from ui.schedule_date_navigator_widget import ScheduleDateNavigatorWidget
 from ui.reservation_form import ReservationForm
 from ui.clients_window import ClientsWindow
 from ui.packets_window import PacketsWindow
-
+from ui.font_changer_widget import FontChangerWidget, FontGlobal
 
 from PySide2.QtCore import Qt, QDate
 from PySide2.QtWidgets import QWidget, QGridLayout
@@ -21,11 +21,7 @@ class HomeWidget(QWidget):
         self.clients_window = None
         self.packets_window = None
 
-        self.init_constants()
         self.create_ui()
-
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:
@@ -37,13 +33,16 @@ class HomeWidget(QWidget):
 
         self.schedule_tables_widget = ScheduleTablesWidget(self.date, self.database, self.update_reservation_form)
         self.color_buttons_widget = ColorButtonsWidget(self.schedule_tables_widget.color_selected_cells)
-        self.clients_button = TextButton("Клиенти", self.FONT, 100, 40, self.clients_button_pressed)
-        self.packets_button = TextButton("Пакети", self.FONT, 100, 40, self.packets_button_pressed)
+        self.font_changer_widget = FontChangerWidget(self.update_font_size)
+        self.clients_button = TextButton("Клиенти", FontGlobal.font, 100, 40, self.clients_button_pressed)
+        self.packets_button = TextButton("Пакети", FontGlobal.font, 100, 40, self.packets_button_pressed)
         self.schedule_date_navigator_widget = ScheduleDateNavigatorWidget(self.date, self.do_prev_date, self.do_next_date, self.do_change_date)
         self.reservation_form = ReservationForm(self.date, self.database, self.create_ui)
 
         self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)
+        self.layout.addWidget(self.font_changer_widget, 0, 1, 1, 1)
+        self.layout.setAlignment(self.font_changer_widget, Qt.AlignLeft)
         self.layout.addWidget(self.packets_button, 0, 8, 1, 1)
         self.layout.setAlignment(self.packets_button, Qt.AlignRight)
         self.layout.addWidget(self.clients_button, 0, 9, 1, 1)
@@ -66,6 +65,20 @@ class HomeWidget(QWidget):
     def do_change_date(self, date):
         self.date = date
         self.create_ui(True)
+
+    def update_font_size(self):
+        self.schedule_tables_widget.create_ui(True)
+        self.color_buttons_widget.create_ui(True)
+        self.font_changer_widget.update_font_of_label()
+        self.clients_button.update_font_size()
+        self.packets_button.update_font_size()
+        self.schedule_date_navigator_widget.create_ui(True)
+        self.reservation_form.create_ui(True)
+
+        if self.clients_window is not None:
+            self.clients_window.create_ui(True)
+        if self.packets_window is not None:
+            self.packets_window.create_ui(True)
 
     def update_home_widget(self):
         self.create_ui(True)

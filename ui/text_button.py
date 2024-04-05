@@ -1,5 +1,7 @@
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton
 
+from ui.font_changer_widget import FontGlobal
+
 class TextButton(QWidget):
     def __init__(self, label_str, label_font, fixed_width, fixed_height, on_press_callback, widgets_list = None):
         super().__init__()
@@ -24,3 +26,6 @@ class TextButton(QWidget):
         self.layout.addWidget(self.button)
         if self.widgets_list is not None:
             self.widgets_list.append(self)
+
+    def update_font_size(self):
+        self.button.font().setPixelSize(FontGlobal.font_size)

@@ -23,6 +23,7 @@
         "ui/clients_table_widget.py",
         "ui/clients_window.py",
         "ui/color_buttons_widget.py",
+        "ui/font_changer_widget.py",
         "ui/home_widget.py",
         "ui/input_field.py",
         "ui/main_window.py",

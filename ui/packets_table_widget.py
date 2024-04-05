@@ -12,11 +12,7 @@ class PacketsTableWidget(QWidget):
         self.database = database
         self.on_packets_update_callback = on_packets_update_callback
 
-        self.init_constants()
         self.create_ui()
-
-    def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:

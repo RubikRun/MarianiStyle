@@ -4,6 +4,8 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetIt
 from PySide2.QtGui import QFont
 from PySide2.QtCore import Qt
 
+from ui.font_changer_widget import FontGlobal
+
 class TableBase(QWidget):
     # name - string - Name of the table to be used for a QLabel above the table
     # vrows_count - int - Number of virtual rows
@@ -44,7 +46,6 @@ class TableBase(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
         self.STYLESHEET = """
             QTableWidget {
                 background-color: #f0f0f0;
@@ -54,7 +55,7 @@ class TableBase(QWidget):
             QHeaderView::section {
                 background-color: #606060;
                 color: white;
-                font-size: """ + str(self.FONT.pointSize()) + """pt;
+                font-size: """ + str(FontGlobal.font.pointSize()) + """pt;
             }
         """
 
@@ -118,7 +119,7 @@ class TableBase(QWidget):
 
         if self.name is not None:
             self.label = QLabel(self.name)
-            self.label.setFont(self.FONT)
+            self.label.setFont(FontGlobal.font)
             self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
             self.layout.addWidget(self.label)
 
@@ -132,7 +133,7 @@ class TableBase(QWidget):
             self.table.horizontalHeader().setSectionResizeMode(qcol_idx, resize_mode)
         self.table.verticalHeader().hide()
         self.table.setStyleSheet(self.STYLESHEET)
-        self.table.setFont(self.FONT)
+        self.table.setFont(FontGlobal.font)
         self.layout.addWidget(self.table)
 
         qrow_idx = 0

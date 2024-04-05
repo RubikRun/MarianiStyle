@@ -28,7 +28,6 @@ class ScheduleTablesWidget(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 10)
         self.HOUR_BEGIN = 8
         self.HOUR_END = 20
 
@@ -69,7 +68,12 @@ class ScheduleTablesWidget(QWidget):
                 # Each hour will contribute as many vrows as there are reservations for the employee at that hour, or 1 if there are no reservations
                 self.vrows_count[employee.id] += max(1, reservations_count)
 
-    def create_ui(self):
+    def create_ui(self, delete_old_layout = False):
+        if delete_old_layout:
+            # Create a temporary QWidget object and set its layout to be the current old layout.
+            # That way, the temporary object is immediately deleted and it deletes the layout and all of its children widgets
+            QWidget().setLayout(self.layout)
+            # After that we can just create a new layout
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 0, 10, 10)
         self.layout.setSpacing(5)
