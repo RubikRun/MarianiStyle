@@ -18,8 +18,8 @@ class PacketRegisterForm(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
-        self.FONT_HEADER = QFont("Verdana", 16, QFont.Bold)
+        self.FONT = QFont("Verdana", 10)
+        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:

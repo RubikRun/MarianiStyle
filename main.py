@@ -17,6 +17,6 @@ database.show_info()
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow(database)
-    window.resize(1400, 800)
+    window.resize(1500, 900)
     window.show()
     sys.exit(app.exec_())

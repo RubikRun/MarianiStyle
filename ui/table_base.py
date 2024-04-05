@@ -44,7 +44,7 @@ class TableBase(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
+        self.FONT = QFont("Verdana", 10)
         self.STYLESHEET = """
             QTableWidget {
                 background-color: #f0f0f0;

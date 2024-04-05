@@ -16,7 +16,7 @@ class PacketsTableWidget(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
+        self.FONT = QFont("Verdana", 10)
 
     def create_ui(self, delete_old_layout = False):
         if delete_old_layout:

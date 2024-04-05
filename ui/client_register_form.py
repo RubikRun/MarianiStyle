@@ -46,8 +46,8 @@ class ClientRegisterForm(QWidget):
         self.layout.setAlignment(self.register_button, Qt.AlignLeft)
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
-        self.FONT_HEADER = QFont("Verdana", 16, QFont.Bold)
+        self.FONT = QFont("Verdana", 10)
+        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
 
     @Slot()
     def register_pressed(self):

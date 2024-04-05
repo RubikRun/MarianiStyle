@@ -18,7 +18,7 @@ class ScheduleDateNavigatorWidget(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
+        self.FONT = QFont("Verdana", 10)
 
     def create_ui(self):
         self.layout = QHBoxLayout(self)

@@ -23,8 +23,8 @@ class ReservationForm(QWidget):
         self.create_ui()
 
     def init_constants(self):
-        self.FONT = QFont("Verdana", 12)
-        self.FONT_HEADER = QFont("Verdana", 16, QFont.Bold)
+        self.FONT = QFont("Verdana", 10)
+        self.FONT_HEADER = QFont("Verdana", 12, QFont.Bold)
         self.HOUR_BEGIN = 8
         self.HOUR_END = 20
 
