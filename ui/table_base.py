@@ -117,11 +117,13 @@ class TableBase(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        if self.name is not None:
+        if self.name is None:
+            self.label = QLabel()
+        else:
             self.label = QLabel(self.name)
-            self.label.setFont(FontGlobal.font)
-            self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            self.layout.addWidget(self.label)
+        self.label.setFont(FontGlobal.font)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.layout.addWidget(self.label)
 
         self.create_table()
         self.fill_table()
@@ -266,6 +268,10 @@ class TableBase(QWidget):
                 else:
                     Logger.log_error("Trying to paint a cell from TableBase with the color from clicked color button but item doesn't exist")
         self.table.clearSelection()
+
+    def update_name(self, new_name):
+        self.name = new_name
+        self.label.setText(self.name)
 
 def join_table_base(first_table: TableBase, second_table: TableBase, name: str, qcols_labels: list):
     qcols_count = first_table.qcols_count

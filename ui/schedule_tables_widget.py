@@ -4,7 +4,7 @@ from handlers.packets_sold_handler import PacketsSoldHandler
 from handlers.vouchers_sold_handler import VouchersSoldHandler
 from ui.table_base import TableBase, join_table_base
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QTime, QDateTime
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
 from PySide2.QtGui import QFont
 
@@ -129,6 +129,33 @@ class ScheduleTablesWidget(QWidget):
                         return str(reservation.kasa)
                     else:
                         return ""
+
+                def updater_callback(reservation_id, column, str_val, vrow):
+                    reservation = self.database.get_reservation(reservation_id)
+                    if reservation is None:
+                        return False
+
+                    if column == 0:
+                        new_time = QTime.fromString(str_val, "HH:mm")
+                        if not new_time.isValid():
+                            return False
+                        reservation.date_time.setTime(new_time)
+                    elif column == 1:
+                        pass
+                    elif column == 2:
+                        pass
+                    elif column == 3:
+                        try:
+                            kasa = float(str_val)
+                            if kasa < 0:
+                                return False
+                        except ValueError:
+                            return False
+                        reservation.kasa = kasa
+                    else:
+                        return False
+
+                    return True
             else:
                 name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_percent_sum(employee.id))
                 qcols_count = 5
@@ -148,6 +175,46 @@ class ScheduleTablesWidget(QWidget):
                     else:
                         return ""
 
+                def updater_callback(reservation_id, column, str_val, vrow):
+                    reservation = self.database.get_reservation(reservation_id)
+                    if reservation is None:
+                        return False
+
+                    if column == 0:
+                        new_time = QTime.fromString(str_val, "HH:mm")
+                        if not new_time.isValid():
+                            return False
+                        reservation.date_time.setTime(new_time)
+                    elif column == 1:
+                        pass
+                    elif column == 2:
+                        pass
+                    elif column == 3:
+                        try:
+                            percent = float(str_val)
+                            if percent < 0:
+                                return False
+                        except ValueError:
+                            return False
+                        reservation.percent = percent
+                    elif column == 4:
+                        try:
+                            kasa = float(str_val)
+                            if kasa < 0:
+                                return False
+                        except ValueError:
+                            return False
+                        reservation.kasa = kasa
+                    else:
+                        return False
+
+                    for emp in self.employees:
+                        if emp.id == self.employer.id:
+                            continue
+                        emp_name_view = "{} ({:.2f}лв)".format(emp.name, self.schedule_handler.get_percent_sum(emp.id))
+                        self.tables[emp.id].update_name(emp_name_view)
+                    return True
+
             def deleter_callback(id, vrow):
                 self.database.delete_reservation(id)
                 self.update_reservation_form_callback()
@@ -164,7 +231,7 @@ class ScheduleTablesWidget(QWidget):
                 lambda obj, column, vrow : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
                 lambda obj, column, vrow : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
                 deleter_callback,
-                lambda id, col, s, vrow : False
+                updater_callback
             )
 
     def extend_tables_with_packets_sold(self):
