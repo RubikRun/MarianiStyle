@@ -52,7 +52,7 @@ class Client:
         rsum = 0
         for voucher_id in self.vouchers:
             voucher = database.get_voucher(voucher_id)
-            if voucher is not None and not voucher.is_expired():
+            if voucher is not None and not voucher.is_expired(database):
                 rsum += voucher.price - voucher.spent
         return rsum
 

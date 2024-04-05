@@ -389,6 +389,17 @@ class Database:
             return True
         return False
 
+    def delete_voucher(self, voucher_id):
+        for vidx, voucher in enumerate(self.vouchers):
+            if voucher.id != voucher_id:
+                continue
+            client = self.get_client(voucher.client_id)
+            if client is None:
+                Logger.log_error("Deleting voucher from database but its client_id doesn't exist so it cannot be delete from client's vouchers.")
+            else:
+                client.vouchers = [vid for vid in client.vouchers if vid != voucher_id]
+            del self.vouchers[vidx]
+
     def delete_client(self, client_id):
         for cidx, client in enumerate(self.clients):
             if client.id != client_id:

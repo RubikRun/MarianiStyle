@@ -5,10 +5,10 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
 class PacketsWindow(QDialog):
-    def __init__(self, database, on_packets_update_callback):
+    def __init__(self, database, update_home_widget_callback):
         super().__init__()
         self.database = database
-        self.on_packets_update_callback = on_packets_update_callback
+        self.update_home_widget_callback = update_home_widget_callback
 
         self.setWindowTitle("Пакети")
         self.setGeometry(20, 40, 1000, 600)
@@ -35,4 +35,4 @@ class PacketsWindow(QDialog):
             self.create_ui(True)
         else:
             self.packet_register_form.create_ui(True)
-        self.on_packets_update_callback()
+        self.update_home_widget_callback()

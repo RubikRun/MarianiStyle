@@ -1,18 +1,19 @@
 from ui.client_register_form import ClientRegisterForm
 from ui.clients_table_widget import ClientsTableWidget
 from ui.client_packets_table_widget import ClientPacketsTableWidget
+from ui.client_vouchers_table_widget import ClientVouchersTableWidget
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QWidget, QGridLayout
 
 class ClientsWindow(QDialog):
-    def __init__(self, database, on_clients_update_callback):
+    def __init__(self, database, update_home_widget_callback):
         super().__init__()
         self.database = database
-        self.on_clients_update_callback = on_clients_update_callback
+        self.update_home_widget_callback = update_home_widget_callback
 
         self.setWindowTitle("Клиенти")
-        self.setGeometry(20, 40, 1000, 600)
+        self.setGeometry(20, 40, 1200, 600)
 
         self.create_ui()
 
@@ -25,21 +26,25 @@ class ClientsWindow(QDialog):
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.client_register_form = ClientRegisterForm(self.database, self.on_clients_update)
+        self.client_register_form = ClientRegisterForm(self.database, self.on_register_update)
         self.layout.addWidget(self.client_register_form, 0, 0, 1, 1)
 
-        self.clients_table_widget = ClientsTableWidget(self.database, self.on_client_selected, self.on_clients_update)
-        self.layout.addWidget(self.clients_table_widget, 1, 0, 1, 1)
+        self.clients_table_widget = ClientsTableWidget(self.database, self.on_client_selected, self.on_table_update)
+        self.layout.addWidget(self.clients_table_widget, 1, 0, 2, 1)
 
-        self.client_packets_table_widget = ClientPacketsTableWidget(self.database, -1, self.on_packets_update)
+        self.client_packets_table_widget = ClientPacketsTableWidget(self.database, -1, self.on_table_update)
         self.layout.addWidget(self.client_packets_table_widget, 1, 1, 1, 1)
 
-    def on_clients_update(self):
-        self.create_ui(True)
-        self.on_clients_update_callback()
+        self.client_vouchers_table_widget = ClientVouchersTableWidget(self.database, -1, self.on_table_update)
+        self.layout.addWidget(self.client_vouchers_table_widget, 2, 1, 1, 1)
 
-    def on_packets_update(self):
-        self.on_clients_update_callback()
+    def on_register_update(self):
+        self.create_ui(True)
+        self.update_home_widget_callback()
+
+    def on_table_update(self):
+        self.update_home_widget_callback()
 
     def on_client_selected(self, client_id):
         self.client_packets_table_widget.set_client_id(client_id)
+        self.client_vouchers_table_widget.set_client_id(client_id)

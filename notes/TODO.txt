@@ -2,3 +2,4 @@
 2. Bug (potential): If I delete a reservation from UI and it uses a packet, then the packet instance's use_count is decremented but will it be updated in ReservationForm's UI?
     Or should it specifically call an update function that recreates ReservationForm?
 3. Feature: Maybe don't show used packet instances in ReservationForm
+4. Feature: Maybe when reserve button is pressed clients window should be updated to reflect newly buyed vouchers/packets

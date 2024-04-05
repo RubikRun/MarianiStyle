@@ -67,18 +67,15 @@ class HomeWidget(QWidget):
         self.date = date
         self.create_ui(True)
 
-    def on_clients_update(self):
-        self.create_ui(True)
-
-    def on_packets_update(self):
+    def update_home_widget(self):
         self.create_ui(True)
 
     def clients_button_pressed(self):
-        self.clients_window = ClientsWindow(self.database, self.on_clients_update)
+        self.clients_window = ClientsWindow(self.database, self.update_home_widget)
         self.clients_window.show()
 
     def packets_button_pressed(self):
-        self.packets_window = PacketsWindow(self.database, self.on_packets_update)
+        self.packets_window = PacketsWindow(self.database, self.update_home_widget)
         self.packets_window.show()
 
     def update_reservation_form(self):

@@ -1,16 +1,16 @@
-from handlers.client_packets_handler import ClientPacketsHandler
+from handlers.client_vouchers_handler import ClientVouchersHandler
 from ui.table_base import TableBase
 
 from PySide2.QtCore import Qt, QDateTime
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHeaderView
 
-class ClientPacketsTableWidget(QWidget):
-    def __init__(self, database, client_id, on_packets_update_callback):
+class ClientVouchersTableWidget(QWidget):
+    def __init__(self, database, client_id, on_vouchers_update_callback):
         super().__init__()
         self.database = database
         self.client_id = client_id
-        self.on_packets_update_callback = on_packets_update_callback
+        self.on_vouchers_update_callback = on_vouchers_update_callback
 
         self.init_constants()
         self.create_ui()
@@ -37,23 +37,20 @@ class ClientPacketsTableWidget(QWidget):
             should_be_empty = True
 
         if should_be_empty:
-            packets_map = {}
+            vouchers_map = {}
         else:
-            packets_map = ClientPacketsHandler.get_packets_map(self.database, self.client_id)
+            vouchers_map = ClientVouchersHandler.get_vouchers_map(self.database, self.client_id)
 
-        def viewer_callback(packet_instance, column, vrow):
-            packet = self.database.get_packet(packet_instance.packet_id)
-            if packet is None:
-                return ""
+        def viewer_callback(voucher, column, vrow):
             if column == 0:
-                return packet.name
+                return "{}лв".format(int(voucher.price))
             elif column == 1:
-                return "{}/{}".format(packet_instance.use_count, packet.uses)
+                return "{}лв".format(int(voucher.spent))
             elif column == 2:
-                return packet_instance.bought_on.toString("dd.MM.yyyy HH:mm")
+                return voucher.bought_on.toString("dd.MM.yyyy HH:mm")
             elif column == 3:
                 current = QDateTime.currentDateTime()
-                endtime = packet_instance.bought_on.addMonths(packet.validity)
+                endtime = voucher.bought_on.addMonths(voucher.validity)
 
                 if current >= endtime:
                     return "Изтекъл на ".format(endtime.toString("dd.MM.yyyy HH:mm"))
@@ -81,18 +78,18 @@ class ClientPacketsTableWidget(QWidget):
                 return "{} месеца и {} дена".format(months, days)
             return ""
 
-        def deleter_callback(packet_instance_id, vrow):
-            self.database.delete_packet_instance(packet_instance_id)
-            self.on_packets_update_callback()
+        def deleter_callback(voucher_id, vrow):
+            self.database.delete_voucher(voucher_id)
+            self.on_vouchers_update_callback()
 
         if should_be_empty:
             table_name = ""
         else:
-            table_name = "Пакети на {}".format(self.client.get_view())
+            table_name = "Ваучери на {}".format(self.client.get_view())
 
-        self.table = TableBase(table_name, len(packets_map), [1] * len(packets_map), 4,
-                               ["Пакет", "Ползвания", "Купен кога", "Изтича след"], [QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch],
-                               packets_map, viewer_callback,
+        self.table = TableBase(table_name, len(vouchers_map), [1] * len(vouchers_map), 4,
+                               ["Стойност", "Използвани", "Купен кога", "Изтича след"], [QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch],
+                               vouchers_map, viewer_callback,
                                lambda obj, column, vrow : None, lambda obj, column, vrow : None,
                                deleter_callback,
                                lambda id, col, s, vrow : False)
