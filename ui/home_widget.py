@@ -35,7 +35,7 @@ class HomeWidget(QWidget):
             # After that we can just create a new layout
         self.layout = QGridLayout(self)
 
-        self.schedule_tables_widget = ScheduleTablesWidget(self.date, self.database)
+        self.schedule_tables_widget = ScheduleTablesWidget(self.date, self.database, self.update_reservation_form)
         self.color_buttons_widget = ColorButtonsWidget(self.schedule_tables_widget.color_selected_cells)
         self.clients_button = TextButton("Клиенти", self.FONT, 100, 40, self.clients_button_pressed)
         self.packets_button = TextButton("Пакети", self.FONT, 100, 40, self.packets_button_pressed)
@@ -80,3 +80,6 @@ class HomeWidget(QWidget):
     def packets_button_pressed(self):
         self.packets_window = PacketsWindow(self.database, self.on_packets_update)
         self.packets_window.show()
+
+    def update_reservation_form(self):
+        self.reservation_form.create_ui(True)

@@ -7,6 +7,8 @@ from database.packet_instance import PacketInstance
 from database.client import Client
 from database.reservation import Reservation
 
+from PySide2.QtCore import QDateTime
+
 class Database:
     def load_employees(self, filepath):
         self.employees = []
@@ -342,6 +344,18 @@ class Database:
                             Logger.log_error(
                                 "Database is deleting a reservation that uses a packet instance of a user. Trying to decrement the use_count of the packet instance but it's < 1"
                             )
+                if reservation.with_voucher != 0:
+                    # If reservation was made with a voucher we need to return money to client into a voucher.
+                    # We cannot easily find out which voucher(s) was used for the reservation and return the money to that/these voucher(s)
+                    # so instead we will create a new voucher with the returned money.
+                    client = self.get_client(reservation.client_id)
+                    if client is not None:
+                        new_voucher = Voucher(-1, client.id, reservation.employee_id, QDateTime.currentDateTime(), 5, reservation.percent, 0)
+                        new_voucher_id = self.add_voucher(new_voucher)
+                        if new_voucher_id > 0:
+                            client.vouchers.append(new_voucher_id)
+                        else:
+                            Logger.log_error("Could not create a new voucher for returning the money to a client when deleting their reservation.")
                 del self.reservations[ridx]
 
     def delete_packet_instance(self, packet_instance_id):

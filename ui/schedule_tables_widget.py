@@ -8,12 +8,13 @@ from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetIt
 from PySide2.QtGui import QFont
 
 class ScheduleTablesWidget(QWidget):
-    def __init__(self, date, database):
+    def __init__(self, date, database, update_reservation_form_callback):
         super().__init__()
         self.init_constants()
 
         self.date = date
         self.database = database
+        self.update_reservation_form_callback = update_reservation_form_callback
 
         self.employees = self.database.employees
         self.employer = self.database.get_employer()
@@ -137,6 +138,10 @@ class ScheduleTablesWidget(QWidget):
                     else:
                         return ""
 
+            def deleter_callback(id, vrow):
+                self.database.delete_reservation(id)
+                self.update_reservation_form_callback()
+
             self.tables[employee.id] = TableBase(
                 name_view,
                 self.vrows_count[employee.id],
@@ -148,7 +153,7 @@ class ScheduleTablesWidget(QWidget):
                 viewer_callback,
                 lambda obj, column, vrow : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
                 lambda obj, column, vrow : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
-                lambda id, vrow : self.database.delete_reservation(id),
+                deleter_callback,
                 lambda id, col, s, vrow : False
             )
 
