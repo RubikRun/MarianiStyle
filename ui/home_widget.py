@@ -40,7 +40,7 @@ class HomeWidget(QWidget):
         self.clients_button = TextButton("Клиенти", self.FONT, 100, 40, self.clients_button_pressed)
         self.packets_button = TextButton("Пакети", self.FONT, 100, 40, self.packets_button_pressed)
         self.schedule_date_navigator_widget = ScheduleDateNavigatorWidget(self.date, self.do_prev_date, self.do_next_date, self.do_change_date)
-        self.reservation_form = ReservationForm(self.date, self.database, self.create_ui, None, None)
+        self.reservation_form = ReservationForm(self.date, self.database, self.create_ui)
 
         self.layout.addWidget(self.color_buttons_widget, 0, 0, 1, 1)
         self.layout.setAlignment(self.color_buttons_widget, Qt.AlignLeft)

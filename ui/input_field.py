@@ -114,7 +114,6 @@ class ComboBoxInputField(QWidget):
 
         self.label = QLabel(self.label_str)
         self.label.setFont(self.label_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.cbox = QComboBox(self)
         if self.items is not None:
             self.cbox.addItems(self.items)

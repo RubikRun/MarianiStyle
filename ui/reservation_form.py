@@ -12,13 +12,11 @@ from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QCompleter
 
 class ReservationForm(QWidget):
-    def __init__(self, date, database, update_schedule_callback, reserve_callback, buy_packet_callback):
+    def __init__(self, date, database, update_schedule_callback):
         super().__init__()
         self.date = date
         self.database = database
         self.update_schedule_callback = update_schedule_callback
-        self.reserve_callback = reserve_callback
-        self.buy_packet_callback = buy_packet_callback
         self.init_constants()
 
         self.create_ui()
@@ -33,6 +31,7 @@ class ReservationForm(QWidget):
         self.employees = self.database.employees
         self.clients = self.database.clients
         self.packets = self.database.packets
+        self.vouchers = self.database.vouchers
 
         if delete_old_layout:
             # Create a temporary QWidget object and set its layout to be the current old layout.
@@ -54,7 +53,8 @@ class ReservationForm(QWidget):
         self.client_input_field = InputField("Клиент", self.FONT, None, [client.get_view() for client in self.clients], self.update_with_packet_instances_of_client)
         self.layout.addWidget(self.client_input_field, 2, 0, 1, 2)
 
-        self.packet_mode_cbox = ComboBox(self.FONT, 250, int(self.FONT.pointSize() * 2.5), ["Без пакет", "С пакет", "Купуване на пакет"], self.packet_mode_changed)
+        self.packet_mode_cbox = ComboBox(self.FONT, 250, int(self.FONT.pointSize() * 2.5),
+                                         ["Без пакет", "С пакет", "Купуване на пакет", "С ваучер", "Купуване на ваучер"], self.packet_mode_changed)
         self.layout.addWidget(self.packet_mode_cbox, 3, 0, 1, 2)
         self.layout.setAlignment(self.packet_mode_cbox, Qt.AlignLeft)
 
@@ -95,7 +95,7 @@ class ReservationForm(QWidget):
             self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 6, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
-        else:
+        elif packet_mode_index == 2:
             self.packet_cbox_input_field = ComboBoxInputField("Пакет", self.FONT, 350, int(self.FONT.pointSize() * 2.5),
                                                               [packet.get_view() for packet in self.packets], self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.packet_cbox_input_field, 4, 0, 1, 2)
@@ -103,6 +103,36 @@ class ReservationForm(QWidget):
 
             self.reserve_button = TextButton("Купи", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
             self.layout.addWidget(self.reserve_button, 5, 0, 1, 1)
+            self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
+        elif packet_mode_index == 3:
+            self.time_picker_input_widget = TimePickerInputWidget("Време", self.FONT, self.HOUR_BEGIN, self.HOUR_END,
+                                                                  290, int(self.FONT.pointSize() * 2.3), self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.time_picker_input_widget, 4, 0, 1, 2)
+            self.layout.setAlignment(self.time_picker_input_widget, Qt.AlignLeft)
+
+            self.packet_cbox_input_field = ComboBoxInputField("Ваучер", self.FONT, 150, int(self.FONT.pointSize() * 2.5), None, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.packet_cbox_input_field, 5, 0, 1, 2)
+            self.layout.setAlignment(self.packet_cbox_input_field, Qt.AlignLeft)
+            self.update_with_vouchers_of_client()
+
+            self.price_input_field = InputField("Цена", self.FONT, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.price_input_field, 6, 0, 1, 2)
+
+            self.reserve_button = TextButton("Запази", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.reserve_button, 7, 0, 1, 1)
+            self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
+        else:
+            self.price_input_field = InputField("Стойност", self.FONT, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.price_input_field, 4, 0, 1, 2)
+
+            self.validity_cbox = ComboBoxInputField("Валидност", self.FONT, 60, int(self.FONT.pointSize() * 2.5),
+                                                    [str(months) for months in range(1, 13)], self.widgets_of_current_packet_mode)
+            self.validity_cbox.cbox.setCurrentIndex(4) # set default validity to be 5 months
+            self.layout.addWidget(self.validity_cbox, 5, 0, 1, 2)
+            self.layout.setAlignment(self.validity_cbox, Qt.AlignLeft)
+
+            self.reserve_button = TextButton("Купи", self.FONT, 100, 40, self.reserve_pressed, self.widgets_of_current_packet_mode)
+            self.layout.addWidget(self.reserve_button, 6, 0, 1, 1)
             self.layout.setAlignment(self.reserve_button, Qt.AlignLeft)
 
     # Deletes a given list of widgets from the layout
@@ -120,13 +150,6 @@ class ReservationForm(QWidget):
     def packet_mode_changed(self):
         self.delete_widgets(self.widgets_of_current_packet_mode)
         self.create_widgets_for_packet_mode()
-
-    # To be called when clients are updated from the outside.
-    # Then we need to recreate the UI here to make the QCompleter
-    # know about the new/updated clients
-    def update_clients(self, new_clients):
-        self.clients = new_clients
-        self.create_ui(True)
 
     # Retrieves the currently selected client from database
     def get_current_client(self):
@@ -175,6 +198,11 @@ class ReservationForm(QWidget):
         if client is not None:
             self.packet_cbox_input_field.set_items(client.get_packet_instances_views(self.database))
 
+    # Same as above but for packet mode 3
+    def update_with_vouchers_of_client(self):
+        # TODO
+        pass
+
     # Called when the reserve/buy button is pressed
     @Slot()
     def reserve_pressed(self):
@@ -208,7 +236,7 @@ class ReservationForm(QWidget):
 
             reservation = Reservation(-1, employee.id, client.id, date_time, packet_instance.get_view(self.database), packet_instance.id, packet.price_singular, 0, [], [])
             self.database.add_reservation(reservation)
-        else:
+        elif packet_mode_index == 2:
             packet = self.get_packet()
             if packet is None:
                 Logger.log_error("Invalid/No packet selected")
@@ -223,5 +251,11 @@ class ReservationForm(QWidget):
                 Logger.log_error("Cannot retrieve newly created packet instance from database")
                 return
             client.packet_instances.append(packet_instance.id)
+        elif packet_mode_index == 3:
+            # TODO
+            pass
+        else:
+            # TODO
+            pass
 
         self.update_schedule_callback(True)
