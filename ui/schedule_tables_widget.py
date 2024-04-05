@@ -1,6 +1,7 @@
 from logger import Logger
 from handlers.schedule_handler import ScheduleHandler
 from handlers.packets_sold_handler import PacketsSoldHandler
+from handlers.vouchers_sold_handler import VouchersSoldHandler
 from ui.table_base import TableBase, join_table_base
 
 from PySide2.QtCore import Qt
@@ -23,6 +24,10 @@ class ScheduleTablesWidget(QWidget):
         self.packet_instances_maps = {}
         for employee in self.employees:
             self.packet_instances_maps[employee.id] = self.packets_sold_handler.get_packet_instances_map(employee.id)
+        self.vouchers_sold_handler = VouchersSoldHandler(self.date, self.database)
+        self.vouchers_maps = {}
+        for employee in self.employees:
+            self.vouchers_maps[employee.id] = self.vouchers_sold_handler.get_vouchers_map(employee.id)
 
         self.init_vrows()
         self.create_ui()
@@ -81,6 +86,7 @@ class ScheduleTablesWidget(QWidget):
         self.create_timegrid_table()
         self.create_tables()
         self.extend_tables_with_packets_sold()
+        self.extend_tables_with_vouchers_sold()
         self.link_table_scrollbars()
 
     def create_timegrid_table(self):
@@ -175,7 +181,7 @@ class ScheduleTablesWidget(QWidget):
                     elif column == 2:
                         return self.database.get_packet(packet_instance.packet_id).name
                     elif column == 3:
-                        return str(self.database.get_packet(packet_instance.packet_id).price)
+                        return str(int(self.database.get_packet(packet_instance.packet_id).price))
                     else:
                         return ""
             else:
@@ -192,7 +198,7 @@ class ScheduleTablesWidget(QWidget):
                     elif column == 3:
                         return "0"
                     elif column == 4:
-                        return str(self.database.get_packet(packet_instance.packet_id).price)
+                        return str(int(self.database.get_packet(packet_instance.packet_id).price))
                     else:
                         return ""
 
@@ -208,6 +214,63 @@ class ScheduleTablesWidget(QWidget):
                 qcols_labels,
                 qcols_resize_modes,
                 packet_instances_map,
+                viewer_callback,
+                lambda obj, column, vrow : None,
+                lambda obj, column, vrow : None,
+                lambda id, vrow : None,
+                lambda id, col, s, vrow : False
+            )
+
+            first_table = self.tables[employee.id]
+            self.tables[employee.id] = join_table_base(first_table, second_table, first_table.name, first_table.qcols_labels)
+
+    def extend_tables_with_vouchers_sold(self):
+        for employee in self.employees:
+            if employee.id == self.employer.id:
+                qcols_count = 4
+                qcols_labels = ["Час", "Клиент", "Процедура", "Каса"]
+                qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
+                def viewer_callback(voucher, column, vrow):
+                    if column == 0:
+                        return voucher.bought_on.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(voucher.client_id).get_view()
+                    elif column == 2:
+                        return voucher.get_view()
+                    elif column == 3:
+                        return str(int(voucher.price))
+                    else:
+                        return ""
+            else:
+                qcols_count = 5
+                qcols_labels = ["Час", "Клиент", "Процедура", "%", "Каса"]
+                qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+                def viewer_callback(voucher, column, vrow):
+                    if column == 0:
+                        return voucher.bought_on.time().toString("HH:mm")
+                    elif column == 1:
+                        return self.database.get_client(voucher.client_id).get_view()
+                    elif column == 2:
+                        return voucher.get_view()
+                    elif column == 3:
+                        return "0"
+                    elif column == 4:
+                        return str(int(voucher.price))
+                    else:
+                        return ""
+
+            vouchers_map = self.vouchers_maps[employee.id]
+            vrows_count = max([len(vm) for _, vm in self.vouchers_maps.items()])
+            vrows_sizes = [1] * vrows_count
+
+            second_table = TableBase(
+                None,
+                vrows_count,
+                vrows_sizes,
+                qcols_count,
+                qcols_labels,
+                qcols_resize_modes,
+                vouchers_map,
                 viewer_callback,
                 lambda obj, column, vrow : None,
                 lambda obj, column, vrow : None,

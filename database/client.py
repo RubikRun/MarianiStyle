@@ -38,16 +38,6 @@ class Client:
                 views.append(packet_instance.get_view(database))
         return views
 
-    def get_vouchers_views(self, database):
-        views = []
-        for voucher_id in self.vouchers:
-            voucher = database.get_voucher(voucher_id)
-            if voucher is None:
-                views.append("")
-            else:
-                views.append(voucher.get_view())
-        return views
-
     def get_vouchers_remaining_sum(self, database):
         rsum = 0
         for voucher_id in self.vouchers:

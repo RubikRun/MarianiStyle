@@ -29,10 +29,8 @@ class Voucher:
         decl = DataIO.create_declaration([self.id, self.client_id, self.employee_id, self.bought_on, self.validity, self.price, self.spent], "iiitiff")
         return decl
 
-    def get_view(self, full_or_remaining = False):
-        if full_or_remaining:
-            return "Ваучер {}лв".format(int(self.price))
-        return "Ваучер {}лв".format(int(self.price - self.spent))
+    def get_view(self):
+        return "Ваучер {}лв".format(int(self.price))
 
     def is_expired(self, database):
         current = QDateTime.currentDateTime()

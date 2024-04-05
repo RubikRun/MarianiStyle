@@ -14,6 +14,7 @@
         "handlers/packets_handler.py",
         "handlers/packets_sold_handler.py",
         "handlers/schedule_handler.py",
+        "handlers/vouchers_sold_handler.py",
         "logger.py",
         "main.py",
         "ui/calendar_window.py",
