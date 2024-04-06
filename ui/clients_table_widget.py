@@ -58,7 +58,7 @@ class ClientsTableWidget(QWidget):
 
         self.table = TableBase("Клиенти", len(clients_map), [1] * len(clients_map), 2, ["Име", "Телефон"], [QHeaderView.Stretch, QHeaderView.ResizeToContents],
                                clients_map, viewer_callback,
-                               lambda obj, column, vrow : None, lambda obj, column, vrow : None,
+                               lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None,
                                deleter_callback,
                                updater_callback,
                                self.on_client_selected)

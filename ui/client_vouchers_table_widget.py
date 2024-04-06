@@ -86,7 +86,7 @@ class ClientVouchersTableWidget(QWidget):
         self.table = TableBase(table_name, len(vouchers_map), [1] * len(vouchers_map), 4,
                                ["Стойност", "Използвани", "Купен кога", "Изтича след"], [QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch],
                                vouchers_map, viewer_callback,
-                               lambda obj, column, vrow : None, lambda obj, column, vrow : None,
+                               lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None,
                                deleter_callback,
                                lambda id, col, s, vrow : False)
         self.layout.addWidget(self.table)

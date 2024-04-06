@@ -4,6 +4,7 @@ from handlers.packets_sold_handler import PacketsSoldHandler
 from handlers.vouchers_sold_handler import VouchersSoldHandler
 from handlers.colors_global import ColorsGlobal
 from ui.table_base import TableBase, join_table_base
+from database.data_io import DataIO
 
 from PySide2.QtCore import Qt, QTime
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QLabel
@@ -28,6 +29,7 @@ class ScheduleTablesWidget(QWidget):
         self.vouchers_maps = {}
         for employee in self.employees:
             self.vouchers_maps[employee.id] = self.vouchers_sold_handler.get_vouchers_map(employee.id)
+        self.load_table_colors()
 
         self.init_vrows()
         self.create_ui()
@@ -96,13 +98,13 @@ class ScheduleTablesWidget(QWidget):
             timegrid_map[vrow] = str(vrow + self.HOUR_BEGIN)
         self.timegrid_table = TableBase(
             "", self.vrows_count_timegrid, self.vrows_sizes_timegrid, 1, [""], [QHeaderView.ResizeToContents], timegrid_map,
-            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
+            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
         )
 
         suffix_vrows_count = max([len(pim) for _, pim in self.packet_instances_maps.items()])
         suffix_table = TableBase(
             "", suffix_vrows_count, [1] * suffix_vrows_count, 1, [""], [QHeaderView.ResizeToContents], {},
-            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
+            lambda s, column, vrow : s, lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None, lambda id, vrow : None, lambda id, col, s, vrow : False
         )
         self.timegrid_table = join_table_base(self.timegrid_table, suffix_table, "", [""])
 
@@ -112,7 +114,7 @@ class ScheduleTablesWidget(QWidget):
 
     def create_tables(self):
         self.tables = {}
-        for employee in self.employees:
+        for employee_idx, employee in enumerate(self.employees):
             if employee.id == self.employer.id:
                 name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_kasa_sum(employee.id))
                 qcols_count = 4
@@ -227,6 +229,14 @@ class ScheduleTablesWidget(QWidget):
                 self.database.delete_reservation(id)
                 self.update_reservation_form_callback()
 
+            def empty_get_color_callback(column, vrow):
+                table_color_idx = vrow * (len(self.employees) * 5 - 1)
+                if employee_idx == 0:
+                    table_color_idx += column
+                else:
+                    table_color_idx += 4 + (employee_idx - 1) * 5 + column
+                return self.table_colors[table_color_idx]
+
             self.tables[employee.id] = TableBase(
                 name_view,
                 self.vrows_count[employee.id],
@@ -238,6 +248,7 @@ class ScheduleTablesWidget(QWidget):
                 viewer_callback,
                 lambda obj, column, vrow : obj.bg_colors[column] if (column >= 0 and column < len(obj.bg_colors)) else None,
                 lambda obj, column, vrow : obj.fg_colors[column] if (column >= 0 and column < len(obj.fg_colors)) else None,
+                empty_get_color_callback,
                 deleter_callback,
                 updater_callback
             )
@@ -292,6 +303,7 @@ class ScheduleTablesWidget(QWidget):
                 viewer_callback,
                 lambda obj, column, vrow : ColorsGlobal.colors[-4],
                 lambda obj, column, vrow : ColorsGlobal.colors[-3],
+                lambda column, vrow : None,
                 lambda id, vrow : None,
                 lambda id, col, s, vrow : False
             )
@@ -349,6 +361,7 @@ class ScheduleTablesWidget(QWidget):
                 viewer_callback,
                 lambda obj, column, vrow : ColorsGlobal.colors[-2],
                 lambda obj, column, vrow : ColorsGlobal.colors[-1],
+                lambda column, vrow : None,
                 lambda id, vrow : None,
                 lambda id, col, s, vrow : False
             )
@@ -383,8 +396,8 @@ class ScheduleTablesWidget(QWidget):
         scrollbar_3.valueChanged.connect(lambda value: scrollbar_2.setValue(value))
 
     def color_selected_cells(self, color, bg_fg):
-        for employee in self.employees:
-            def update_color_callback(id, column):
+        for employee_idx, employee in enumerate(self.employees):
+            def update_reservation_color_callback(id, column):
                 if bg_fg:
                     colors = self.database.get_reservation(id).bg_colors
                 else:
@@ -398,8 +411,47 @@ class ScheduleTablesWidget(QWidget):
                     colors += [None] * (column - len(colors) + 1)
                 colors[column] = color
 
+            def update_table_color_callback(vrow, column):
+                table_color_idx = vrow * (len(self.employees) * 5 - 1)
+                if employee_idx == 0:
+                    table_color_idx += column
+                else:
+                    table_color_idx += 4 + (employee_idx - 1) * 5 + column
+                self.table_colors[table_color_idx] = color
+                self.export_table_colors()
+
             self.tables[employee.id].color_selected_cells(
                 color,
                 bg_fg,
-                update_color_callback
+                update_reservation_color_callback,
+                update_table_color_callback
             )
+
+    def export_table_colors(self):
+        try:
+            filepath = "data/table_colors_{}_{}_{}.data".format(self.date.year(), self.date.month(), self.date.day())
+            file = open(filepath, 'w', encoding = "utf-8")
+        except PermissionError:
+            Logger.log_error("You don't have permission to export table colors to this file - {}".format(filepath))
+            return
+        
+        colors_decl = DataIO.create_declaration(self.table_colors, 'c' * len(self.table_colors), ';')
+        file.write(str(len(self.table_colors)) + ';' + colors_decl)
+
+    def load_table_colors(self):
+        self.table_colors = []
+        try:
+            filepath = "data/table_colors_{}_{}_{}.data".format(self.date.year(), self.date.month(), self.date.day())
+            file = open(filepath, 'r', encoding = "utf-8")
+        except FileNotFoundError:
+            self.table_colors = [None] * ( (len(self.employees) * 5 - 1) * (self.HOUR_END - self.HOUR_BEGIN + 1) )
+            return
+        decl = file.read()
+        try:
+            countlen = 0
+            while decl[countlen] != ';':
+                countlen += 1
+            count = int(decl[:countlen])
+            self.table_colors = DataIO.parse_declaration(decl[countlen+1:], 'c' * count, ';')
+        except Exception as e:
+            self.table_colors = [None] * ( (len(self.employees) * 5 - 1) * (self.HOUR_END - self.HOUR_BEGIN + 1) )

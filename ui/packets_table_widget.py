@@ -87,7 +87,7 @@ class PacketsTableWidget(QWidget):
                                ["Име", "Цена на пакет", "Единична цена", "Брой ползвания", "Валидност"],
                                [QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents],
                                packets_map, viewer_callback,
-                               lambda obj, column, vrow : None, lambda obj, column, vrow : None,
+                               lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None,
                                deleter_callback,
                                updater_callback)
         self.layout.addWidget(self.table)

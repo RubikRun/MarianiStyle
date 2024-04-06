@@ -18,12 +18,13 @@ class TableBase(QWidget):
     #                    The function can be called on each object from the map and each column to get a string from it for the corresponding column
     # bg_get_color_callback - func : any, column, vrow -> QColor - Function that returns a background QColor for each object and each of its columns
     # fg_get_color_callback - func : any, column, vrow -> QColor - Function that returns a foreground QColor for each object and each of its columns
+    # empty_get_color_callback - func: column, vrow -> QColor
     # deleter_callback - func : int, vrow -> None - Function to be called with an object's ID if the object is deleted in UI
     # updater_callback - func : int, int, string, vrow -> bool - Function to be called with an object's ID, column index and cell's updated string
     #                    if the object is updated in UI. Function should return true if the update was successful,
     #                    and false if the requested string value is invalid for that column meaning that it should be reverted to old value in UI
     def __init__(self, name, vrows_count, vrows_sizes, qcols_count, qcols_labels, qcols_resize_modes, objs_map,
-                 viewer_callback, bg_get_color_callback, fg_get_color_callback, deleter_callback, updater_callback, on_obj_selected_callback = None):
+                 viewer_callback, bg_get_color_callback, fg_get_color_callback, empty_get_color_callback, deleter_callback, updater_callback, on_obj_selected_callback = None):
         super().__init__()
         self.init_constants()
 
@@ -37,6 +38,7 @@ class TableBase(QWidget):
         self.viewer_callback = viewer_callback
         self.bg_get_color_callback = bg_get_color_callback
         self.fg_get_color_callback = fg_get_color_callback
+        self.empty_get_color_callback = empty_get_color_callback
         self.deleter_callback = deleter_callback
         self.updater_callback = updater_callback
         self.on_obj_selected_callback = on_obj_selected_callback
@@ -91,6 +93,8 @@ class TableBase(QWidget):
             Logger.log_error("TableBase created with bg_get_color_callback that is None")
         if self.fg_get_color_callback is None:
             Logger.log_error("TableBase created with fg_get_color_callback that is None")
+        if self.empty_get_color_callback is None:
+            Logger.log_error("TableBase created with empty_get_color_callback that is None")
         if self.deleter_callback is None:
             Logger.log_error("TableBase created with deleter_callback that is None")
         if self.updater_callback is None:
@@ -165,6 +169,13 @@ class TableBase(QWidget):
                 fg_color = self.fg_get_color_callback(obj, qcol, vrow)
                 if fg_color is not None:
                     self.set_item_color(qrow, qcol, fg_color, False)
+        for vrow in range(self.vrows_count):
+            for qcol in range(self.qcols_count):
+                empty_color = self.empty_get_color_callback(qcol, vrow)
+                if empty_color is not None:
+                    qrow = self.get_qrow_idx(vrow)
+                    self.set_item(qrow, qcol, "")
+                    self.set_item_color(qrow, qcol, empty_color, True)
         self.table.cellChanged.connect(self.on_cell_changed)
 
     def set_item(self, qrow, qcol, str_value):
@@ -178,6 +189,7 @@ class TableBase(QWidget):
         if item:
             if bg_fg:
                 item.setBackground(color)
+                print(color)
             else:
                 item.setForeground(color)
 
@@ -244,7 +256,7 @@ class TableBase(QWidget):
     # colors their background or foreground depending on the bg_fg parameter,
     # calls the given update_color_callback function on each colored column of an object,
     # so if column "column" of object with id "id" is colored then update_color_callback(id, column) will be called.
-    def color_selected_cells(self, color, bg_fg, update_color_callback):
+    def color_selected_cells(self, color, bg_fg, update_object_color_callback, update_table_color_callback):
         selected_items = self.table.selectedItems()
 
         if selected_items:
@@ -257,10 +269,12 @@ class TableBase(QWidget):
                     if vrow in self.objs_map:
                         try:
                             updated_obj_id = self.objs_map[vrow].id
-                            update_color_callback(updated_obj_id, qcol)
+                            update_object_color_callback(updated_obj_id, qcol)
                         except AttributeError:
                             # The objects in the table might not have ID, in this case ignore color functionality
                             pass
+                    else:
+                        update_table_color_callback(vrow, qcol)
                     if bg_fg:
                         item.setBackground(color)
                     else:
@@ -304,6 +318,8 @@ def join_table_base(first_table: TableBase, second_table: TableBase, name: str, 
         else second_table.bg_get_color_callback(obj, column, vrow)
     fg_get_color_callback = lambda obj, column, vrow : first_table.fg_get_color_callback(obj, column, vrow) if vrow < first_table.vrows_count \
         else second_table.fg_get_color_callback(obj, column, vrow)
+    empty_get_color_callback = lambda column, vrow : first_table.empty_get_color_callback(column, vrow) if vrow < first_table.vrows_count \
+        else second_table.empty_get_color_callback(column, vrow)
     deleter_callback = lambda id, vrow : first_table.deleter_callback(id, vrow) if vrow < first_table.vrows_count \
         else second_table.deleter_callback(id, vrow)
     updater_callback = lambda id, column, s, vrow : first_table.updater_callback(id, column, s, vrow) if vrow < first_table.vrows_count \
@@ -320,6 +336,7 @@ def join_table_base(first_table: TableBase, second_table: TableBase, name: str, 
         viewer_callback,
         bg_get_color_callback,
         fg_get_color_callback,
+        empty_get_color_callback,
         deleter_callback,
         updater_callback
     )

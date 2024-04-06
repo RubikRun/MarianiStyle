@@ -89,7 +89,7 @@ class ClientPacketsTableWidget(QWidget):
         self.table = TableBase(table_name, len(packets_map), [1] * len(packets_map), 4,
                                ["Пакет", "Ползвания", "Купен кога", "Изтича след"], [QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch],
                                packets_map, viewer_callback,
-                               lambda obj, column, vrow : None, lambda obj, column, vrow : None,
+                               lambda obj, column, vrow : None, lambda obj, column, vrow : None, lambda column, vrow : None,
                                deleter_callback,
                                lambda id, col, s, vrow : False)
         self.layout.addWidget(self.table)
