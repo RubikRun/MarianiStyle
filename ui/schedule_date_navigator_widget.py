@@ -5,7 +5,7 @@ from PySide2.QtCore import Slot
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PySide2.QtGui import QFont, QIcon
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
 
 class ScheduleDateNavigatorWidget(QWidget):
     def __init__(self, date, left_callback, right_callback, date_changed_callback):

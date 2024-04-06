@@ -12,7 +12,7 @@ from PySide2.QtCore import Qt, Slot, QDateTime
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QCompleter
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
 
 class ReservationForm(QWidget):
     def __init__(self, date, database, reservation_made_callback):

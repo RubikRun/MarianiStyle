@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
 
 class TextButton(QWidget):
     def __init__(self, label_str, label_font, fixed_width, fixed_height, on_press_callback, widgets_list = None):

@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetIt
 from PySide2.QtGui import QFont
 from PySide2.QtCore import Qt
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
 
 class TableBase(QWidget):
     # name - string - Name of the table to be used for a QLabel above the table

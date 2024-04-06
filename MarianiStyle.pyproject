@@ -11,6 +11,8 @@
         "handlers/client_packets_handler.py",
         "handlers/client_vouchers_handler.py",
         "handlers/clients_handler.py",
+        "handlers/colors_global.py",
+        "handlers/font_global.py",
         "handlers/packets_handler.py",
         "handlers/packets_sold_handler.py",
         "handlers/schedule_handler.py",

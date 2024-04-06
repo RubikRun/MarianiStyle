@@ -2,7 +2,8 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
 from PySide2.QtGui import QColor, QFont
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
+from handlers.colors_global import ColorsGlobal
 
 class ColorButtonsWidget(QWidget):
     def __init__(self, paint_cells_callback):
@@ -27,12 +28,7 @@ class ColorButtonsWidget(QWidget):
         self.bg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.bg_label)
 
-        # TODO: this member should be loaded from a config file
-        self.bg_colors = [
-            (255, 0, 0, 255),
-            (0, 255, 0, 255),
-            (0, 0, 255, 255)
-        ]
+        self.bg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-2]]
         self.bg_style_sheets = {}
         self.bg_buttons = {}
         for color in self.bg_colors:
@@ -48,12 +44,7 @@ class ColorButtonsWidget(QWidget):
         self.fg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.fg_label)
 
-        # TODO: this member should be loaded from a config file
-        self.fg_colors = [
-            (255, 0, 0, 255),
-            (0, 255, 0, 255),
-            (0, 0, 255, 255)
-        ]
+        self.fg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-2]]
         self.fg_style_sheets = {}
         self.fg_buttons = {}
         for color in self.fg_colors:

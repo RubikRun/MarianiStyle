@@ -8,7 +8,7 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
-from ui.font_changer_widget import FontGlobal
+from handlers.font_global import FontGlobal
 
 class PacketRegisterForm(QWidget):
     def __init__(self, database, on_packets_update_callback):
