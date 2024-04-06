@@ -74,7 +74,7 @@ class PacketRegisterForm(QWidget):
             Logger.log_error("Input price of new packet is not a float")
             return
         try:
-            price_singular = float(price_str)
+            price_singular = float(price_singular_str)
         except ValueError:
             Logger.log_error("Input singular price of new packet is not a float")
             return
