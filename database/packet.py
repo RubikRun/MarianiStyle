@@ -27,4 +27,4 @@ class Packet:
         return decl
 
     def get_view(self):
-        return "{} ({}лв.)".format(self.name, str(self.price))
+        return "{} ({}лв.)".format(self.name, str(int(self.price)))

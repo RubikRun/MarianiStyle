@@ -126,7 +126,7 @@ class ScheduleTablesWidget(QWidget):
                     elif column == 2:
                         return reservation.procedure
                     elif column == 3:
-                        return str(reservation.kasa)
+                        return str(int(reservation.kasa))
                     else:
                         return ""
 
@@ -176,9 +176,9 @@ class ScheduleTablesWidget(QWidget):
                     elif column == 2:
                         return reservation.procedure
                     elif column == 3:
-                        return str(reservation.percent)
+                        return str(int(reservation.percent))
                     elif column == 4:
-                        return str(reservation.kasa)
+                        return str(int(reservation.kasa))
                     else:
                         return ""
 
