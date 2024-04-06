@@ -7,7 +7,7 @@ class CalendarWindow(QDialog):
         self.date_changed_callback = date_changed_callback
 
         self.setWindowTitle("Избери дата")
-        self.setGeometry(600, 600, 300, 300)
+        self.setGeometry(900, 450, 300, 300)
 
         self.create_ui()
 
