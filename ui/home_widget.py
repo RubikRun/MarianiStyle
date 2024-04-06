@@ -17,7 +17,7 @@ class HomeWidget(QWidget):
         super().__init__()
 
         self.database = database
-        self.date = QDate(2024, 4, 4)
+        self.date = QDate.currentDate()
         self.reservation_window = None
         self.clients_window = None
         self.packets_window = None
