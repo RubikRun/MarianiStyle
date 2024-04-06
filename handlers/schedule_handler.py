@@ -62,3 +62,11 @@ class ScheduleHandler:
             for reservation in rlist:
                 psum += reservation.percent
         return psum * 0.4
+
+    def get_kasa_sum(self, employee_id):
+        ksum = 0
+        for hour in range(self.hour_begin, self.hour_end + 1):
+            rlist = self.get_reservations(employee_id, hour)
+            for reservation in rlist:
+                ksum += reservation.kasa
+        return ksum

@@ -114,7 +114,7 @@ class ScheduleTablesWidget(QWidget):
         self.tables = {}
         for employee in self.employees:
             if employee.id == self.employer.id:
-                name_view = employee.name
+                name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_kasa_sum(employee.id))
                 qcols_count = 4
                 qcols_labels = ["Час", "Клиент", "Процедура", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents]
@@ -155,9 +155,16 @@ class ScheduleTablesWidget(QWidget):
                     else:
                         return False
 
+                    for emp in self.employees:
+                        if emp.id != self.employer.id:
+                            continue
+                        emp_name_view = "{} ({:.2f}лв)".format(
+                            emp.name, self.schedule_handler.get_kasa_sum(emp.id))
+                        self.tables[emp.id].update_name(emp_name_view)
                     return True
             else:
-                name_view = "{} ({:.2f}лв)".format(employee.name, self.schedule_handler.get_percent_sum(employee.id))
+                name_view = "{} (%: {:.2f}лв) ({:.2f}лв)".format(
+                    employee.name, self.schedule_handler.get_percent_sum(employee.id), self.schedule_handler.get_kasa_sum(employee.id))
                 qcols_count = 5
                 qcols_labels = ["Час", "Клиент", "Процедура", "%", "Каса"]
                 qcols_resize_modes = [QHeaderView.ResizeToContents, QHeaderView.Stretch, QHeaderView.Stretch, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
@@ -211,7 +218,8 @@ class ScheduleTablesWidget(QWidget):
                     for emp in self.employees:
                         if emp.id == self.employer.id:
                             continue
-                        emp_name_view = "{} ({:.2f}лв)".format(emp.name, self.schedule_handler.get_percent_sum(emp.id))
+                        emp_name_view = "{} (%: {:.2f}лв) ({:.2f}лв)".format(
+                            emp.name, self.schedule_handler.get_percent_sum(emp.id), self.schedule_handler.get_kasa_sum(emp.id))
                         self.tables[emp.id].update_name(emp_name_view)
                     return True
 
