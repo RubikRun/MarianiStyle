@@ -53,10 +53,7 @@ class ClientRegisterForm(QWidget):
         if len(name) < 2:
             Logger.log_error("Invalid name of user. Should be at least 2 characters long")
             return
-        if len(phone) < 2 or len(phone) > 20:
-            Logger.log_error("Invalid phone number of user. Should be between 2 and 20 characters long")
-            return
 
-        client = Client(-1, name, phone, [])
+        client = Client(-1, name, phone, [], [])
         self.database.add_client(client)
         self.on_register_update_callback()

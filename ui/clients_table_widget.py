@@ -49,8 +49,6 @@ class ClientsTableWidget(QWidget):
                     return False
                 client.name = str_val
             elif column == 1:
-                if len(str_val) < 2 or len(str_val) > 20:
-                    return False
                 client.phone = str_val
             else:
                 return False

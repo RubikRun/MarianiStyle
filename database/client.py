@@ -26,6 +26,8 @@ class Client:
         return decl
 
     def get_view(self):
+        if len(self.phone) < 1:
+            return self.name
         return "{} ({})".format(self.name, self.phone)
 
     def get_packet_instances_views(self, database):
