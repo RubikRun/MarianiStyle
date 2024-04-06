@@ -2,11 +2,11 @@ from logger import Logger
 from handlers.schedule_handler import ScheduleHandler
 from handlers.packets_sold_handler import PacketsSoldHandler
 from handlers.vouchers_sold_handler import VouchersSoldHandler
+from handlers.colors_global import ColorsGlobal
 from ui.table_base import TableBase, join_table_base
 
-from PySide2.QtCore import Qt, QTime, QDateTime
-from PySide2.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
-from PySide2.QtGui import QFont
+from PySide2.QtCore import Qt, QTime
+from PySide2.QtWidgets import QWidget, QHBoxLayout, QHeaderView, QLabel
 
 class ScheduleTablesWidget(QWidget):
     def __init__(self, date, database, update_reservation_form_callback):
@@ -282,8 +282,8 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes,
                 packet_instances_map,
                 viewer_callback,
-                lambda obj, column, vrow : None,
-                lambda obj, column, vrow : None,
+                lambda obj, column, vrow : ColorsGlobal.colors[-4],
+                lambda obj, column, vrow : ColorsGlobal.colors[-3],
                 lambda id, vrow : None,
                 lambda id, col, s, vrow : False
             )
@@ -339,8 +339,8 @@ class ScheduleTablesWidget(QWidget):
                 qcols_resize_modes,
                 vouchers_map,
                 viewer_callback,
-                lambda obj, column, vrow : None,
-                lambda obj, column, vrow : None,
+                lambda obj, column, vrow : ColorsGlobal.colors[-2],
+                lambda obj, column, vrow : ColorsGlobal.colors[-1],
                 lambda id, vrow : None,
                 lambda id, col, s, vrow : False
             )

@@ -28,7 +28,7 @@ class ColorButtonsWidget(QWidget):
         self.bg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.bg_label)
 
-        self.bg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-2]]
+        self.bg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-4]]
         self.bg_style_sheets = {}
         self.bg_buttons = {}
         for color in self.bg_colors:
@@ -44,7 +44,7 @@ class ColorButtonsWidget(QWidget):
         self.fg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.fg_label)
 
-        self.fg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-2]]
+        self.fg_colors = [(color.red(), color.green(), color.blue(), color.alpha()) for color in ColorsGlobal.colors[:-4]]
         self.fg_style_sheets = {}
         self.fg_buttons = {}
         for color in self.fg_colors:
